@@ -46,7 +46,7 @@ function RecentMeals() {
   return (
     <MealsOutput
       meals={recentMeals}
-      fallbackText="No meals registered for the last 7 days.."
+      fallbackText="No meals registered for the last 7 days..."
     />
   );
 }
