@@ -8,9 +8,11 @@ import { Ionicons } from '@expo/vector-icons';
 import ManageMeal from './screens/ManageMeal';
 import RecentMeals from './screens/RecentMeals';
 import AllMeals from './screens/AllMeals';
+import GroceryList from './screens/GroceryList';
 import { GlobalStyles } from './constants/styles';
 import IconButton from './components/UI/IconButton';
 import MealsContextProvider from './store/meals-context';
+import ListsContextProvider from './store/lists-context';
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -33,6 +35,7 @@ function MealsOverview() {
               navigation.navigate('ManageMeal');
             }}
             forLongPress={()=>{Alert.alert("Function of Button","Button adds meal")}}
+            iconText="Add meal"
           />
           <IconButton
             icon="bag-add-outline"
@@ -42,6 +45,7 @@ function MealsOverview() {
               navigation.navigate('ManageMeal');
             }}
             forLongPress={()=>{Alert.alert("Function of Button","Button adds to grocery list")}}
+            iconText="Grocery"
           />
           </>
           
@@ -52,10 +56,10 @@ function MealsOverview() {
         name="RecentMeals"
         component={RecentMeals}
         options={{
-          title: 'Recent Meals',
-          tabBarLabel: 'Recent',
+          title: 'Current Week',
+          tabBarLabel: 'Current Week',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="hourglass" size={size} color={color} />
+            <Ionicons name="fast-food-outline" size={size} color={color} />
           ),
         }}
       />
@@ -66,7 +70,18 @@ function MealsOverview() {
           title: 'All Meals',
           tabBarLabel: 'All Meals',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar" size={size} color={color} />
+            <Ionicons name="fast-food" size={size} color={color} />
+          ),
+        }}
+      />
+      <BottomTabs.Screen
+        name="GroceryList"
+        component={GroceryList}
+        options={{
+          title: 'Grocery List',
+          tabBarLabel: 'Grocery List',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="list-sharp" size={size} color={color} />
           ),
         }}
       />
@@ -79,6 +94,7 @@ export default function App() {
     <>
       <StatusBar style="light" />
       <MealsContextProvider>
+        <ListsContextProvider>
         <NavigationContainer>
           <Stack.Navigator
             screenOptions={{
@@ -100,6 +116,7 @@ export default function App() {
             />
           </Stack.Navigator>
         </NavigationContainer>
+        </ListsContextProvider>
       </MealsContextProvider>
     </>
   );

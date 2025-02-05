@@ -12,7 +12,7 @@ export async function storeMeal(mealData) {
 export async function fetchMeals() {
   const response = await axios.get(BACKEND_URL + '/expenses2.json');
 
-  const meals1 = [];
+  const mealsUnsorted = [];
 
   for (const key in response.data) {
     const mealObj = {
@@ -20,11 +20,11 @@ export async function fetchMeals() {
       date: new Date(response.data[key].date),
       description: response.data[key].description
     };
-    meals1.push(mealObj);
+    mealsUnsorted.push(mealObj);
   }
 
   //This sorts the meals by the date field.
-  const meals = [...meals1,].sort((a, b) => a.date - b.date);
+  const meals = [...mealsUnsorted,].sort((a, b) => a.date - b.date);
 
   return meals;
 }
