@@ -1,4 +1,8 @@
+import {useContext} from 'react';
+
 import axios from 'axios';
+//import { MealsContext } from '../store/meals-context';
+
 
 const BACKEND_URL =
   'https://justinhlottcapstone-default-rtdb.firebaseio.com';
@@ -11,6 +15,7 @@ export async function storeMeal(mealData) {
 
 export async function fetchMeals() {
   const response = await axios.get(BACKEND_URL + '/expenses2.json');
+  //const mealsCtx = useContext(MealsContext);
 
   const mealsUnsorted = [];
 
@@ -28,6 +33,15 @@ export async function fetchMeals() {
   const meals = [...mealsUnsorted,].sort((a, b) => a.date - b.date);
   console.log("this is the sorted meals list")
   console.log(meals);
+
+    const mostRecentMeal = meals.reduce((latest, meal) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
+    //mealsCtx.deleteMeal(mostRecentMeal.id);
+
+  
+  // await storeValue("myDate",mostRecentMeal.date)
+  // const theDate = await getValue("myDate")
+  // console.log(theDate);
+
   return meals;
 }
 

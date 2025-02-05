@@ -11,6 +11,7 @@ import { storeMeal, updateMeal, deleteMeal } from '../util/http';
 
 function ManageMeal({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [latestDate, setLatestDate] = useState();
   const [error, setError] = useState();
 
   const mealsCtx = useContext(MealsContext);
@@ -52,6 +53,8 @@ function ManageMeal({ route, navigation }) {
         await updateMeal(editedMealId, mealData);
       } else {
         const id = await storeMeal(mealData);
+        mealsCtx.dates.push(mealData.date);
+        //console.log(mealsCtx.dates);
         mealsCtx.addMeal({ ...mealData, id: id });
       }
       navigation.goBack();
@@ -59,6 +62,13 @@ function ManageMeal({ route, navigation }) {
       setError('Could not save data - please try again later!');
       setIsSubmitting(false);
     }
+  }
+
+  function getLatestDate(){
+    const mostRecentMealDate = mealsCtx.dates.reduce((latest, meal) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
+    // setLatestDate(mostRecentMealDate);
+    // return latestDate;
+    return mostRecentMealDate;
   }
 
   if (error && !isSubmitting) {
@@ -76,6 +86,7 @@ function ManageMeal({ route, navigation }) {
         onSubmit={confirmHandler}
         onCancel={cancelHandler}
         defaultValues={selectedMeal}
+        defaultDate={getLatestDate()}
       />
       {isEditing && (
         <View style={styles.deleteContainer}>

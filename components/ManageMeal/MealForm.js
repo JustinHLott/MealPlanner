@@ -6,7 +6,7 @@ import Button from '../UI/Button';
 import { getFormattedDate } from '../../util/date';
 import { GlobalStyles } from '../../constants/styles';
 
-function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
+function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaultDate }) {
   const [inputs, setInputs] = useState({
     date: {
       value: defaultValues ? getFormattedDate(defaultValues.date) : '',
@@ -57,6 +57,7 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
     !inputs.date.isValid ||
     !inputs.description.isValid;
 
+    //console.log(defaultDate);
   return (
     <View style={styles.form}>
       <Text style={styles.title}>Your Meal</Text>
@@ -67,7 +68,7 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
           invalid={!inputs.date.isValid}
           textInputConfig={{
             keyboardType: 'decimal-pad',
-            placeholder: 'YYYY-MM-DD',
+            placeholder: defaultDate.toISOString().slice(0, 10),
             maxLength: 10,
             onChangeText: inputChangedHandler.bind(this, 'date'),
             value: inputs.date.value,
