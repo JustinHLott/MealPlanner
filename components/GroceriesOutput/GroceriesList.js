@@ -1,19 +1,19 @@
 import { FlatList } from 'react-native';
 
-import MealItem from './GroceryItem';
+import GroceryItem from './GroceryItem';
 
-function renderMealItem(itemData) {
-  return <MealItem {...itemData.item} />;
+function renderGroceryItem(itemData) {
+  return <GroceryItem {...itemData.item} />;
 }
 
-function MealsList({ meals }) {
+function GroceriesList({ groceries }) {
   return (
     <FlatList
-      data={meals}
-      renderItem={renderMealItem}
+      data={groceries}
+      renderItem={renderGroceryItem}
       keyExtractor={(item) => item.id}
     />
   );
 }
 
-export default MealsList;
+export default GroceriesList;

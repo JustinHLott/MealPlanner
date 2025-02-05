@@ -6,16 +6,16 @@ import ErrorOverlay from '../components/UI/ErrorOverlay';
 import IconButton from '../components/UI/IconButton';
 import LoadingOverlay from '../components/UI/LoadingOverlay';
 import { GlobalStyles } from '../constants/styles';
-import { MealsContext } from '../store/meals-context';
+import { ListsContext } from '../store/lists-context';
 import { storeMeal, updateMeal, deleteMeal } from '../util/http';
 
-function ManageMeal({ route, navigation }) {
+function ManageGroceryItem({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState();
 
   const mealsCtx = useContext(MealsContext);
 
-  const editedMealId = route.params?.mealId;
+  const editedMealId = route.params?.groceryId;
   const isEditing = !!editedMealId;
 
   const selectedMeal = mealsCtx.meals.find(

@@ -4,21 +4,21 @@ import { useNavigation } from '@react-navigation/native';
 import { GlobalStyles } from '../../constants/styles';
 import { getFormattedDate } from '../../util/date';
 
-function MealItem({ id, description, date }) {
+function GroceryItem({ id, description, date }) {
   const navigation = useNavigation();
 
-  function mealPressHandler() {
-    navigation.navigate('ManageMeal', {
-      mealId: id
+  function groceryPressHandler() {
+    navigation.navigate('ManageGroceryItem', {
+      groceryId: id
     });
   }
 
   return (
     <Pressable
-      onPress={mealPressHandler}
+      onPress={groceryPressHandler}
       style={({ pressed }) => pressed && styles.pressed}
     >
-      <View style={styles.mealItem}>
+      <View style={styles.groceryItem}>
         <View>
           <Text style={styles.textBase}>{getFormattedDate(date)}</Text>
           <Text style={[styles.textBase, styles.description]}>
@@ -33,13 +33,13 @@ function MealItem({ id, description, date }) {
   );
 }
 
-export default MealItem;
+export default GroceryItem;
 
 const styles = StyleSheet.create({
   pressed: {
     opacity: 0.75,
   },
-  mealItem: {
+  groceryItem: {
     padding: 12,
     marginVertical: 8,
     backgroundColor: GlobalStyles.colors.primary500,
