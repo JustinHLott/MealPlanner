@@ -1,7 +1,7 @@
-import { Pressable, StyleSheet, View, Text } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-function IconButton({ icon, size, color, onPress, forLongPress, iconText }) {
+function IconButtonNoText({ icon, size, color, onPress, forLongPress }) {
   return (
     <Pressable
       onPress={onPress}
@@ -15,14 +15,15 @@ function IconButton({ icon, size, color, onPress, forLongPress, iconText }) {
   );
 }
 
-export default IconButton;
+export default IconButtonNoText;
 
 const styles = StyleSheet.create({
   buttonContainer: {
-    borderRadius: 24,
-    padding: 6,
+    borderRadius: 3
+    ,
+    //padding: 6,
     marginHorizontal: 8,
-    marginVertical: 2,
+    //marginVertical: 2,
     alignItems: "center"
   },
   pressed: {

@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import { GlobalStyles } from '../../constants/styles';
-import IconButton from '../UI/IconButton';
+import IconButtonNoText from '../UI/IconButtonNoText';
 import ErrorOverlay from '../UI/ErrorOverlay'
 import LoadingOverlay from '../UI/LoadingOverlay'
 import { ListsContext } from '../../store/lists-context';
@@ -57,13 +57,12 @@ function GroceryItem({ id, description }) {
         </View>
         {isEditing && (
         <View style={styles.deleteContainer}>
-          <IconButton
+          <IconButtonNoText
             icon="trash"
             color={GlobalStyles.colors.error500}
             size={20}
             onPress={deleteGroceryHandler}
             forLongPress={()=>{Alert.alert("Function of Button","Trash button deletes grocery item")}}
-            iconText="Grocery"
           />
         </View>
       )}
@@ -79,8 +78,8 @@ const styles = StyleSheet.create({
     opacity: 0.75,
   },
   groceryItem: {
-    padding: 12,
-    marginVertical: 8,
+    padding: 6,
+    marginVertical: 4,
     backgroundColor: GlobalStyles.colors.primary500,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -101,7 +100,8 @@ const styles = StyleSheet.create({
   },
   amountContainer: {
     paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingVertical: 0
+    ,
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
