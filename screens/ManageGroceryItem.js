@@ -1,41 +1,41 @@
 import { useContext, useLayoutEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import MealForm from '../components/ManageMeal/MealForm';
+import GroceryForm from '../components/ManageMeal/GroceryForm';
 import ErrorOverlay from '../components/UI/ErrorOverlay';
 import IconButton from '../components/UI/IconButton';
 import LoadingOverlay from '../components/UI/LoadingOverlay';
 import { GlobalStyles } from '../constants/styles';
 import { ListsContext } from '../store/lists-context';
-import { storeMeal, updateMeal, deleteMeal } from '../util/http';
+import { storeList, updateList, deleteList } from '../util/http-list';
 
 function ManageGroceryItem({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState();
 
-  const mealsCtx = useContext(MealsContext);
+  const groceriesCtx = useContext(ListsContext);
 
-  const editedMealId = route.params?.groceryId;
-  const isEditing = !!editedMealId;
+  const editedGroceryId = route.params?.groceryId;
+  const isEditing = !!editedGroceryId;
 
-  const selectedMeal = mealsCtx.meals.find(
-    (meal) => meal.id === editedMealId
+  const selectedList = groceriesCtx.lists.find(
+    (list) => list.id === editedGroceryId
   );
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: isEditing ? 'Edit Meal' : 'Add Meal',
+      title: isEditing ? 'Edit Grocery List' : 'Add Grocery List',
     });
   }, [navigation, isEditing]);
 
-  async function deleteMealHandler() {
+  async function deleteGroceryHandler() {
     setIsSubmitting(true);
     try {
-      await deleteMeal(editedMealId);
-      mealsCtx.deleteMeal(editedMealId);
+      await deleteList(editedGroceryId);
+      groceriesCtx.deleteList(editedGroceryId);
       navigation.goBack();
     } catch (error) {
-      setError('Could not delete meal - please try again later!');
+      setError('Could not delete grocery list item - please try again later!');
       setIsSubmitting(false);
     }
   }
@@ -44,15 +44,15 @@ function ManageGroceryItem({ route, navigation }) {
     navigation.goBack();
   }
 
-  async function confirmHandler(mealData) {
+  async function confirmHandler(groceryData) {
     setIsSubmitting(true);
     try {
       if (isEditing) {
-        mealsCtx.updateMeal(editedMealId, mealData);
-        await updateMeal(editedMealId, mealData);
+        groceriesCtx.updateList(editedGroceryId, groceryData);
+        await updateList(editedGroceryId, groceryData);
       } else {
-        const id = await storeMeal(mealData);
-        mealsCtx.addMeal({ ...mealData, id: id });
+        const id = await storeList(groceryData);
+        groceriesCtx.addList({ ...groceryData, id: id });
       }
       navigation.goBack();
     } catch (error) {
@@ -71,11 +71,11 @@ function ManageGroceryItem({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <MealForm
+      <GroceryForm
         submitButtonLabel={isEditing ? 'Update' : 'Add'}
         onSubmit={confirmHandler}
         onCancel={cancelHandler}
-        defaultValues={selectedMeal}
+        defaultValues={selectedList}
       />
       {isEditing && (
         <View style={styles.deleteContainer}>
@@ -83,7 +83,7 @@ function ManageGroceryItem({ route, navigation }) {
             icon="trash"
             color={GlobalStyles.colors.error500}
             size={36}
-            onPress={deleteMealHandler}
+            onPress={deleteGroceryHandler}
           />
         </View>
       )}
@@ -91,7 +91,7 @@ function ManageGroceryItem({ route, navigation }) {
   );
 }
 
-export default ManageMeal;
+export default ManageGroceryItem;
 
 const styles = StyleSheet.create({
   container: {
