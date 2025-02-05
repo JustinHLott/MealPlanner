@@ -21,11 +21,13 @@ export async function fetchMeals() {
       description: response.data[key].description
     };
     mealsUnsorted.push(mealObj);
+    console.log(mealsUnsorted);
   }
 
   //This sorts the meals by the date field.
   const meals = [...mealsUnsorted,].sort((a, b) => a.date - b.date);
-
+  console.log("this is the sorted meals list")
+  console.log(meals);
   return meals;
 }
 

@@ -2,10 +2,10 @@ import { createContext, useReducer } from 'react';
 
 export const ListsContext = createContext({
   lists: [],
-  addList: ({ description, date }) => {},
+  addList: ({ description }) => {},
   setLists: (lists) => {},
   deleteList: (id) => {},
-  updateList: (id, { description, date }) => {},
+  updateList: (id, { description }) => {},
 });
 
 function listsReducer(state, action) {
@@ -38,8 +38,10 @@ function ListsContextProvider({ children }) {
     dispatch({ type: 'ADD', payload: listData });
   }
 
-  function setLists(lists) {
-    dispatch({ type: 'SET', payload: lists });
+  function setLists(lists2) {
+    console.log("Got to lists-context setLists: ");
+    console.log(lists2);
+    dispatch({ type: 'SET', payload: lists2 });
   }
 
   function deleteList(id) {

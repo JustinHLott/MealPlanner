@@ -1,16 +1,47 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useState, useContext } from 'react';
+import { Pressable, StyleSheet, Text, View, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import { GlobalStyles } from '../../constants/styles';
-import { getFormattedDate } from '../../util/date';
+import IconButton from '../UI/IconButton';
+import ErrorOverlay from '../UI/ErrorOverlay'
+import LoadingOverlay from '../UI/LoadingOverlay'
+import { ListsContext } from '../../store/lists-context';
+import { deleteList } from '../../util/http-list';
+//import { getFormattedDate } from '../../util/date';
 
-function GroceryItem({ id, description, date }) {
+function GroceryItem({ id, description }) {
   const navigation = useNavigation();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState();
+  const isEditing = !!id;
+
+  const groceriesCtx = useContext(ListsContext);
 
   function groceryPressHandler() {
     navigation.navigate('ManageGroceryItem', {
       groceryId: id
     });
+  }
+
+  async function deleteGroceryHandler() {
+    setIsSubmitting(true);
+    try {
+      await deleteList(id);
+      groceriesCtx.deleteList(id);
+    } catch (error) {
+      console.log(error)
+      setError('Could not delete grocery list item - please try again later!');
+      setIsSubmitting(false);
+    }
+  }
+
+  if (error && !isSubmitting) {
+    return <ErrorOverlay message={error} />;
+  }
+
+  if (isSubmitting) {
+    return <LoadingOverlay />;
   }
 
   return (
@@ -20,14 +51,22 @@ function GroceryItem({ id, description, date }) {
     >
       <View style={styles.groceryItem}>
         <View>
-          <Text style={styles.textBase}>{getFormattedDate(date)}</Text>
           <Text style={[styles.textBase, styles.description]}>
             {description}
           </Text>
         </View>
-        {/* <View style={styles.amountContainer}>
-          <Text style={styles.amount}>{amount.toFixed(2)}</Text>
-        </View> */}
+        {isEditing && (
+        <View style={styles.deleteContainer}>
+          <IconButton
+            icon="trash"
+            color={GlobalStyles.colors.error500}
+            size={20}
+            onPress={deleteGroceryHandler}
+            forLongPress={()=>{Alert.alert("Function of Button","Trash button deletes grocery item")}}
+            iconText="Grocery"
+          />
+        </View>
+      )}
       </View>
     </Pressable>
   );
@@ -57,7 +96,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 16,
-    marginBottom: 4,
+    //marginBottom: 4,
     fontWeight: 'bold',
   },
   amountContainer: {
@@ -72,5 +111,14 @@ const styles = StyleSheet.create({
   amount: {
     color: GlobalStyles.colors.primary500,
     fontWeight: 'bold',
+  },
+  deleteContainer: {
+    marginBottom: 0,
+    paddingBottom: 0,
+    //marginTop: 16,
+    //paddingTop: 8,
+    //borderTopWidth: 2,
+    //borderTopColor: GlobalStyles.colors.primary200,
+    //alignItems: 'center',
   },
 });

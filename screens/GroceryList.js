@@ -18,9 +18,13 @@ function GroceryList() {
     async function getList() {
       setIsFetching(true);
       try {
+        console.log("Makes it to useEffect");
         const items = await fetchLists();
+        console.log("Grocery items list in GroceryList: ")
+        console.log(items)
         listsCtx.setLists(items);
       } catch (error) {
+        console.log(error);
         setError('Could not fetch lists!');
       }
       setIsFetching(false);
@@ -37,16 +41,19 @@ function GroceryList() {
     return <LoadingOverlay />;
   }
 
-  const recentLists = listsCtx.lists.filter((groceryItem) => {
-    const today = getDateMinusDays(new Date(),1);
-    const datePlus7 = getDateMinusDays(today, -7);
+  const recentLists = listsCtx.lists
+  // const recentLists = listsCtx.lists.filter((groceryItem) => {
+  //   console.log("Get's to GroceryList filter by date: "+groceryItem)
+  //   const today = getDateMinusDays(new Date(),1);
+  //   const datePlus7 = getDateMinusDays(today, -7);
 
-    return groceryItem.date >= today && groceryItem.date <= datePlus7;
-  });
+  //   return groceryItem.date >= today && groceryItem.date <= datePlus7;
+  // });
 
   return (
     <GroceriesOutput
-      lists={recentLists}
+      groceries={recentLists}
+      //groceries={listsCtx.lists}
       fallbackText="No grocery items registered..."
     />
   );
