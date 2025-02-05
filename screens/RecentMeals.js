@@ -8,6 +8,7 @@ import { getDateMinusDays } from '../util/date';
 import { fetchMeals } from '../util/http';
 
 function RecentMeals() {
+  console.log("Makes it to RecentMeals");
   const [isFetching, setIsFetching] = useState(true);
   const [error, setError] = useState();
 

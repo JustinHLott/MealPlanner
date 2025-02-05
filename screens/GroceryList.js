@@ -5,9 +5,10 @@ import ErrorOverlay from '../components/UI/ErrorOverlay';
 import LoadingOverlay from '../components/UI/LoadingOverlay';
 import { ListsContext } from '../store/lists-context';
 import { getDateMinusDays } from '../util/date';
-import { fetchLists } from '../util/http';
+import { fetchLists } from '../util/http-list';
 
 function GroceryList() {
+  console.log("makes it to grocerylist")
   const [isFetching, setIsFetching] = useState(true);
   const [error, setError] = useState();
 
@@ -46,7 +47,7 @@ function GroceryList() {
   return (
     <GroceriesOutput
       lists={recentLists}
-      fallbackText="No grocery itemss registered for the last 7 days..."
+      fallbackText="No grocery items registered..."
     />
   );
 }

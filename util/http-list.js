@@ -4,6 +4,7 @@ const BACKEND_URL =
   'https://justinhlottcapstone-default-rtdb.firebaseio.com';
 
 export async function storeList(listData) {
+  console.log(listData)
   const response = await axios.post(BACKEND_URL + '/grocery.json', listData);
   const id = response.data.name;
   return id;

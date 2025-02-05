@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
 import ManageMeal from './screens/ManageMeal';
+import ManageGroceryItem from './screens/ManageGroceryItem';
 import RecentMeals from './screens/RecentMeals';
 import AllMeals from './screens/AllMeals';
 import GroceryList from './screens/GroceryList';
@@ -42,7 +43,7 @@ function MealsOverview() {
             size={24}
             color={tintColor}
             onPress={() => {
-              navigation.navigate('ManageMeal');
+              navigation.navigate('ManageGroceryItem');
             }}
             forLongPress={()=>{Alert.alert("Function of Button","Button adds to grocery list")}}
             iconText="Grocery"
@@ -110,6 +111,13 @@ export default function App() {
             <Stack.Screen
               name="ManageMeal"
               component={ManageMeal}
+              options={{
+                presentation: 'modal',
+              }}
+            />
+            <Stack.Screen
+              name="ManageGroceryItem"
+              component={ManageGroceryItem}
               options={{
                 presentation: 'modal',
               }}
