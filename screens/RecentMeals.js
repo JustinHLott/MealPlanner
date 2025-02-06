@@ -1,16 +1,21 @@
 import { useContext, useEffect, useState } from 'react';
+import {StyleSheet, View, Alert} from 'react-native'
 
 import MealsOutput from '../components/MealsOutput/MealsOutput';
 import ErrorOverlay from '../components/UI/ErrorOverlay';
 import LoadingOverlay from '../components/UI/LoadingOverlay';
+import { GlobalStyles } from '../constants/styles';
 import { MealsContext } from '../store/meals-context';
 import { getDateMinusDays } from '../util/date';
 import { fetchMeals } from '../util/http';
+import IconButtonNoText from '../components/UI/IconButtonNoText';
+import Button from '../components/UI/Button';
 
 function RecentMeals() {
   console.log("Makes it to RecentMeals");
   const [isFetching, setIsFetching] = useState(true);
   const [error, setError] = useState();
+  const [firstDate, setFirstDate] = useState(new Date());
 
   const mealsCtx = useContext(MealsContext);
 
@@ -38,20 +43,80 @@ function RecentMeals() {
     return <LoadingOverlay />;
   }
 
+  if(!firstDate){
+    setFirstDate(new Date());
+  }
+  
+  function previous(){
+    const today = getDateMinusDays(firstDate,7);
+    setFirstDate(today);
+  }
+  function currentWeek(){
+    const today = getDateMinusDays(new Date(),1);
+    setFirstDate(today);
+  }
+  function next(){
+    const today = getDateMinusDays(firstDate,-7);
+    setFirstDate(today);
+  }
+
+
   const mealsSorted = [...mealsCtx.meals,].sort((a, b) => a.date - b.date);
   const recentMeals = mealsSorted.filter((meal) => {
-    const today = getDateMinusDays(new Date(),1);
-    const datePlus7 = getDateMinusDays(today, -7);
-
-    return meal.date >= today && meal.date <= datePlus7;
+    let firstDay = new Date(firstDate)
+    let datePlus7 = getDateMinusDays(firstDay, -7);
+    let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
+    if(theMeals.Length>0){
+      setFirstDate(getDateMinusDays(firstDay, 1));
+      firstDay = new Date(firstDate)
+      datePlus7 = getDateMinusDays(firstDay, -7);
+      theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
+    }else{
+      
+    }
+  
+    return theMeals;
   });
 
   return (
-    <MealsOutput
-      meals={recentMeals}
-      fallbackText="No meals registered for the last 7 days..."
-    />
+    <View style={styles.container}>
+      <View style={styles.buttonContainer}>
+        <IconButtonNoText
+            icon="arrow-back-circle-outline"
+            color="white"
+            size={50}
+            onPress={previous}
+            forLongPress={()=>{Alert.alert("Function of Button","View previous week's meals")}}
+          />
+          <Button onPress={currentWeek}>Current Week</Button>
+          <IconButtonNoText
+            icon="arrow-forward-circle-outline"
+            color="white"
+            size={50}
+            onPress={next}
+            forLongPress={()=>{Alert.alert("Function of Button","View previous week's meals")}}
+          />
+      </View>
+      <MealsOutput
+        meals={recentMeals}
+        fallbackText="No meals registered for the last 7 days..."
+      />
+    </View>
+    
   );
 }
 
 export default RecentMeals;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: GlobalStyles.colors.primary700,
+  },
+  buttonContainer:{
+    flexDirection: 'row',
+    alignItems: 'center',//vertical alignment
+    justifyContent: 'center',
+  }
+
+});
