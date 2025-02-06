@@ -29,7 +29,7 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
 
   function submitHandler() {
     const mealData = {
-      date: new Date(inputs.date.value),
+      date: defaultDate,//new Date(inputs.date.value),
       description: inputs.description.value,
     };
 
@@ -66,12 +66,14 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
           style={styles.rowInput}
           label="Date"
           invalid={!inputs.date.isValid}
+          editable={false}//this is supposed to make it disabled
+          selectTextOnFocus={false}//this is supposed to make it so you can't select the text
           textInputConfig={{
             keyboardType: 'decimal-pad',
             placeholder: defaultDate.toISOString().slice(0, 10),
             maxLength: 10,
             onChangeText: inputChangedHandler.bind(this, 'date'),
-            value: inputs.date.value,
+            value: defaultDate.toISOString().slice(0, 10),//inputs.date.value,
           }}
         />
       </View>

@@ -13,18 +13,25 @@ function MealItem({ id, description, date }) {
     });
   }
 
+  //This function creates the day of week name.
+  const getDayOfWeek = (dateString) => {
+    const date = new Date(dateString);
+    const options = { weekday: "short" }; // 'long' for full name (e.g., Monday)
+    return new Intl.DateTimeFormat("en-US", options).format(date);
+  };
+
   return (
     <Pressable
       onPress={mealPressHandler}
       style={({ pressed }) => pressed && styles.pressed}
     >
       <View style={styles.mealItem}>
-        <View>
-          <Text style={styles.textBase}>{getFormattedDate(date)}</Text>
-          <Text style={[styles.textBase, styles.description]}>
-            {description}
-          </Text>
-        </View>
+        <View style={styles.dateStyle}>
+          <Text style={[styles.textBase,styles.dateText]}>{getDayOfWeek(date)}</Text>
+          <Text style={styles.textBase}>({getFormattedDate(date)})</Text>
+        </View>  
+        <Text style={[styles.textBase, styles.description]}>{description}</Text>
+        
         {/* <View style={styles.amountContainer}>
           <Text style={styles.amount}>{amount.toFixed(2)}</Text>
         </View> */}
@@ -36,6 +43,13 @@ function MealItem({ id, description, date }) {
 export default MealItem;
 
 const styles = StyleSheet.create({
+  dateStyle:{
+    flexDirection: 'row',
+    
+  },
+  dateText:{
+    marginRight: 15,
+  },
   pressed: {
     opacity: 0.75,
   },
@@ -43,7 +57,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginVertical: 8,
     backgroundColor: GlobalStyles.colors.primary500,
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-between',
     borderRadius: 6,
     elevation: 3,

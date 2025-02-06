@@ -65,10 +65,11 @@ function ManageMeal({ route, navigation }) {
   }
 
   function getLatestDate(){
-    const mostRecentMealDate = mealsCtx.dates.reduce((latest, meal) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
-    // setLatestDate(mostRecentMealDate);
-    // return latestDate;
-    return mostRecentMealDate;
+    const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
+    //Add one day to the most recent date
+    const date = new Date(mostRecentMealDate.date);
+    date.setDate(date.getDate() + 1);
+    return date;
   }
 
   if (error && !isSubmitting) {
