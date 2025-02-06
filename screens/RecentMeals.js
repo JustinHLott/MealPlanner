@@ -15,7 +15,7 @@ function RecentMeals() {
   console.log("Makes it to RecentMeals");
   const [isFetching, setIsFetching] = useState(true);
   const [error, setError] = useState();
-  const [firstDate, setFirstDate] = useState(new Date());
+  const [firstDate, setFirstDate] = useState(getDateMinusDays(new Date(),1));
 
   const mealsCtx = useContext(MealsContext);
 
@@ -48,16 +48,38 @@ function RecentMeals() {
   }
   
   function previous(){
-    const today = getDateMinusDays(firstDate,7);
-    setFirstDate(today);
+    const mealsSorted = [...mealsCtx.meals,].sort((a, b) => a.date - b.date);
+    const thisGroupOfMeals = mealsSorted.filter((meal) => {
+      let firstDay = getDateMinusDays(firstDate, 7);
+      let datePlus7 = getDateMinusDays(firstDay, -7);
+      let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
+   
+      return theMeals;
+    });
+    console.log(thisGroupOfMeals.length)
+    if(thisGroupOfMeals.length>0){
+      const today = getDateMinusDays(firstDate,7);
+      setFirstDate(today);
+    }
   }
   function currentWeek(){
     const today = getDateMinusDays(new Date(),1);
     setFirstDate(today);
   }
   function next(){
-    const today = getDateMinusDays(firstDate,-7);
-    setFirstDate(today);
+    const mealsSorted = [...mealsCtx.meals,].sort((a, b) => a.date - b.date);
+    const thisGroupOfMeals = mealsSorted.filter((meal) => {
+      let firstDay = getDateMinusDays(firstDate, -7);
+      let datePlus7 = getDateMinusDays(firstDay, -7);
+      let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
+   
+      return theMeals;
+    });
+    console.log(thisGroupOfMeals)
+    if(thisGroupOfMeals.length>0){
+      const today = getDateMinusDays(firstDate,-7);
+      setFirstDate(today);
+    }
   }
 
 
@@ -66,14 +88,6 @@ function RecentMeals() {
     let firstDay = new Date(firstDate)
     let datePlus7 = getDateMinusDays(firstDay, -7);
     let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
-    if(theMeals.Length>0){
-      setFirstDate(getDateMinusDays(firstDay, 1));
-      firstDay = new Date(firstDate)
-      datePlus7 = getDateMinusDays(firstDay, -7);
-      theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
-    }else{
-      
-    }
   
     return theMeals;
   });
