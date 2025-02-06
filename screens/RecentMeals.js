@@ -38,7 +38,8 @@ function RecentMeals() {
     return <LoadingOverlay />;
   }
 
-  const recentMeals = mealsCtx.meals.filter((meal) => {
+  const mealsSorted = [...mealsCtx.meals,].sort((a, b) => a.date - b.date);
+  const recentMeals = mealsSorted.filter((meal) => {
     const today = getDateMinusDays(new Date(),1);
     const datePlus7 = getDateMinusDays(today, -7);
 

@@ -9,7 +9,7 @@ import { GlobalStyles } from '../../constants/styles';
 function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaultDate }) {
   const [inputs, setInputs] = useState({
     date: {
-      value: defaultValues ? getFormattedDate(defaultValues.date) : '',
+      value: defaultValues ? getFormattedDate(defaultValues.date) : defaultDate.toISOString().slice(0, 10),
       isValid: true,
     },
     description: {
@@ -29,7 +29,7 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
 
   function submitHandler() {
     const mealData = {
-      date: defaultDate,//new Date(inputs.date.value),
+      date: new Date(inputs.date.value),//defaultDate,//
       description: inputs.description.value,
     };
 
@@ -53,6 +53,8 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
     onSubmit(mealData);
   }
 
+  
+
   const formIsInvalid =
     !inputs.date.isValid ||
     !inputs.description.isValid;
@@ -70,10 +72,10 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
           selectTextOnFocus={false}//this is supposed to make it so you can't select the text
           textInputConfig={{
             keyboardType: 'decimal-pad',
-            placeholder: defaultDate.toISOString().slice(0, 10),
+            placeholder: 'yyyy-mm-dd',//defaultDate.toISOString().slice(0, 10),
             maxLength: 10,
             onChangeText: inputChangedHandler.bind(this, 'date'),
-            value: defaultDate.toISOString().slice(0, 10),//inputs.date.value,
+            value: inputs.date.value,//dateToUse,//defaultDate.toISOString().slice(0, 10),//
           }}
         />
       </View>
