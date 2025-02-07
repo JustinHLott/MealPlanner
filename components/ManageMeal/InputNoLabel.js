@@ -16,7 +16,7 @@ function Input({ label, invalid, style, textInputConfig }) {
 
   return (
     <View style={[styles.inputContainer, style]}>
-      <TextInput style={inputStyles} {...textInputConfig} />
+      <TextInput style={styles.inputAll} />
     </View>
   );
 }
@@ -28,21 +28,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
     marginVertical: 8
   },
-  input: {
+  inputAll: {
     backgroundColor: GlobalStyles.colors.primary100,
     color: GlobalStyles.colors.primary700,
     padding: 6,
     borderRadius: 6,
     fontSize: 18,
   },
-  inputMultiline: {
-    minHeight: 100,
-    textAlignVertical: 'top'
-  },
-  invalidLabel: {
-    color: GlobalStyles.colors.error500
-  },
-  invalidInput: {
-    backgroundColor: GlobalStyles.colors.error50
-  }
+
 });

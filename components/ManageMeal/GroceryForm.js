@@ -3,15 +3,15 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import Input from './Input';
 import Button from '../UI/Button';
-import { getFormattedDate } from '../../util/date';
+//import { getFormattedDate } from '../../util/date';
 import { GlobalStyles } from '../../constants/styles';
 
 function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
   const [inputs, setInputs] = useState({
-    // date: {
-    //   value: defaultValues ? getFormattedDate(defaultValues.date) : '',
-    //   isValid: true,
-    // },
+    qty: {
+      value: defaultValues ? defaultValues.qty : 0,
+      isValid: true,
+    },
     description: {
       value: defaultValues ? defaultValues.description : '',
       isValid: true,
@@ -29,18 +29,18 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
 
   function submitHandler() {
     const groceryData = {
-      //date: new Date(inputs.date.value),
+      qty: inputs.qty.value,
       description: inputs.description.value,
     };
 
-    //const dateIsValid = groceryData.date.toString() !== 'Invalid Date';
+    const qtyIsValid = groceryData.qty.toString() !== '';
     const descriptionIsValid = groceryData.description.trim().length > 0;
 
     if ( !descriptionIsValid) {
       // Alert.alert('Invalid input', 'Please check your input values');
       setInputs((curInputs) => {
         return {
-          //date: { value: curInputs.date.value, isValid: dateIsValid },
+          qty: { value: curInputs.qty.value, isValid: qtyIsValid },
           description: {
             value: curInputs.description.value,
             isValid: descriptionIsValid,
@@ -54,25 +54,25 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
   }
 
   const formIsInvalid =
-    //!inputs.date.isValid ||
+    !inputs.qty.isValid ||
     !inputs.description.isValid;
 
   return (
     <View style={styles.form}>
       <Text style={styles.title}>Your Grocery Item</Text>
       <View style={styles.inputsRow}>
-        {/* <Input
+        <Input
           style={styles.rowInput}
-          label="Date"
-          invalid={!inputs.date.isValid}
+          label="Qty"
+          invalid={!inputs.qty.isValid}
           textInputConfig={{
             keyboardType: 'decimal-pad',
-            placeholder: 'YYYY-MM-DD',
-            maxLength: 10,
-            onChangeText: inputChangedHandler.bind(this, 'date'),
-            value: inputs.date.value,
+            placeholder: '0',
+            maxLength: 2,
+            onChangeText: inputChangedHandler.bind(this, 'qty'),
+            value: inputs.qty.value,
           }}
-        /> */}
+        />
       </View>
       <Input
         label="Description"

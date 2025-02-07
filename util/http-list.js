@@ -19,7 +19,7 @@ export async function fetchLists() {
   for (const key in response.data) {
     const listObj = {
       id: key,
-      //date: new Date(response.data[key].date),
+      qty: response.data[key].qty,
       description: response.data[key].description
     };
     listsUnsorted.push(listObj);
