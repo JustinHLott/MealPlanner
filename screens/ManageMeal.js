@@ -1,5 +1,5 @@
 import { useContext, useLayoutEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import MealForm from '../components/ManageMeal/MealForm';
 import ErrorOverlay from '../components/UI/ErrorOverlay';
@@ -8,6 +8,7 @@ import LoadingOverlay from '../components/UI/LoadingOverlay';
 import { GlobalStyles } from '../constants/styles';
 import { MealsContext } from '../store/meals-context';
 import { storeMeal, updateMeal, deleteMeal } from '../util/http';
+import MealGroceries from '../components/MealsOutput/MealGroceries';
 
 function ManageMeal({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -99,6 +100,10 @@ function ManageMeal({ route, navigation }) {
           />
         </View>
       )}
+      <ScrollView>
+        <MealGroceries/>
+      </ScrollView>
+      
     </View>
   );
 }
