@@ -24,7 +24,12 @@ export async function fetchMeals() {
     const mealObj = {
       id: key,
       date: new Date(response.data[key].date),
-      description: response.data[key].description
+      description: response.data[key].description,
+      // groceryItems: [
+      //   {name: response.data[key].groceryItems.name,
+      //     qty: response.data[key].groceryItems.qty
+      //   }
+      // ],
     };
 
     //add individual meals to array
