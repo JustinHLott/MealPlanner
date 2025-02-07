@@ -1,18 +1,21 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, StyleSheet } from "react-native";
+import { View, Text, TextInput, ScrollView, StyleSheet } from "react-native";
 import { DataTable } from "react-native-paper";
-import InputNoLabel from "../ManageMeal/InputNoLabel";
+import { GlobalStyles } from '../../constants/styles';
+import Button from '../UI/Button';
 
-const MealGroceries = () => {
+const MealGroceries = ({addRows}) => {
   const [data, setData] = useState([]);
   const [name, setName] = useState("");
-  const [age, setAge] = useState("");
+  const [qty, setQty] = useState();
 
-  const addRow = () => {
-    if (name && age) {
-      setData([...data, { id: Date.now().toString(), name, age }]);
+const  addRow = () => {
+    if (name) {
+
+      setData([...data, { id: Date.now().toString(), name, qty:(!qty? 1:qty)}]);
       setName("");
-      setAge("");
+      setQty("");
+      
     }
   };
 
@@ -39,9 +42,6 @@ const MealGroceries = () => {
                 value: {age},
             }}
         />
-            <View style={[styles.inputContainerAll]}>
-              <TextInput style={styles.inputAll} />
-            </View>
       </View>
       
       <Button title="Add Row" onPress={addRow} />
@@ -66,23 +66,20 @@ const MealGroceries = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 10 },
-  input: {
-width: '70%'
+  top:{flex: 3},
+  dataTable:{flex:2.5},
+  bottomButton:{flex:.5},
+  inputGrocery: {
+    width: '73%',
+    //marginRight: 8,
+  },
+  inputQty: {
+    width: '25%',
+    marginRight: 8,
   },
   inputContainer:{
     flexDirection: 'row'
-  },
-    inputContainerAll: {
-      marginHorizontal: 4,
-      marginVertical: 8
-    },
-    inputAll: {
-      backgroundColor: GlobalStyles.colors.primary100,
-      color: GlobalStyles.colors.primary700,
-      padding: 6,
-      borderRadius: 6,
-      fontSize: 18,
-    },
+  }
 });
 
 export default MealGroceries;

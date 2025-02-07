@@ -111,13 +111,14 @@ export default MealForm;
 
 const styles = StyleSheet.create({
   form: {
-    marginTop: 40,
+    marginTop: 0,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
-    marginVertical: 24,
+    marginVertical: 8
+    ,
     textAlign: 'center',
   },
   inputsRow: {

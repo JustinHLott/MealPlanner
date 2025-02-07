@@ -7,8 +7,10 @@ import IconButton from '../components/UI/IconButton';
 import LoadingOverlay from '../components/UI/LoadingOverlay';
 import { GlobalStyles } from '../constants/styles';
 import { MealsContext } from '../store/meals-context';
+import { ListsContext } from '../store/lists-context';
 import { storeMeal, updateMeal, deleteMeal } from '../util/http';
 import MealGroceries from '../components/MealsOutput/MealGroceries';
+
 
 function ManageMeal({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -16,6 +18,7 @@ function ManageMeal({ route, navigation }) {
   const [error, setError] = useState();
 
   const mealsCtx = useContext(MealsContext);
+  const listsCtx = useContext(ListsContext);
 
   const editedMealId = route.params?.mealId;
   const isEditing = !!editedMealId;
@@ -73,6 +76,18 @@ function ManageMeal({ route, navigation }) {
     return date;
   }
 
+  const  addRows = (rows) => {
+    if (rows) {
+
+      //Use Context here to add the grocery item to the big list.
+        //use the item of the ???not sure which item to use yet.
+      // setData([...data, { id: Date.now().toString(), name, qty:(!qty? 1:qty)}]);
+      // setName("");
+      // setQty("");
+      
+    }
+  };
+
   if (error && !isSubmitting) {
     return <ErrorOverlay message={error} />;
   }
@@ -101,7 +116,7 @@ function ManageMeal({ route, navigation }) {
         </View>
       )}
       <ScrollView>
-        <MealGroceries/>
+        <MealGroceries addRows={addRows}/>
       </ScrollView>
       
     </View>

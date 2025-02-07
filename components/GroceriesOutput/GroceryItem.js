@@ -10,7 +10,7 @@ import { ListsContext } from '../../store/lists-context';
 import { deleteList } from '../../util/http-list';
 //import { getFormattedDate } from '../../util/date';
 
-function GroceryItem({ id, description }) {
+function GroceryItem({ id, description, qty }) {
   const navigation = useNavigation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState();

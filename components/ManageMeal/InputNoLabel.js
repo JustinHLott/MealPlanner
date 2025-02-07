@@ -8,7 +8,7 @@ function Input({ label, invalid, style, textInputConfig }) {
 
 
   return (
-    <View style={[styles.inputContainerAll]}>
+    <View style={[styles.inputContainer, style]}>
       <TextInput style={styles.inputAll} />
     </View>
   );
@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
     marginVertical: 8
   },
-  input: {
+  inputAll: {
     backgroundColor: GlobalStyles.colors.primary100,
     color: GlobalStyles.colors.primary700,
     padding: 6,
