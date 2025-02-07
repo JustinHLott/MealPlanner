@@ -39,6 +39,9 @@ const MealGroceries = () => {
                 value: {age},
             }}
         />
+            <View style={[styles.inputContainerAll]}>
+              <TextInput style={styles.inputAll} />
+            </View>
       </View>
       
       <Button title="Add Row" onPress={addRow} />
@@ -68,7 +71,18 @@ width: '70%'
   },
   inputContainer:{
     flexDirection: 'row'
-  }
+  },
+    inputContainerAll: {
+      marginHorizontal: 4,
+      marginVertical: 8
+    },
+    inputAll: {
+      backgroundColor: GlobalStyles.colors.primary100,
+      color: GlobalStyles.colors.primary700,
+      padding: 6,
+      borderRadius: 6,
+      fontSize: 18,
+    },
 });
 
 export default MealGroceries;
