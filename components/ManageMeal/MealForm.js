@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TextInput } from 'react-native';
 
 import Input from './Input';
 import Button from '../UI/Button';
@@ -7,6 +7,8 @@ import { getFormattedDate } from '../../util/date';
 import { GlobalStyles } from '../../constants/styles';
 
 function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaultDate }) {
+  const [groceryList, setGroceryList] = useState(defaultValues); // List of grocery items
+  const [groceryItems, setGroceryItems] = useState([]); // List of grocery items
   const [inputs, setInputs] = useState({
     date: {
       value: defaultValues ? getFormattedDate(defaultValues.date) : defaultDate.toISOString().slice(0, 10),
@@ -16,10 +18,14 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
       value: defaultValues ? defaultValues.description : '',
       isValid: true,
     },
+    groceryItems: {
+      value: defaultValues ? defaultValues.groceryItems: []
+    }
   });
 
   function inputChangedHandler(inputIdentifier, enteredValue) {
     setInputs((curInputs) => {
+      console.log(enteredValue)
       return {
         ...curInputs,
         [inputIdentifier]: { value: enteredValue, isValid: true },
@@ -31,6 +37,7 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
     const mealData = {
       date: new Date(inputs.date.value),//defaultDate,//
       description: inputs.description.value,
+      groceryItems: inputs.groceryItems.value,
     };
 
     const dateIsValid = mealData.date.toString() !== 'Invalid Date';
@@ -45,6 +52,7 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
             value: curInputs.description.value,
             isValid: descriptionIsValid,
           },
+          groceryItems: { value: curInputs.groceryItems },
         };
       });
       return;
@@ -53,15 +61,40 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
     onSubmit(mealData);
   }
 
-  
+  // Function to update a specific grocery item
+  const updateGroceryItem = (index, key, value) => {
+    const updatedItems = [...groceryItems];
+    updatedItems[index][key] = value;
+    console.log(updatedItems);
+    setGroceryItems(updatedItems);
+  };
 
   const formIsInvalid =
     !inputs.date.isValid ||
     !inputs.description.isValid;
 
-    //console.log(defaultDate);
+  if(inputs.length>0){
+    console.log(inputs.length);
+  }
   return (
     <View style={styles.form}>
+      {console.log(inputs)}
+      <FlatList
+      data={inputs}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <View style={{ padding: 10, borderBottomWidth: 1 }}>
+          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{item.date} - {item.description}</Text>
+          <FlatList
+            data={item.groceryItems}
+            keyExtractor={(grocery) => grocery.id}
+            renderItem={({ item: grocery }) => (
+              <Text style={{ marginLeft: 10 }}>• {grocery.name}: {grocery.quantity}</Text>
+            )}
+          />
+        </View>
+      )}
+    />
       <Text style={styles.title}>Your Meal</Text>
       <View style={styles.inputsRow}>
         <Input
@@ -90,6 +123,28 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
           value: inputs.description.value,
         }}
       />
+      {/* <FlatList
+        data={inputs.groceryItems.value}
+        keyExtractor={(grocery) => grocery.id}
+        renderItem={({ item, grocery }) => (
+          <View style={styles.groceryRow}>
+            <TextInput
+              style={styles.groceryInput}
+              placeholder="Item Name"
+              value={grocery.name}
+              onChangeText={(text) => updateGroceryItem(index, "name", text)}
+            />
+            {console.log(item.quantity)}
+            <TextInput
+              style={styles.groceryInput}
+              placeholder="Quantity"
+              value={grocery.quantity}
+              keyboardType="numeric"
+              onChangeText={(text) => updateGroceryItem(index, "quantity", text)}
+            />
+          </View>
+        )}
+      /> */}
       {formIsInvalid && (
         <Text style={styles.errorText}>
           Invalid input values - please check your entered data!
@@ -127,6 +182,19 @@ const styles = StyleSheet.create({
   },
   rowInput: {
     flex: 1,
+  },
+  groceryRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  groceryInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "gray",
+    padding: 10,
+    marginRight: 5,
+    borderRadius: 5,
   },
   errorText: {
     textAlign: 'center',

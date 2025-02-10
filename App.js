@@ -16,6 +16,7 @@ import { GlobalStyles } from './constants/styles';
 import IconButton from './components/UI/IconButton';
 import MealsContextProvider from './store/meals-context';
 import ListsContextProvider from './store/lists-context';
+import AllMeals3 from './screens/AllMeals3';
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -107,6 +108,17 @@ function MealsOverview() {
           tabBarLabel: 'Add Meal3',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="fast-food-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <BottomTabs.Screen
+        name="AllMeals3"
+        component={AllMeals3}
+        options={{
+          title: 'All Meals3',
+          tabBarLabel: 'All Meals3',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="fast-food" size={size} color={color} />
           ),
         }}
       />

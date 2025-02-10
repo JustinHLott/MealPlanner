@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { GlobalStyles } from '../../constants/styles';
 import { getFormattedDate } from '../../util/date';
 
-function MealItem({ id, description, date }) {
+function MealItem({ id, description, date, groceries }) {
   const navigation = useNavigation();
 
   function mealPressHandler() {

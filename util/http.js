@@ -24,7 +24,7 @@ export async function storeMeal3(mealData) {
   return id;
 }
 
-export async function fetchMeals3() {
+export async function fetchMeals() {
   const response = await axios.get(BACKEND_URL + '/meals3.json');
 
   //create an array to use in the app
@@ -33,15 +33,19 @@ export async function fetchMeals3() {
   const groceriesUnsorted = [];
 
   function addGroceries(groceryItems){
-    for (const groceryItem in groceryItems) {
-        const groceryObj = {
-          name: groceryItem.name,
-          qty: groceryItem.qty
-        }
-        //add individual grocery items to array
-        groceriesUnsorted.push(groceryObj);
-      }
-      return groceriesUnsorted;
+    // console.log("Makes it to addGroceries in http.js")
+    // console.log(groceryItems);
+    // for (const groceryItem in groceryItems) {
+    //   console.log(groceryItem)
+    //     // const groceryObj = {
+    //     //   name: groceryItem.name,
+    //     //   qty: groceryItem.quantity
+    //     // }
+    //     //add individual grocery items to array
+    //     groceriesUnsorted.push({name: groceryItem.name,quantity: groceryItem.quantity});
+    //   }
+    //   console.log(groceriesUnsorted);
+      return groceryItems;
   }
 
   //loop through the response to add data to array
@@ -50,9 +54,9 @@ export async function fetchMeals3() {
       id: key,
       date: new Date(response.data[key].date),
       description: response.data[key].description,
-      groceries: addGroceries(response.data[key].groceryItems)
+      groceryItems: addGroceries(response.data[key].groceryItems)
     };
-
+    console.log(mealObj);
     //add individual meals to array
     mealsUnsorted.push(mealObj);
   }
@@ -68,8 +72,8 @@ export async function fetchMeals3() {
   return meals;
 }
 
-export async function fetchMeals() {
-  const response = await axios.get(BACKEND_URL + '/expenses2.json');
+export async function fetchMeals3() {
+  const response = await axios.get(BACKEND_URL + '/meals3.json');
 
   //create an array to use in the app
   const mealsUnsorted = [];

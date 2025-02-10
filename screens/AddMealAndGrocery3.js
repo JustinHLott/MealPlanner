@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { View, TextInput, Button, FlatList, Text, StyleSheet, Alert } from "react-native";
 //import { database, ref, push } from "./firebaseConfig"; // Import Firebase
 import { storeMeal3, updateMeal, deleteMeal } from '../util/http';
+import { useNavigation } from '@react-navigation/native';
 
 const AddMealAndGrocery3 = () => {
   // State for meal name and date
-  const [meal, setMeal] = useState("");
+  const [description, setMeal] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]); // Default to today's date
   const [groceryItems, setGroceryItems] = useState([]); // List of grocery items
+  const Navigation = useNavigation();
 
   // Function to add a new grocery item input
   const addGroceryItem = () => {
@@ -23,13 +25,13 @@ const AddMealAndGrocery3 = () => {
 
   // Function to send data to Firebase
   const saveMealToFirebase = async() => {
-    if (!meal.trim()) {
+    if (!description.trim()) {
       alert("Please enter a meal name.");
       return;
     }
 
     const mealData = {
-      meal,
+      description,
       date,
       groceryItems: groceryItems.filter(item => item.name.trim() && item.quantity.trim()), // Remove empty entries
     };
@@ -50,7 +52,7 @@ const AddMealAndGrocery3 = () => {
       <TextInput
         style={styles.input}
         placeholder="Enter meal name"
-        value={meal}
+        value={description}
         onChangeText={setMeal}
       />
 
@@ -79,6 +81,7 @@ const AddMealAndGrocery3 = () => {
 
       <Button title="Add Grocery Item" onPress={addGroceryItem} />
       <Button title="Save Meal" onPress={saveMealToFirebase} color="green" />
+      <Button title="View Meals" onPress={()=> Navigation.navigate('AllMeals3')} color="brown" />
     </View>
   );
 };

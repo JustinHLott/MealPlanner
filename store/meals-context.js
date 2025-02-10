@@ -3,10 +3,10 @@ import { createContext, useReducer } from 'react';
 export const MealsContext = createContext({
   meals: [],
   dates: [], // Added dates array
-  addMeal: ({ description, date }) => {},
+  addMeal: ({ description, date, groceryItems }) => {},
   setMeals: (meals) => {},
   deleteMeal: (id) => {},
-  updateMeal: (id, { description, date }) => {},
+  updateMeal: (id, { description, date, groceryItems }) => {},
   setDates: (dates) => {}, // Function to set multiple dates
   addDate: (date) => {}, // Function to add a single date
 });

@@ -98,6 +98,8 @@ function ManageMeal({ route, navigation }) {
 
   return (
     <View style={styles.container}>
+      {console.log("managemeal")}
+      {console.log(selectedMeal)}
       <MealForm
         submitButtonLabel={isEditing ? 'Update' : 'Add'}
         onSubmit={confirmHandler}
