@@ -9,6 +9,8 @@ import ManageMeal from './screens/ManageMeal';
 import ManageGroceryItem from './screens/ManageGroceryItem';
 import RecentMeals from './screens/RecentMeals';
 import AllMeals from './screens/AllMeals';
+import AddMealAndGrocery from './screens/AddMealAndGrocery';
+import AddMealAndGrocery3 from './screens/AddMealAndGrocery3';
 import GroceryList from './screens/GroceryList';
 import { GlobalStyles } from './constants/styles';
 import IconButton from './components/UI/IconButton';
@@ -83,6 +85,28 @@ function MealsOverview() {
           tabBarLabel: 'Grocery List',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="list-sharp" size={size} color={color} />
+          ),
+        }}
+      />
+      <BottomTabs.Screen
+        name="AddMealAndGrocery"
+        component={AddMealAndGrocery}
+        options={{
+          title: 'Add Meal',
+          tabBarLabel: 'Add Meal',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="fast-food-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <BottomTabs.Screen
+        name="AddMealAndGrocery3"
+        component={AddMealAndGrocery3}
+        options={{
+          title: 'Add Meal3',
+          tabBarLabel: 'Add Meal3',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="fast-food-outline" size={size} color={color} />
           ),
         }}
       />
