@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, FlatList, TextInput } from 'react-native';
 
 import Input from './Input';
@@ -21,7 +21,7 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
     groceryItems: {
       value: defaultValues ? defaultValues.groceryItems: []
     }
-  });
+});
 
   function inputChangedHandler(inputIdentifier, enteredValue) {
     setInputs((curInputs) => {
@@ -32,6 +32,56 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
       };
     });
   }
+
+  // Function to add a new grocery item input
+  const addGroceryItem = () => {
+    setGroceryItems([...groceryItems, { name: "", quantity: "" }]);
+  };
+
+  function addGroceryList(inputs){
+    console.log("MealForm return--AddGroceryList")
+
+      console.log("default values is an array")
+      //setGroceryItems([]);
+      Object.entries(defaultValues.groceryItems).map(([mealkey,meal])=>{
+        //addGroceryItem()
+        groceryItems.push({index: mealkey, name: meal.name, quantity: meal.quantity})
+        console.log(meal.name + " " + meal.quantity);
+      }
+    )
+
+
+    //if (inputs || Array.isArray(inputs) || inputs.length > 0){
+      return(
+      <FlatList
+        data={groceryItems}
+        keyExtractor={(_, index) => index.toString()}
+        renderItem={({ item, index }) => (
+          <View style={styles.inputContainer}>
+            <TextInput style={[styles.inputQty,styles.inputAll]}
+              keyboardType='numeric'
+              placeholder="Enter Qty"
+              maxLength={3}
+              onChangeText={(text) => updateGroceryItem(index, "quantity", text)}
+              value={item.quantity}
+            />
+            <TextInput style={[styles.inputGrocery,styles.inputAll]}
+              keyboardType='default'
+              placeholder="Enter Grocery Item"
+              maxLength={50}
+              onChangeText={(text) => updateGroceryItem(index, "name", text)}
+              value={item.name}
+            />
+          </View>
+        )}
+      />
+      )
+  }
+
+
+  // useEffect(()=>{
+  //   addGroceryList();
+  // },[inputs])
 
   function submitHandler() {
     const mealData = {
@@ -74,27 +124,14 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
     !inputs.description.isValid;
 
   if(inputs.length>0){
+    console.log("mealForm if--")
     console.log(inputs.length);
   }
   return (
     <View style={styles.form}>
-      {console.log(inputs)}
-      <FlatList
-      data={inputs}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <View style={{ padding: 10, borderBottomWidth: 1 }}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{item.date} - {item.description}</Text>
-          <FlatList
-            data={item.groceryItems}
-            keyExtractor={(grocery) => grocery.id}
-            renderItem={({ item: grocery }) => (
-              <Text style={{ marginLeft: 10 }}>• {grocery.name}: {grocery.quantity}</Text>
-            )}
-          />
-        </View>
-      )}
-    />
+      {console.log("MealForm return--")}
+      {console.log(inputs.groceryItems)}
+      
       <Text style={styles.title}>Your Meal</Text>
       <View style={styles.inputsRow}>
         <Input
@@ -123,28 +160,8 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
           value: inputs.description.value,
         }}
       />
-      {/* <FlatList
-        data={inputs.groceryItems.value}
-        keyExtractor={(grocery) => grocery.id}
-        renderItem={({ item, grocery }) => (
-          <View style={styles.groceryRow}>
-            <TextInput
-              style={styles.groceryInput}
-              placeholder="Item Name"
-              value={grocery.name}
-              onChangeText={(text) => updateGroceryItem(index, "name", text)}
-            />
-            {console.log(item.quantity)}
-            <TextInput
-              style={styles.groceryInput}
-              placeholder="Quantity"
-              value={grocery.quantity}
-              keyboardType="numeric"
-              onChangeText={(text) => updateGroceryItem(index, "quantity", text)}
-            />
-          </View>
-        )}
-      /> */}
+      <Text style={styles.groceryTitle}>Associated Grocery Items</Text>
+      {addGroceryList(inputs)}
       {formIsInvalid && (
         <Text style={styles.errorText}>
           Invalid input values - please check your entered data!
@@ -172,8 +189,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
-    marginVertical: 8
-    ,
+    marginVertical: 8,
+    textAlign: 'center',
+  },
+  groceryTitle: {
+    fontSize: 20,
+    //fontWeight: 'bold',
+    color: 'white',
+    marginTop: 8,
+    marginBottom: 0,
     textAlign: 'center',
   },
   inputsRow: {
@@ -186,13 +210,13 @@ const styles = StyleSheet.create({
   groceryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 0,
   },
   groceryInput: {
     flex: 1,
     borderWidth: 1,
     borderColor: "gray",
-    padding: 10,
+    padding: 2,
     marginRight: 5,
     borderRadius: 5,
   },
@@ -209,5 +233,25 @@ const styles = StyleSheet.create({
   button: {
     minWidth: 120,
     marginHorizontal: 8,
+  },
+  inputGrocery: {
+    width: '73%',
+    //marginRight: 8,
+  },
+  inputQty: {
+    width: '25%',
+    marginRight: 8,
+  },
+  inputContainer:{
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  inputAll: {
+    backgroundColor: GlobalStyles.colors.primary100,
+    color: GlobalStyles.colors.primary700,
+    padding: 6,
+    borderRadius: 6,
+    fontSize: 18,
+    marginTop: 4,
   },
 });

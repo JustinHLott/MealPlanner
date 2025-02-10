@@ -1,5 +1,6 @@
 import { useContext, useLayoutEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { ScrollView } from 'react-native-virtualized-view'
 
 import MealForm from '../components/ManageMeal/MealForm';
 import ErrorOverlay from '../components/UI/ErrorOverlay';
@@ -100,24 +101,25 @@ function ManageMeal({ route, navigation }) {
     <View style={styles.container}>
       {console.log("managemeal")}
       {console.log(selectedMeal)}
-      <MealForm
-        submitButtonLabel={isEditing ? 'Update' : 'Add'}
-        onSubmit={confirmHandler}
-        onCancel={cancelHandler}
-        defaultValues={selectedMeal}
-        defaultDate={getLatestDate()}
-      />
-      {isEditing && (
-        <View style={styles.deleteContainer}>
-          <IconButton
-            icon="trash"
-            color={GlobalStyles.colors.error500}
-            size={36}
-            onPress={deleteMealHandler}
-          />
-        </View>
-      )}
       <ScrollView>
+        <MealForm
+          submitButtonLabel={isEditing ? 'Update' : 'Add'}
+          onSubmit={confirmHandler}
+          onCancel={cancelHandler}
+          defaultValues={selectedMeal}
+          defaultDate={getLatestDate()}
+        />
+        {isEditing && (
+          <View style={styles.deleteContainer}>
+            <IconButton
+              icon="trash"
+              color={GlobalStyles.colors.error500}
+              size={36}
+              onPress={deleteMealHandler}
+            />
+          </View>
+        )}
+      
         <MealGroceries addRows={addRows}/>
       </ScrollView>
       
