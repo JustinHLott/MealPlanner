@@ -41,14 +41,14 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
   function addGroceryList(inputs){
     console.log("MealForm return--AddGroceryList")
 
-      console.log("default values is an array")
+    if(defaultValues){
       //setGroceryItems([]);
       Object.entries(defaultValues.groceryItems).map(([mealkey,meal])=>{
-        //addGroceryItem()
-        groceryItems.push({index: mealkey, name: meal.name, quantity: meal.quantity})
-        console.log(meal.name + " " + meal.quantity);
-      }
-    )
+          //addGroceryItem()
+          groceryItems.push({index: mealkey, name: meal.name, quantity: meal.quantity})
+          console.log(meal.name + " " + meal.quantity);
+        }
+      )
 
 
     //if (inputs || Array.isArray(inputs) || inputs.length > 0){
@@ -76,12 +76,16 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
         )}
       />
       )
+    }
   }
 
-
-  // useEffect(()=>{
-  //   addGroceryList();
-  // },[inputs])
+  // Function to update a specific grocery item
+  const updateGroceryItem = (index, key, value) => {
+    const updatedItems = [...groceryItems];
+    updatedItems[index][key] = value;
+    console.log(updatedItems);
+    setGroceryItems(updatedItems);
+  };
 
   function submitHandler() {
     const mealData = {
@@ -111,13 +115,7 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
     onSubmit(mealData);
   }
 
-  // Function to update a specific grocery item
-  const updateGroceryItem = (index, key, value) => {
-    const updatedItems = [...groceryItems];
-    updatedItems[index][key] = value;
-    console.log(updatedItems);
-    setGroceryItems(updatedItems);
-  };
+
 
   const formIsInvalid =
     !inputs.date.isValid ||
@@ -130,7 +128,7 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
   return (
     <View style={styles.form}>
       {console.log("MealForm return--")}
-      {console.log(inputs.groceryItems)}
+      {/*console.log(inputs.groceryItems)*/}
       
       <Text style={styles.title}>Your Meal</Text>
       <View style={styles.inputsRow}>
