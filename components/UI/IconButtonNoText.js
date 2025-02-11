@@ -6,7 +6,7 @@ function IconButtonNoText({ icon, size, color, onPress, forLongPress }) {
     <Pressable
       onPress={onPress}
       onLongPress={forLongPress}
-      style={({ pressed }) => pressed && styles.pressed}
+      style={[styles.button,({ pressed }) => pressed && styles.pressed]}
     >
       <View style={styles.buttonContainer}>
         <Ionicons name={icon} size={size} color={color} />
@@ -19,14 +19,14 @@ export default IconButtonNoText;
 
 const styles = StyleSheet.create({
   buttonContainer: {
-    borderRadius: 3
-    ,
-    //padding: 6,
+    borderRadius: 3,
     marginHorizontal: 8,
-    //marginVertical: 2,
-    alignItems: "center"
   },
   pressed: {
     opacity: 0.75,
   },
+  button:{
+    alignItems: "center",
+    justifyContent: "center",
+  }
 });

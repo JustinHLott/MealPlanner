@@ -41,7 +41,7 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
   function addGroceryList(inputs){
     console.log("MealForm return--AddGroceryList")
 
-    if(defaultValues){
+    if(defaultValues && groceryItems === ""){
       //setGroceryItems([]);
       Object.entries(defaultValues.groceryItems).map(([mealkey,meal])=>{
           //addGroceryItem()
@@ -88,10 +88,15 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
   };
 
   function submitHandler() {
+    // const mealData = {
+    //   date: new Date(inputs.date.value),//defaultDate,//
+    //   description: inputs.description.value,
+    //   groceryItems: inputs.groceryItems.value,
+    // };
     const mealData = {
       date: new Date(inputs.date.value),//defaultDate,//
       description: inputs.description.value,
-      groceryItems: inputs.groceryItems.value,
+      groceryItems: groceryItems.filter(item => item.name.trim() && item.quantity.trim()), // Remove empty entries
     };
 
     const dateIsValid = mealData.date.toString() !== 'Invalid Date';
@@ -112,7 +117,12 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
       return;
     }
 
-    onSubmit(mealData);
+    onSubmit(mealData)
+    .then(() => {
+      alert("Meal saved!");
+      setMeal(""); // Reset meal name
+      setGroceryItems([]); // Clear grocery items
+    });
   }
 
 
@@ -121,11 +131,7 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
     !inputs.date.isValid ||
     !inputs.description.isValid;
 
-  if(inputs.length>0){
-    console.log("mealForm if--")
-    console.log(inputs.length);
-  }
-  return (
+   return (
     <View style={styles.form}>
       {console.log("MealForm return--")}
       {/*console.log(inputs.groceryItems)*/}

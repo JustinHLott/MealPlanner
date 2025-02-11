@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-virtualized-view'
 
 import MealForm from '../components/ManageMeal/MealForm';
+import MealForm2 from '../components/ManageMeal/MealForm2';
 import ErrorOverlay from '../components/UI/ErrorOverlay';
 import IconButton from '../components/UI/IconButton';
 import LoadingOverlay from '../components/UI/LoadingOverlay';
@@ -51,12 +52,16 @@ function ManageMeal({ route, navigation }) {
   }
 
   async function confirmHandler(mealData) {
+    console.log("Makes it to confirmHandler in ManageMeals")
+    console.log(mealData);
     setIsSubmitting(true);
     try {
       if (isEditing) {
+        console.log("Makes it to editing.  MealID:"+editedMealId)
         mealsCtx.updateMeal(editedMealId, mealData);
         await updateMeal(editedMealId, mealData);
       } else {
+        console.log("Makes it to adding")
         const id = await storeMeal(mealData);
         mealsCtx.dates.push(mealData.date);
         //console.log(mealsCtx.dates);
@@ -102,12 +107,17 @@ function ManageMeal({ route, navigation }) {
       {console.log("managemeal")}
       {console.log(selectedMeal)}
       <ScrollView>
-        <MealForm
+        {/* <MealForm
           submitButtonLabel={isEditing ? 'Update' : 'Add'}
           onSubmit={confirmHandler}
           onCancel={cancelHandler}
           defaultValues={selectedMeal}
           defaultDate={getLatestDate()}
+        /> */}
+        <MealForm2
+          initialMeal={selectedMeal}
+          defaultDate={getLatestDate()}
+          onSubmit={confirmHandler}
         />
         {isEditing && (
           <View style={styles.deleteContainer}>
@@ -120,7 +130,7 @@ function ManageMeal({ route, navigation }) {
           </View>
         )}
       
-        <MealGroceries addRows={addRows}/>
+        {/* <MealGroceries addRows={addRows}/> */}
       </ScrollView>
       
     </View>

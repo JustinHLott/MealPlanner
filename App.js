@@ -89,7 +89,7 @@ function MealsOverview() {
           ),
         }}
       />
-      <BottomTabs.Screen
+      {/* <BottomTabs.Screen
         name="AddMealAndGrocery"
         component={AddMealAndGrocery}
         options={{
@@ -99,8 +99,8 @@ function MealsOverview() {
             <Ionicons name="fast-food-outline" size={size} color={color} />
           ),
         }}
-      />
-      <BottomTabs.Screen
+      /> */}
+      {/* <BottomTabs.Screen
         name="AddMealAndGrocery3"
         component={AddMealAndGrocery3}
         options={{
@@ -121,7 +121,7 @@ function MealsOverview() {
             <Ionicons name="fast-food" size={size} color={color} />
           ),
         }}
-      />
+      /> */}
     </BottomTabs.Navigator>
   );
 }
