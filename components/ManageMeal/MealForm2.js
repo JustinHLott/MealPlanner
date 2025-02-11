@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, TextInput, FlatList, Text } from "react-native";
+import { View, TextInput, FlatList, Text, Pressable } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 
 import { GlobalStyles } from '../../constants/styles';
 import Input from './Input';
@@ -13,12 +14,13 @@ const defaultMeal = {
 };
 
 const noDate="";
-const defaultGroceryItem = { name: "", quantity: "" };
+const defaultGroceryItem = { name: "", quantity: "", checkedOff: "" };
 
 export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   // Merge `initialMeal` with `defaultMeal` to avoid undefined values
   const [meal, setMeal] = useState({ ...defaultMeal, ...initialMeal });
   const [theDate, setTheDate] = useState({ ...noDate, ...defaultDate });
+  const [checked, setChecked] = useState(false);
 
   // Function to update the meal's date or description
   const handleInputChange = (key, value) => {
@@ -37,6 +39,33 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
       groceryItems: updatedGroceryItems,
     }));
   };
+
+    // Function to update grocery item checkbox
+    const handleGroceryCheckbox = (index) => {
+      const updatedGroceryItems = [...meal.groceryItems];
+      const item = updatedGroceryItems[index]["checkedOff"];
+      let tf = false;
+
+      if(item){
+        if (item.value === "checked"){
+          updatedGroceryItems[index]["checkedOff"] = "unChecked"
+          //setChecked(true);
+          tf = true;
+        }else{
+          updatedGroceryItems[index]["checkedOff"] = "checked"
+          //setChecked(false);
+          tf = false;
+        }
+      }
+
+      setMeal((prevMeal) => ({
+        ...prevMeal,
+        groceryItems: updatedGroceryItems,
+      }));
+
+      console.log(tf);
+      return tf;
+    };
 
   // Function to add a new grocery item
   const addGroceryItem = () => {
@@ -97,9 +126,14 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item, index }) => (
           <View style={styles.inputContainer}>
+            <View style={styles.checkboxContainer}>
+              <Pressable onPress={() => handleGroceryCheckbox(index)} style={styles.checkbox}>
+                <MaterialIcons name={handleGroceryCheckbox(index) ? "check-box" : "check-box-outline-blank"} size={24} color={GlobalStyles.colors.primary100} />
+              </Pressable>
+            </View>
             <TextInput style={[styles.inputQty,styles.inputAll]}
               keyboardType='numeric'
-              placeholder="Enter Qty"
+              placeholder="Qty"
               maxLength={3}
               onChangeText={(text) => handleGroceryChange(index, "quantity", text)}
               value={item.quantity}
@@ -151,7 +185,7 @@ const styles = {
     //marginRight: 8,
   },
   inputQty: {
-    width: '20%',
+    width: '15%',
     marginRight: 8,
   },
   inputContainer:{
@@ -167,5 +201,14 @@ const styles = {
     fontSize: 18,
     marginTop: 4,
   },
-  buttons:{flexDirection:'row',justifyContent: 'center'}
+  buttons:{flexDirection:'row',justifyContent: 'center'},
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 2,
+  },
+  checkbox: {
+    marginRight: 0,
+
+  },
 };
