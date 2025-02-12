@@ -80,7 +80,7 @@ function ManageMeal({ route, navigation }) {
     //const date = new Date();
     const date = new Date(mostRecentMealDate.date);
     date.setDate(date.getDate() + 1);
-    return date;
+    return mostRecentMealDate;
   }
 
   const  addRows = (rows) => {

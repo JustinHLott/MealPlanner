@@ -20,20 +20,32 @@ const defaultGroceryItem = { name: "", quantity: "", checkedOff: "" };
 export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   // Merge `initialMeal` with `defaultMeal` to avoid undefined values
   const [meal, setMeal] = useState({ ...defaultMeal, ...initialMeal });
-  const [maxDate, setMaxDate] = useState({ defaultDate });
+  const [maxDate, setMaxDate] = useState("");
 
   //const [firstDate, setFirstDate] = useState(getDateMinusDays(new Date(),1));
   const mealsCtx = useContext(MealsContext);
 
   //This only runs once when the screen starts up.
   useEffect(() => {
-    if(defaultDate){
+    const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
+    //Add one day to the most recent date
+    //const date = new Date();
+    let date = new Date(mostRecentMealDate.date);
+    date.setDate(date.getDate() + 1);
+    const date2 = date
+      .toISOString()
+      .split("T")[0];
+  
+    console.log(date2);
+    setMaxDate(date2);
+
+    //if(defaultDate){
       console.log("MaxDate")
       
-      setMaxDate(defaultDate);
+      //setMaxDate(defaultDate);
       console.log(maxDate);
       
-    }
+    //}
   }, []);
 
   // Function to update the meal's date or description
@@ -124,7 +136,7 @@ console.log(value1);
           keyboardType='decimal-pad'
           placeholder='yyyy-mm-dd'
           onChangeText={(text) => handleInputChange("date", text)}
-          value={(meal.date? validateDate(meal.date):maxDate)}
+          value={(meal.date? validateDate(meal.date):maxDate)}//.toISOString().split("T")[0]
           
           //value={maxDate}
         />
