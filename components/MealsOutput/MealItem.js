@@ -5,6 +5,7 @@ import { GlobalStyles } from '../../constants/styles';
 import { getFormattedDate } from '../../util/date';
 
 function MealItem({ id, description, date, groceries }) {
+  console.log("Made it to MealItem");
   const navigation = useNavigation();
 
   function mealPressHandler() {

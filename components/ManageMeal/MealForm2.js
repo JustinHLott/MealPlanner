@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { View, TextInput, FlatList, Text, Pressable } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -6,6 +6,7 @@ import { GlobalStyles } from '../../constants/styles';
 import Input from './Input';
 import Button from '../UI/Button';
 import IconButtonNoText from "../UI/IconButtonNoText";
+import { MealsContext } from '../../store/meals-context';
 
 const defaultMeal = {
   date: "",
@@ -21,6 +22,8 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   const [meal, setMeal] = useState({ ...defaultMeal, ...initialMeal });
   const [theDate, setTheDate] = useState({ ...noDate, ...defaultDate });
   const [checked, setChecked] = useState(false);
+  //const [firstDate, setFirstDate] = useState(getDateMinusDays(new Date(),1));
+  const mealsCtx = useContext(MealsContext);
 
   // Function to update the meal's date or description
   const handleInputChange = (key, value) => {
@@ -88,11 +91,18 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
     }));
   };
 
+  function validateDate(startDate){
+    if(startDate.Length===10){
+      return startDate.toISOString().slice(0, 10);
+    }else{
+      return startDate;
+    }
+  }
   return (
-    <View style={{ padding: 20 }}>
+    <View style={{ padding: 20, flex: 1 }}>
       {/* Date Input */}
         <Input
-          style={styles.rowInput}
+          //style={styles.rowInput}
           label="Date"
           //invalid={!inputs.date.isValid}
           editable={false}//this is supposed to make it disabled
@@ -102,7 +112,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
             placeholder: 'yyyy-mm-dd',//defaultDate.toISOString().slice(0, 10),
             maxLength: 10,
             onChangeText:((text) => handleInputChange("date", text)),
-            value:(meal.date? meal.date.toISOString().slice(0, 10): "")
+            value:(meal? validateDate(meal.date):theDate)
           }}
         />
 
@@ -128,7 +138,12 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
           <View style={styles.inputContainer}>
             <View style={styles.checkboxContainer}>
               <Pressable onPress={() => handleGroceryCheckbox(index)} style={styles.checkbox}>
-                <MaterialIcons name={handleGroceryCheckbox(index) ? "check-box" : "check-box-outline-blank"} size={24} color={GlobalStyles.colors.primary100} />
+                <MaterialIcons  
+                  size={24} 
+                  color={GlobalStyles.colors.primary100} 
+                  name={() =>handleGroceryCheckbox(index) ? "check-box" : "check-box-outline-blank"}
+                  //name={() =>handleGroceryCheckbox(index) ? "check-box" : "check-box-outline-blank"}
+                  />
               </Pressable>
             </View>
             <TextInput style={[styles.inputQty,styles.inputAll]}

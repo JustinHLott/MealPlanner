@@ -8,7 +8,7 @@ const BACKEND_URL =
   'https://justinhlottcapstone-default-rtdb.firebaseio.com';
 
 export async function storeMeal(mealData) {
-  const response = await axios.post(BACKEND_URL + '/expenses2.json', mealData);
+  const response = await axios.post(BACKEND_URL + '/meals3.json', mealData);
   const id = response.data.name;
   return id;
 }

@@ -7,11 +7,13 @@ import { MealsContext } from '../../store/meals-context';
 
 
 function MealsOutput({ meals, fallbackText }) {
+  console.log("Made it to MealsOutput");
+  console.log(meals);
   const mealsCtx = useContext(MealsContext);
-  const mostRecentMeal = meals.reduce((latest, meal) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
-  if(!mealsCtx.dates.length){
-      mealsCtx.dates.push(mostRecentMeal.date);
-  }
+  // const mostRecentMeal = meals.reduce((latest, meal) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
+  // if(!mealsCtx.dates.length){
+  //     mealsCtx.dates.push(mostRecentMeal.date);
+  // }
   
   let content = <Text style={styles.infoText}>{fallbackText}</Text>;
 

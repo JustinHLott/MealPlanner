@@ -35,6 +35,16 @@ function RecentMeals() {
     getMeals();
   }, []);
 
+  // const getMaxDate = (meals) => {
+  //     return meals.reduce((max, meal) => 
+  //       new Date(meal.date) > new Date(max) ? meal.date : max, meals[0].date
+  //     );
+  //   };
+  
+
+  //   const maxDate = getMaxDate(mealsCtx.meals);
+
+
   if (error && !isFetching) {
     return <ErrorOverlay message={error} />;
   }
@@ -63,6 +73,7 @@ function RecentMeals() {
     }
   }
   function currentWeek(){
+    console.log(mealsCtx.dates)
     const today = getDateMinusDays(new Date(),1);
     setFirstDate(today);
   }
