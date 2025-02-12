@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { View, TextInput, FlatList, Text, Pressable } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -7,6 +7,7 @@ import Input from './Input';
 import Button from '../UI/Button';
 import IconButtonNoText from "../UI/IconButtonNoText";
 import { MealsContext } from '../../store/meals-context';
+import { isValidDate } from "../../util/date";
 
 const defaultMeal = {
   date: "",
@@ -14,16 +15,26 @@ const defaultMeal = {
   groceryItems: [], // Start as an empty array
 };
 
-const noDate="";
 const defaultGroceryItem = { name: "", quantity: "", checkedOff: "" };
 
 export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   // Merge `initialMeal` with `defaultMeal` to avoid undefined values
   const [meal, setMeal] = useState({ ...defaultMeal, ...initialMeal });
-  const [theDate, setTheDate] = useState({ ...noDate, ...defaultDate });
-  const [checked, setChecked] = useState(false);
+  const [maxDate, setMaxDate] = useState({ defaultDate });
+
   //const [firstDate, setFirstDate] = useState(getDateMinusDays(new Date(),1));
   const mealsCtx = useContext(MealsContext);
+
+  //This only runs once when the screen starts up.
+  useEffect(() => {
+    if(defaultDate){
+      console.log("MaxDate")
+      
+      setMaxDate(defaultDate);
+      console.log(maxDate);
+      
+    }
+  }, []);
 
   // Function to update the meal's date or description
   const handleInputChange = (key, value) => {
@@ -92,30 +103,31 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   };
 
   function validateDate(startDate){
-    if(startDate.Length===10){
+    if(isValidDate(startDate)){
       return startDate.toISOString().slice(0, 10);
     }else{
       return startDate;
     }
   }
+
+  console.log("meal")
+  if(meal.date){
+    console.log(true);
+  }else{console.log(false);}
+const value1=(meal.date? validateDate(meal.date):maxDate)
+console.log(value1);
   return (
     <View style={{ padding: 20, flex: 1 }}>
       {/* Date Input */}
-        <Input
-          //style={styles.rowInput}
-          label="Date"
-          //invalid={!inputs.date.isValid}
-          editable={false}//this is supposed to make it disabled
-          selectTextOnFocus={false}//this is supposed to make it so you can't select the text
-          textInputConfig={{
-            keyboardType: 'decimal-pad',
-            placeholder: 'yyyy-mm-dd',//defaultDate.toISOString().slice(0, 10),
-            maxLength: 10,
-            onChangeText:((text) => handleInputChange("date", text)),
-            value:(meal? validateDate(meal.date):theDate)
-          }}
+        <Text style={styles.label}>Date</Text>
+        <TextInput style={[styles.inputDate,styles.inputAll]}
+          keyboardType='decimal-pad'
+          placeholder='yyyy-mm-dd'
+          onChangeText={(text) => handleInputChange("date", text)}
+          value={(meal.date? validateDate(meal.date):maxDate)}
+          
+          //value={maxDate}
         />
-
       {/* Description Input */}
       <Input
         label="Description"
@@ -180,6 +192,12 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
 }
 
 const styles = {
+  label: {
+    fontSize: 12,
+    color: GlobalStyles.colors.primary100,
+    marginBottom: 4,
+    marginLeft: 4,
+  },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -202,6 +220,10 @@ const styles = {
   inputQty: {
     width: '15%',
     marginRight: 8,
+  },
+  inputDate:{
+    width: '98%',
+    marginLeft: 4,
   },
   inputContainer:{
     flexDirection: 'row',

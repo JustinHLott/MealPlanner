@@ -25,6 +25,9 @@ function RecentMeals() {
       try {
         const meals = await fetchMeals();
         mealsCtx.setMeals(meals);
+        //mealsCtx.setDates(meals);
+        console.log("At setDates")
+        console.log(mealsCtx.dates)
       } catch (error) {
         console.log(error)
         setError('Could not fetch meals!');

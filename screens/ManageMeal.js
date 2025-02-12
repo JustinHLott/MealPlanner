@@ -62,10 +62,10 @@ function ManageMeal({ route, navigation }) {
         await updateMeal(editedMealId, mealData);
       } else {
         console.log("Makes it to adding")
-        const id = await storeMeal(mealData);
+        const id = await storeMeal(mealData);//This adds the meal to firebase
         mealsCtx.dates.push(mealData.date);
         //console.log(mealsCtx.dates);
-        mealsCtx.addMeal({ ...mealData, id: id });
+        mealsCtx.addMeal({ ...mealData, id: id });//This adds the meal to the Context in the app
       }
       navigation.goBack();
     } catch (error) {

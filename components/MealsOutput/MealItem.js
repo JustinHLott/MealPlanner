@@ -2,10 +2,10 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import { GlobalStyles } from '../../constants/styles';
-import { getFormattedDate } from '../../util/date';
+import { getFormattedDate, getDateMinusDays, isValidDate } from '../../util/date';
 
 function MealItem({ id, description, date, groceries }) {
-  console.log("Made it to MealItem");
+  //console.log("Made it to MealItem");
   const navigation = useNavigation();
 
   function mealPressHandler() {
@@ -16,7 +16,17 @@ function MealItem({ id, description, date, groceries }) {
 
   //This function creates the day of week name.
   const getDayOfWeek = (dateString) => {
-    const date = new Date(dateString);
+    //if i don't add a day to the date it shows the day of week a day off.
+    let date = new Date(dateString)
+
+    if(isValidDate(date)){
+      date = new Date(getDateMinusDays(date,-1));
+    }else{
+      date = dateString
+      console.log('broken date');
+      console.log(date);
+    }
+
     const options = { weekday: "short" }; // 'long' for full name (e.g., Monday)
     return new Intl.DateTimeFormat("en-US", options).format(date);
   };

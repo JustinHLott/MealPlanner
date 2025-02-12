@@ -17,10 +17,11 @@ function Input({ label, invalid, style, textInputConfig }) {
   return (
     <View style={[styles.inputContainer, style]}>
       <Text style={[styles.label, invalid && styles.invalidLabel]}>{label}</Text>
-      <TextInput style={inputStyles} {...textInputConfig} />
+      <TextInput style={inputStyles} editable={true} {...textInputConfig}  />
     </View>
   );
 }
+
 
 export default Input;
 
