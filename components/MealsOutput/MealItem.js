@@ -17,18 +17,18 @@ function MealItem({ id, description, date, groceries }) {
   //This function creates the day of week name.
   const getDayOfWeek = (dateString) => {
     //if i don't add a day to the date it shows the day of week a day off.
-    let date = new Date(dateString)
+    let date2 = new Date(dateString)
 
-    if(isValidDate(date)){
-      date = new Date(getDateMinusDays(date,-1));
+    if(isValidDate(date2)){
+      date2 = new Date(getDateMinusDays(date2,-1));
     }else{
-      date = dateString
+      date2 = new Date("1975-01-01");
       console.log('broken date');
-      console.log(date);
+      console.log(date2);
     }
 
     const options = { weekday: "short" }; // 'long' for full name (e.g., Monday)
-    return new Intl.DateTimeFormat("en-US", options).format(date);
+    return new Intl.DateTimeFormat("en-US", options).format(date2);
   };
 
   return (

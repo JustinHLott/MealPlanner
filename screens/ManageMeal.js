@@ -13,6 +13,7 @@ import { ListsContext } from '../store/lists-context';
 import { storeMeal, updateMeal, deleteMeal } from '../util/http';
 import MealGroceries from '../components/MealsOutput/MealGroceries';
 
+let theID ="";
 
 function ManageMeal({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,15 +64,21 @@ function ManageMeal({ route, navigation }) {
       } else {
         console.log("Makes it to adding")
         const id = await storeMeal(mealData);//This adds the meal to firebase
+        theID = id;
         mealsCtx.dates.push(mealData.date);
         //console.log(mealsCtx.dates);
         mealsCtx.addMeal({ ...mealData, id: id });//This adds the meal to the Context in the app
+        saveGroceryItems(mealData,id);//This adds all grocery items to the grocery list
       }
       navigation.goBack();
     } catch (error) {
       setError('Could not save data - please try again later!');
       setIsSubmitting(false);
     }
+  }
+
+  function saveGroceryItems(mealData,id){
+
   }
 
   function getLatestDate(){
@@ -107,7 +114,9 @@ function ManageMeal({ route, navigation }) {
     <View style={styles.container}>
       {console.log("managemeal")}
       {console.log(selectedMeal)}
-      <ScrollView>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"//This makes it so you can click a button while the keyboard is up
+      >
         {/* <MealForm
           submitButtonLabel={isEditing ? 'Update' : 'Add'}
           onSubmit={confirmHandler}
@@ -116,6 +125,7 @@ function ManageMeal({ route, navigation }) {
           defaultDate={getLatestDate()}
         /> */}
         <MealForm2
+          id={id}
           initialMeal={selectedMeal}
           defaultDate={getLatestDate()}
           //defaultDate={new Date()}

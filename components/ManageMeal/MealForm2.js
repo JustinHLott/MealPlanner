@@ -8,6 +8,7 @@ import Button from '../UI/Button';
 import IconButtonNoText from "../UI/IconButtonNoText";
 import { MealsContext } from '../../store/meals-context';
 import { isValidDate } from "../../util/date";
+import { storeList } from "../../util/http-list";
 
 const defaultMeal = {
   date: "",
@@ -15,7 +16,7 @@ const defaultMeal = {
   groceryItems: [], // Start as an empty array
 };
 
-const defaultGroceryItem = { name: "", quantity: "", checkedOff: "" };
+const defaultGroceryItem = { name: "", quantity: "", checkedOff: "", id: "" };
 
 export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   // Merge `initialMeal` with `defaultMeal` to avoid undefined values
@@ -28,24 +29,15 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   //This only runs once when the screen starts up.
   useEffect(() => {
     const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
-    //Add one day to the most recent date
-    //const date = new Date();
+    //Add one day to the most recent date to get the date for the next new meal
+
     let date = new Date(mostRecentMealDate.date);
     date.setDate(date.getDate() + 1);
     const date2 = date
       .toISOString()
       .split("T")[0];
-  
-    console.log(date2);
-    setMaxDate(date2);
 
-    //if(defaultDate){
-      console.log("MaxDate")
-      
-      //setMaxDate(defaultDate);
-      console.log(maxDate);
-      
-    //}
+    setMaxDate(date2);
   }, []);
 
   // Function to update the meal's date or description
@@ -104,6 +96,12 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   function saveMeal(meal){
     console.log("Makes it to saveMeal in MealForm2")
     onSubmit(meal)
+    meal.groceryItems.map((item, index) => {
+      const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id };
+      console.log("storeList");
+      console.log(meal.id);
+      storeList(groceryItem);
+    });
   }
 
   // Function to delete grocery item
@@ -122,12 +120,6 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
     }
   }
 
-  console.log("meal")
-  if(meal.date){
-    console.log(true);
-  }else{console.log(false);}
-const value1=(meal.date? validateDate(meal.date):maxDate)
-console.log(value1);
   return (
     <View style={{ padding: 20, flex: 1 }}>
       {/* Date Input */}
@@ -157,6 +149,7 @@ console.log(value1);
       {/* Grocery Items */}
       <FlatList
         data={meal.groceryItems}
+        //keyboardShouldPersistTaps="handled"
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item, index }) => (
           <View style={styles.inputContainer}>
