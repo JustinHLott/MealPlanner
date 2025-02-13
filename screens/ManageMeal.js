@@ -125,7 +125,7 @@ function ManageMeal({ route, navigation }) {
           defaultDate={getLatestDate()}
         /> */}
         <MealForm2
-          id={id}
+          id={theID}
           initialMeal={selectedMeal}
           defaultDate={getLatestDate()}
           //defaultDate={new Date()}

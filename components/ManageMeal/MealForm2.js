@@ -28,24 +28,47 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
 
   //This only runs once when the screen starts up.
   useEffect(() => {
-    const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
-    //Add one day to the most recent date to get the date for the next new meal
+    if(initialMeal.description!==""){
+      //do nothing
+    }else{
+      const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
+      //Add one day to the most recent date to get the date for the next new meal
 
-    let date = new Date(mostRecentMealDate.date);
-    date.setDate(date.getDate() + 1);
-    const date2 = date
-      .toISOString()
-      .split("T")[0];
+      let date = new Date(mostRecentMealDate.date);
+      date.setDate(date.getDate() + 1);
+      const date2 = date
+        .toISOString()
+        .split("T")[0];
 
-    setMaxDate(date2);
+      setMaxDate(date2);
+      // Create a new updated meal object
+      const updatedMeal2 = {
+        date: date,
+        description: "",
+        groceryItems: [], // Empty grocery items
+      };
+      //And update the meal with the new date
+      setMeal(updatedMeal2)
+    }
+    
   }, []);
 
   // Function to update the meal's date or description
   const handleInputChange = (key, value) => {
-    setMeal((prevMeal) => ({
-      ...prevMeal,
-      [key]: value,
-    }));
+    if(key==="date"){
+      const newDate = new Date(value);
+      console.log("newDate")
+      console.log(newDate)
+      setMeal((prevMeal) => ({
+        ...prevMeal,
+        [key]: newDate,
+      }));
+    }else{
+      setMeal((prevMeal) => ({
+        ...prevMeal,
+        [key]: value,
+      }));
+    }
   };
 
   // Function to update grocery items
@@ -93,9 +116,21 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
     }));
   };
 
-  function saveMeal(meal){
-    console.log("Makes it to saveMeal in MealForm2")
-    onSubmit(meal)
+  function saveMeal(meal2){
+    console.log("Makes it to saveMeal in MealForm2");
+    //prepareDateForSaving(meal2);//this changes the date in the meal in state
+    console.log("Meal2");
+    console.log(meal2);
+    const newDate = new Date(meal2.date);
+    console.log("newDate");
+    console.log(newDate);
+    const updatedMeal = {
+      ...meal2,
+      date: newDate,
+    };
+    console.log("updatedMeal");
+    console.log(updatedMeal);
+    onSubmit(updatedMeal);//this uses the meal in state
     meal.groceryItems.map((item, index) => {
       const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id };
       console.log("storeList");
@@ -114,9 +149,22 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
 
   function validateDate(startDate){
     if(isValidDate(startDate)){
+      console.log("valid date");
+      console.log(startDate);
+      console.log(startDate.toISOString().slice(0, 10));
       return startDate.toISOString().slice(0, 10);
     }else{
-      return startDate;
+      console.log("Invalid date");
+      console.log(startDate);
+      if(startDate.length===10){
+        const newDate = startDate;
+        return newDate
+      }else{
+        return startDate;
+      }
+        
+      
+      
     }
   }
 
@@ -128,7 +176,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
           keyboardType='decimal-pad'
           placeholder='yyyy-mm-dd'
           onChangeText={(text) => handleInputChange("date", text)}
-          value={(meal.date? validateDate(meal.date):maxDate)}//.toISOString().split("T")[0]
+          value={(meal.date? validateDate(meal.date):validateDate(maxDate))}//.toISOString().split("T")[0]
           
           //value={maxDate}
         />
