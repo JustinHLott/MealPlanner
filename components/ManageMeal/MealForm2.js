@@ -74,7 +74,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
       
       //Add one day to the most recent date to get the date for the next new meal
       let date = new Date(mostRecentMealDate.date);
-      date = getDateMinusDays(date, -1);
+      date = getDateMinusDays(date, -2);
       
       const date2 = date
         .toISOString()
