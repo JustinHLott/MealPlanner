@@ -27,6 +27,8 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   const [pencilColor, setPencilColor] = useState(GlobalStyles.colors.primary100);
   const [errorMessage, setErrorMessage] = useState("filled");
   const [editableOr, setEditableOr] = useState(false);
+  // const [showPicker, setShowPicker] = useState(false);
+  // const [datePickerDate,setDatePickerDate] = useState(initialMeal.date?initialMeal.date:"");
 
   //const [firstDate, setFirstDate] = useState(getDateMinusDays(new Date(),1));
   const mealsCtx = useContext(MealsContext);
@@ -232,6 +234,16 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
     }
     
   }
+
+  // const onChange = (event, selectedDate) => {
+  //   if (Platform.OS === "android") {
+  //     setShowPicker(false); // Hide picker after selecting on Android
+  //   }
+  //   if (selectedDate) {
+  //     setDatePickerDate(selectedDate);
+  //   }
+  // };
+
   return (
     <View style={{ padding: 20, flex: 1 }}>
       {/* Date Input */}
@@ -244,17 +256,23 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
             editable={editableOr}
             onChangeText={(text) => handleInputChange("date", text)}
             //if it's a valid date, "validateDate" changes it to a text string.
-            value={(meal.date? validateDate(meal.date):validateDate(maxDate))}//.toISOString().split("T")[0]
-            //value={meal.date? meal.date:maxDate}//.toISOString().split("T")[0]
-            //value={maxDate}
+            value={(meal.date? validateDate(meal.date):validateDate(maxDate))}
           />
           <IconButtonNoText style={{width: '20%'}}icon="pencil" size={20} color={pencilColor} onPress={() => makeDateEditable()}/>
+          {/* <IconButtonNoText style={{width: '20%'}}icon="pencil" size={20} color={pencilColor} onPress={() => setShowPicker(true)}/> */}
         </View>
-        
+        {/* Show Date Picker if button is pressed */}
+          {/* {showPicker && (
+            <DateTimePicker
+              value={datePickerDate}
+              mode="date"
+              display="default"
+              onChange={onChange}
+            />
+          )} */}
       {/* Description Input */}
       <Input
         label="Description"
-        //invalid={!inputs.description.isValid}
         textInputConfig={{
             multiline: true,
             // autoCapitalize: 'none'
@@ -268,7 +286,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
       {/* Grocery Items */}
       <FlatList
         data={meal.groceryItems}
-        //keyboardShouldPersistTaps="handled"
+        //keyboardShouldPersistTaps="handled"//I ended up using this on ScrollView a module up.
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item, index }) => (
           <View style={styles.inputContainer}>
@@ -278,7 +296,6 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
                   size={24} 
                   color={GlobalStyles.colors.primary100} 
                   name={() =>handleGroceryCheckbox(index) ? "check-box" : "check-box-outline-blank"}
-                  //name={() =>handleGroceryCheckbox(index) ? "check-box" : "check-box-outline-blank"}
                   />
               </Pressable>
             </View>
