@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, TextInput, FlatList, Text, Pressable } from "react-native";
+import { View, TextInput, FlatList, Text, Pressable, Alert } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 import { GlobalStyles } from '../../constants/styles';
@@ -7,7 +7,7 @@ import Input from './Input';
 import Button from '../UI/Button';
 import IconButtonNoText from "../UI/IconButtonNoText";
 import { MealsContext } from '../../store/meals-context';
-import { isValidDate } from "../../util/date";
+import { isValidDate, getDateMinusDays } from "../../util/date";
 import { storeList } from "../../util/http-list";
 
 const defaultMeal = {
@@ -22,43 +22,100 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   // Merge `initialMeal` with `defaultMeal` to avoid undefined values
   const [meal, setMeal] = useState({ ...defaultMeal, ...initialMeal });
   const [maxDate, setMaxDate] = useState("");
+  const [description, setDescription] = useState(initialMeal.description?initialMeal.description:"");
+  const [date, setDate] = useState(initialMeal.date?initialMeal.date:"");
+  const [pencilColor, setPencilColor] = useState(GlobalStyles.colors.primary100);
+  const [errorMessage, setErrorMessage] = useState("filled");
+  const [editableOr, setEditableOr] = useState(false);
 
   //const [firstDate, setFirstDate] = useState(getDateMinusDays(new Date(),1));
   const mealsCtx = useContext(MealsContext);
 
   //This only runs once when the screen starts up.
   useEffect(() => {
-    if(initialMeal.description!==""){
+    if(typeof initialMeal.description!=="undefined"){
       //do nothing
-    }else{
-      const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
-      //Add one day to the most recent date to get the date for the next new meal
+      console.log("initialMealDescription");
+      console.log(typeof(initialMeal.description.toString));
+      let date = new Date(initialMeal.date);
 
+      let updatedMeal3 = {
+        date: "",
+        description: "",
+        groceryItems: [], // Empty grocery items array
+        id: "",
+      };
+
+      if(isValidDate(initialMeal.date)){
+        // console.log("valid date");
+        // console.log(startDate);
+        // console.log(startDate.toISOString().slice(0, 10));
+        //convert date to text string
+        date = date.toISOString().slice(0, 10);
+        updatedMeal3 = {
+          date: date,
+          description: initialMeal.description,
+          groceryItems: initialMeal.groceryItems, // Empty grocery items array
+          id: initialMeal.id,
+        };
+        //And update the meal with the new date
+        setMeal(updatedMeal3);
+      }else{
+        // console.log("Invalid date");
+        // console.log(startDate);
+        return startDate;
+      }
+    }else if(typeof initialMeal.description==="undefined"){
+      const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
+      console.log("Mostrecentmealdate");
+      console.log(mostRecentMealDate);
+      
+      //Add one day to the most recent date to get the date for the next new meal
       let date = new Date(mostRecentMealDate.date);
-      date.setDate(date.getDate() + 1);
+      date = getDateMinusDays(date, -1);
+      
       const date2 = date
         .toISOString()
         .split("T")[0];
-
+      setDate(date2);
       setMaxDate(date2);
+      console.log(date2);
       // Create a new updated meal object
+      //const updatedMeal3={mealsCtx.addMeal()}
       const updatedMeal2 = {
-        date: date,
+        date: date2,
         description: "",
-        groceryItems: [], // Empty grocery items
+        groceryItems: [], // Empty grocery items array
       };
       //And update the meal with the new date
-      setMeal(updatedMeal2)
+      setMeal(updatedMeal2);
+      console.log(meal);
     }
-    
   }, []);
+
+  useEffect(() => {
+    if (!description.trim()) {
+      setErrorMessage("Both description and date are required!");
+    } else {
+      setErrorMessage(""); // Clear error when inputs are valid
+    }
+  }, [description]);
+
+  useEffect(() => {
+    if (description === "" || date === "") {
+      setErrorMessage("Both description and date are required!");
+    } else {
+      setErrorMessage(""); // Clear error when inputs are valid
+    }
+  }, [description]);
 
   // Function to update the meal's date or description
   const handleInputChange = (key, value) => {
     if(key==="date"){
       const newDate = new Date(value);
-      console.log("newDate")
-      console.log(newDate)
+      // console.log("newDate")
+      // console.log(newDate)
+      //setDate(newDate);
       setMeal((prevMeal) => ({
         ...prevMeal,
         [key]: newDate,
@@ -68,6 +125,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
         ...prevMeal,
         [key]: value,
       }));
+      setDescription(value);
     }
   };
 
@@ -118,25 +176,28 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
 
   function saveMeal(meal2){
     console.log("Makes it to saveMeal in MealForm2");
-    //prepareDateForSaving(meal2);//this changes the date in the meal in state
     console.log("Meal2");
     console.log(meal2);
-    const newDate = new Date(meal2.date);
-    console.log("newDate");
-    console.log(newDate);
-    const updatedMeal = {
-      ...meal2,
-      date: newDate,
-    };
-    console.log("updatedMeal");
-    console.log(updatedMeal);
-    onSubmit(updatedMeal);//this uses the meal in state
-    meal.groceryItems.map((item, index) => {
-      const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id };
-      console.log("storeList");
-      console.log(meal.id);
-      storeList(groceryItem);
-    });
+    if(!meal2.date||!meal2.description.trim()){
+      Alert.alert("Both description and date are required!")
+    }else{
+      const newDate = new Date(meal2.date);
+      console.log("newDate");
+      console.log(newDate);
+      const updatedMeal = {
+        ...meal2,
+        date: newDate,
+      };
+      console.log("updatedMeal");
+      console.log(updatedMeal);
+      onSubmit(updatedMeal);//this uses the meal in state
+      meal.groceryItems.map((item, index) => {
+        const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id };
+        console.log("storeList");
+        console.log(meal.id);
+        storeList(groceryItem);
+      });
+    }
   }
 
   // Function to delete grocery item
@@ -149,37 +210,47 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
 
   function validateDate(startDate){
     if(isValidDate(startDate)){
-      console.log("valid date");
-      console.log(startDate);
-      console.log(startDate.toISOString().slice(0, 10));
-      return startDate.toISOString().slice(0, 10);
+      // console.log("valid date");
+      // console.log(startDate);
+      // console.log(startDate.toISOString().slice(0, 10));
+      //convert date to text string
+      return startDate//.toISOString().slice(0, 10);
     }else{
-      console.log("Invalid date");
-      console.log(startDate);
-      if(startDate.length===10){
-        const newDate = startDate;
-        return newDate
-      }else{
-        return startDate;
-      }
-        
-      
-      
+      // console.log("Invalid date");
+      // console.log(startDate);
+      return startDate;
     }
   }
 
+  function makeDateEditable(){
+    if(pencilColor==="green"){
+      setEditableOr(false);
+      setPencilColor(GlobalStyles.colors.primary100);
+    }else{
+      setEditableOr(true);
+      setPencilColor("green");
+    }
+    
+  }
   return (
     <View style={{ padding: 20, flex: 1 }}>
       {/* Date Input */}
         <Text style={styles.label}>Date</Text>
-        <TextInput style={[styles.inputDate,styles.inputAll]}
-          keyboardType='decimal-pad'
-          placeholder='yyyy-mm-dd'
-          onChangeText={(text) => handleInputChange("date", text)}
-          value={(meal.date? validateDate(meal.date):validateDate(maxDate))}//.toISOString().split("T")[0]
+        <View style={styles.inputContainer}>
           
-          //value={maxDate}
-        />
+          <TextInput style={[styles.inputDate,styles.inputAll]}
+            keyboardType='decimal-pad'
+            placeholder='yyyy-mm-dd'
+            editable={editableOr}
+            onChangeText={(text) => handleInputChange("date", text)}
+            //if it's a valid date, "validateDate" changes it to a text string.
+            value={(meal.date? validateDate(meal.date):validateDate(maxDate))}//.toISOString().split("T")[0]
+            //value={meal.date? meal.date:maxDate}//.toISOString().split("T")[0]
+            //value={maxDate}
+          />
+          <IconButtonNoText style={{width: '20%'}}icon="pencil" size={20} color={pencilColor} onPress={() => makeDateEditable()}/>
+        </View>
+        
       {/* Description Input */}
       <Input
         label="Description"
@@ -229,10 +300,8 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
           </View>
         )}
       />
-
-      <Text style={styles.errorText}>
-        Meal not yet saved/updated!
-      </Text>
+      {errorMessage?<Text style={styles.errorText}>{errorMessage}</Text>:null}
+      
       <View style={styles.buttons}>
         {/* Add Grocery Item Button */}
         <Button onPress={addGroceryItem}>Add Grocery Item</Button>
@@ -275,7 +344,7 @@ const styles = {
     marginRight: 8,
   },
   inputDate:{
-    width: '98%',
+    width: '60%',
     marginLeft: 4,
   },
   inputContainer:{
