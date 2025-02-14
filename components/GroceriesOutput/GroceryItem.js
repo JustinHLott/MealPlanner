@@ -14,7 +14,7 @@ function GroceryItem({ id, description, qty }) {
   const navigation = useNavigation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState();
-  const isEditing = !!id;
+  //const isEditing = !!id;
 
   const groceriesCtx = useContext(ListsContext);
 
@@ -50,12 +50,16 @@ function GroceryItem({ id, description, qty }) {
       style={({ pressed }) => pressed && styles.pressed}
     >
       <View style={styles.groceryItem}>
-        <View>
-          <Text style={[styles.textBase, styles.description]}>
-            {description}
-          </Text>
-        </View>
-        {isEditing && (
+        <Text style={[styles.textBase, styles.qty]}>
+          {qty}
+        </Text>
+        <Text style={[styles.textBase, styles.description]}>
+          {description}
+        </Text>
+        <Text style={[styles.textBase, styles.description]}>
+          {description}
+        </Text>
+        { (
         <View style={styles.deleteContainer}>
           <IconButtonNoText
             icon="trash"
@@ -93,11 +97,19 @@ const styles = StyleSheet.create({
   textBase: {
     color: GlobalStyles.colors.primary50,
   },
+  qty: {
+    fontSize: 16,
+    //marginBottom: 4,
+    fontWeight: 'bold',
+    width:'8%',
+  },
   description: {
     fontSize: 16,
     //marginBottom: 4,
     fontWeight: 'bold',
+    width:'40%',
   },
+
   amountContainer: {
     paddingHorizontal: 12,
     paddingVertical: 0

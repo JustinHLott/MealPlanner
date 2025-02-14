@@ -7,8 +7,8 @@ import { MealsContext } from '../../store/meals-context';
 
 
 function MealsOutput({ meals, fallbackText }) {
-  console.log("Made it to MealsOutput");
-  console.log(meals);
+  // console.log("Made it to MealsOutput");
+  // console.log(meals);
   const mealsCtx = useContext(MealsContext);
   // const mostRecentMeal = meals.reduce((latest, meal) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
   // if(!mealsCtx.dates.length){
@@ -18,7 +18,7 @@ function MealsOutput({ meals, fallbackText }) {
   let content = <Text style={styles.infoText}>{fallbackText}</Text>;
 
   if (meals.length > 0) {
-    console.log(meals)
+    //console.log(meals)
     content = <MealsList meals={meals} />;
   }
 

@@ -7,6 +7,7 @@ import Input from './Input';
 import Button from '../UI/Button';
 import IconButtonNoText from "../UI/IconButtonNoText";
 import { MealsContext } from '../../store/meals-context';
+import { ListsContext } from '../../store/lists-context';
 import { isValidDate, getDateMinusDays } from "../../util/date";
 import { storeList } from "../../util/http-list";
 
@@ -32,6 +33,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
 
   //const [firstDate, setFirstDate] = useState(getDateMinusDays(new Date(),1));
   const mealsCtx = useContext(MealsContext);
+  const listsCtx = useContext(ListsContext);
 
   //This only runs once when the screen starts up.
   useEffect(() => {
@@ -95,13 +97,13 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
     }
   }, []);
 
-  useEffect(() => {
-    if (!description.trim()) {
-      setErrorMessage("Both description and date are required!");
-    } else {
-      setErrorMessage(""); // Clear error when inputs are valid
-    }
-  }, [description]);
+  // useEffect(() => {
+  //   if (!description.trim()) {
+  //     setErrorMessage("Both description and date are required!");
+  //   } else {
+  //     setErrorMessage(""); // Clear error when inputs are valid
+  //   }
+  // }, [description]);
 
   useEffect(() => {
     if (description === "" || date === "") {
@@ -192,13 +194,18 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
       };
       console.log("updatedMeal");
       console.log(updatedMeal);
-      onSubmit(updatedMeal);//this uses the meal in state
-      meal.groceryItems.map((item, index) => {
-        const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id };
-        console.log("storeList");
-        console.log(meal.id);
-        storeList(groceryItem);
-      });
+      onSubmit(updatedMeal);//this adds or updates the meal in state to firebase
+      //This adds the grocery items to firebase and to listsCtx.
+      // meal.groceryItems.map((item, index) => {
+      //   const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id };
+      //   console.log("storeList");
+      //   console.log(meal.id);
+      //   storeList(groceryItem);
+      //   //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
+      //   listsCtx.addList ( groceryItem );
+      //   console.log("ctxList");
+      //   console.log(listsCtx.lists);
+      // });
     }
   }
 

@@ -1,4 +1,5 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useCallback } from 'react';
+import { useFocusEffect } from "@react-navigation/native";
 
 import GroceriesOutput from '../components/GroceriesOutput/GroceriesOutput';
 import ErrorOverlay from '../components/UI/ErrorOverlay';
@@ -11,6 +12,7 @@ function GroceryList() {
   console.log("makes it to grocerylist")
   const [isFetching, setIsFetching] = useState(true);
   const [error, setError] = useState();
+  const [recentLists, setRecentLists] = useState();
 
   const listsCtx = useContext(ListsContext);
 
@@ -21,8 +23,9 @@ function GroceryList() {
         console.log("Makes it to useEffect");
         const items = await fetchLists();
         console.log("Grocery items list in GroceryList: ")
-        console.log(items)
+        //console.log(items)
         listsCtx.setLists(items);
+        //setRecentLists(items);
       } catch (error) {
         console.log(error);
         setError('Could not fetch lists!');
@@ -33,6 +36,20 @@ function GroceryList() {
     getList();
   }, []);
 
+    // Trigger update every time the screen is focused
+    useFocusEffect(
+      
+      useCallback(() => {
+        console.log("useFocusEffect")
+        fetchGroceryList();
+      }, []) // Dependencies ensure it runs when meals change
+    );
+
+    function fetchGroceryList(){
+      setRecentLists(listsCtx.lists)
+      //console.log(recentLists);
+    }
+
   if (error && !isFetching) {
     return <ErrorOverlay message={error} />;
   }
@@ -41,7 +58,7 @@ function GroceryList() {
     return <LoadingOverlay />;
   }
 
-  const recentLists = listsCtx.lists
+  const recentLists2 = listsCtx.lists
   // const recentLists = listsCtx.lists.filter((groceryItem) => {
   //   console.log("Get's to GroceryList filter by date: "+groceryItem)
   //   const today = getDateMinusDays(new Date(),1);
@@ -52,7 +69,7 @@ function GroceryList() {
 
   return (
     <GroceriesOutput
-      groceries={recentLists}
+      groceries={recentLists2}
       //groceries={listsCtx.lists}
       fallbackText="No grocery items registered..."
     />

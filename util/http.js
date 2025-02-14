@@ -8,8 +8,30 @@ const BACKEND_URL =
   'https://justinhlottcapstone-default-rtdb.firebaseio.com';
 
 export async function storeMeal(mealData) {
+  console.log("storMeal")
   const response = await axios.post(BACKEND_URL + '/meals3.json', mealData);
   const id = response.data.name;
+  console.log("mealID: ",id)
+  try {
+    for (const item of mealData.groceryItems) {
+      const groceryData = {
+        
+        description: item.name,
+        qty: item.quantity,
+        checkedOff: item.checkedOff,
+        id: id,
+      };
+
+      // Save each item to Firebase using Axios
+      const response = await axios.post(BACKEND_URL + '/grocery.json', groceryData);
+
+      console.log("Saved:", response.data);
+    }
+
+    console.log("All grocery items saved successfully!");
+  } catch (error) {
+    console.error("Error saving grocery items:", error);
+  }
   return id;
 }
 
@@ -19,8 +41,30 @@ export async function storeMeal2(mealData) {
   return id;
 }
 export async function storeMeal3(mealData) {
+  console.log("storMeal3")
   const response = await axios.post(BACKEND_URL + '/meals3.json', mealData);
   const id = response.data.name;
+  console.log("mealID: ",id)
+  try {
+    for (const item of mealData.groceryItems) {
+      const groceryData = {
+        
+        description: item.name,
+        qty: item.quantity,
+        checkedOff: item.checkedOff,
+        id: id,
+      };
+
+      // Save each item to Firebase using Axios
+      const response = await axios.post(BACKEND_URL + '/grocery.json', groceryData);
+
+      console.log("Saved:", response.data);
+    }
+
+    console.log("All grocery items saved successfully!");
+  } catch (error) {
+    console.error("Error saving grocery items:", error);
+  }
   return id;
 }
 

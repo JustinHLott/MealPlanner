@@ -76,7 +76,7 @@ function RecentMeals() {
     }
   }
   function currentWeek(){
-    console.log(mealsCtx.dates)
+    //console.log(mealsCtx.dates)
     const today = getDateMinusDays(new Date(),1);
     setFirstDate(today);
   }
@@ -89,7 +89,7 @@ function RecentMeals() {
    
       return theMeals;
     });
-    console.log(thisGroupOfMeals)
+    //console.log(thisGroupOfMeals)
     if(thisGroupOfMeals.length>0){
       const today = getDateMinusDays(firstDate,-7);
       setFirstDate(today);

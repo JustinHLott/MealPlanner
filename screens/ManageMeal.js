@@ -1,6 +1,7 @@
 import { useContext, useLayoutEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-virtualized-view'
+import firestore from "@react-native-firebase/firestore";
 
 import MealForm from '../components/ManageMeal/MealForm';
 import MealForm2 from '../components/ManageMeal/MealForm2';
@@ -64,11 +65,27 @@ function ManageMeal({ route, navigation }) {
       } else {
         console.log("Makes it to adding")
         const id = await storeMeal(mealData);//This adds the meal to firebase
+        console.log("finishes adding")
         theID = id;
         mealsCtx.dates.push(mealData.date);
         //console.log(mealsCtx.dates);
         mealsCtx.addMeal({ ...mealData, id: id });//This adds the meal to the Context in the app
-        saveGroceryItems(mealData,id);//This adds all grocery items to the grocery list
+        //const listId = await saveGroceryItems(mealData,id);//This adds all grocery items to the grocery list
+         mealData.groceryItems.map((item, index) => {
+          console.log("storeList");
+          const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: id };
+          
+          //console.log(meal.id);
+
+          listsCtx.addList ( groceryItem );
+          console.log("ctxList item added");
+          // console.log(listsCtx.lists);
+          //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
+          
+        });
+        // Wait for all items to be saved
+        console.log("Made it to savePromises")
+        //await Promise.all(savePromises);
       }
       navigation.goBack();
     } catch (error) {
@@ -77,8 +94,17 @@ function ManageMeal({ route, navigation }) {
     }
   }
 
-  function saveGroceryItems(mealData,id){
-
+  async function saveGroceryItems(mealData,id){
+    mealData.groceryItems.map((item, index) => {
+      const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id };
+      console.log("storeList");
+      console.log(meal.id);
+       storeList(groceryItem);
+      //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
+      listsCtx.addList ( groceryItem );
+      console.log("ctxList");
+      console.log(listsCtx.lists);
+    });
   }
 
   function getLatestDate(){
@@ -129,6 +155,7 @@ function ManageMeal({ route, navigation }) {
           initialMeal={selectedMeal}
           defaultDate={getLatestDate()}
           //defaultDate={new Date()}
+          onCancel={cancelHandler}
           onSubmit={confirmHandler}
         />
         {isEditing && (
