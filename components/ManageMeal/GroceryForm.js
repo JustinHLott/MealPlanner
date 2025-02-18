@@ -7,7 +7,8 @@ import Button from '../UI/Button';
 import { GlobalStyles } from '../../constants/styles';
 
 //defaultMealDesc={selectedMeal.description}
-function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues,defaultMealDesc }) {
+function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaultMealDesc }) {
+  console.log("defaultValues in GroceryForm", defaultValues);
   const [inputs, setInputs] = useState({
     qty: {
       value: defaultValues ? defaultValues.qty : 0,
@@ -30,7 +31,7 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues,defa
       isValid: true,
     },
     mealDesc: {
-      value: defaultValues ? defaultMealDesc : '',
+      value: defaultValues ? defaultValues.mealDesc : '',
       isValid: true,
     },
   });

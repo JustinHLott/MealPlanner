@@ -200,16 +200,17 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
 
       onSubmit(updatedMeal);//this adds or updates the meal in state to firebase
       //This adds the grocery items to firebase and to listsCtx.
-      // meal.groceryItems.map((item, index) => {
-      //   const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id };
-      //   console.log("storeList");
-      //   console.log(meal.id);
-      //   storeList(groceryItem);
-      //   //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
-      //   listsCtx.addList ( groceryItem );
-      //   console.log("ctxList");
-      //   console.log(listsCtx.lists);
-      // });
+      meal.groceryItems.map((item, index) => {
+        const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id };
+        console.log("grocery to Ctx MealForm2");
+        console.log(groceryItem);
+        //storeList(groceryItem);
+        //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
+        listsCtx.addList ( groceryItem );
+        
+      });
+      console.log("full groceryCtx MealForm2");
+      console.log(listsCtx.lists);
     }
   }
 

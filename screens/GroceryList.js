@@ -25,7 +25,7 @@ function GroceryList() {
         console.log("Grocery items list in GroceryList: ")
         //console.log(items)
         listsCtx.setLists(items);
-        //setRecentLists(items);
+        setRecentLists(items);
       } catch (error) {
         console.log(error);
         setError('Could not fetch lists!');
@@ -69,8 +69,8 @@ function GroceryList() {
 
   return (
     <GroceriesOutput
-      groceries={recentLists2}
-      //groceries={listsCtx.lists}
+      //groceries={recentLists}
+      groceries={listsCtx.lists}
       fallbackText="No grocery items registered..."
     />
   );

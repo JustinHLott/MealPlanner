@@ -52,6 +52,15 @@ function ManageMeal({ route, navigation }) {
     navigation.goBack();
   }
 
+  function addCtxList(updatedGrocery){
+    console.log("Add list to Ctx ManageMeal",updatedGrocery)
+    listsCtx.addList(updatedGrocery);
+    listsCtx.lists.forEach((item,index)=>{
+      console.log(item, index)
+    })
+    
+  }
+
   async function confirmHandler(mealData) {
     console.log("Makes it to confirmHandler in ManageMeals")
     console.log(mealData);
@@ -65,7 +74,7 @@ function ManageMeal({ route, navigation }) {
         //also must add meal to ctx and add groceries to ctx.
       } else {
         console.log("Makes it to adding")
-        const id = await storeMeal(mealData);//This adds the meal to firebase
+        const id = await storeMeal(mealData,addCtxList);//This adds the meal to firebase
         console.log("finishes adding")
         theID = id;
         mealsCtx.dates.push(mealData.date);
@@ -80,34 +89,34 @@ function ManageMeal({ route, navigation }) {
 
 
         
-        const groceryListToSave=[];
-         mealData.groceryItems.map((item, index) => {
+        // const groceryListToSave=[];
+        //  mealData.groceryItems.map((item, index) => {
           
           
           
-          //console.log(meal.id);
-          console.log("storeList: ",groceryItem);
-          const anId = listsCtx.addList ( groceryItem );
-          console.log("ctxList item added",anId);
+        //   //console.log(meal.id);
+        //   console.log("storeList: ",groceryItem);
+        //   const anId = listsCtx.addList ( groceryItem );
+        //   console.log("ctxList item added",anId);
 
-          const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, mealId: id, thisId: anId, mealDesc: mealData.description };  
+        //   const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, mealId: id, thisId: anId, mealDesc: mealData.description };  
           
-          groceryListToSave.push(groceryItem);
-          // console.log(listsCtx.lists);
-          //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
+        //   groceryListToSave.push(groceryItem);
+        //   // console.log(listsCtx.lists);
+        //   //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
           
-        });
-        //create meal item to update
-        const newMeal={
-          //id: id,
-          date: mealData.date,
-          description:mealData.description,
-          groceryItems:groceryListToSave,
-        }
+        // });
+        // //create meal item to update
+        // const newMeal={
+        //   //id: id,
+        //   date: mealData.date,
+        //   description:mealData.description,
+        //   groceryItems:groceryListToSave,
+        // }
 
-        // Wait for all items to be saved
-        mealsCtx.updateMeal(id, newMeal);
-        await updateMeal(id, newMeal);
+        // // Wait for all items to be saved
+        // mealsCtx.updateMeal(id, newMeal);
+        // await updateMeal(id, newMeal);
         console.log("Made it to savePromises")
         //await Promise.all(savePromises);
       }
@@ -118,18 +127,18 @@ function ManageMeal({ route, navigation }) {
     }
   }
 
-  async function saveGroceryItems(mealData,id){
-    mealData.groceryItems.map((item, index) => {
-      const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id, mealDesc: meal.description };
-      console.log("storeList");
-      console.log(meal.id);
-       storeList(groceryItem);
-      //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
-      listsCtx.addList ( groceryItem );
-      console.log("ctxList");
-      console.log(listsCtx.lists);
-    });
-  }
+  // async function saveGroceryItems(mealData,id){
+  //   mealData.groceryItems.map((item, index) => {
+  //     const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id, mealDesc: meal.description };
+  //     console.log("storeList");
+  //     console.log(meal.id);
+  //      storeList(groceryItem);
+  //     //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
+  //     listsCtx.addList ( groceryItem );
+  //     console.log("ctxList");
+  //     console.log(listsCtx.lists);
+  //   });
+  // }
 
   function getLatestDate(){
     const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);

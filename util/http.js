@@ -1,34 +1,55 @@
 import {useContext} from 'react';
 
 import axios from 'axios';
-//import { MealsContext } from '../store/meals-context';
+//import { ListsContext } from '../store/lists-context';
 
 
 const BACKEND_URL =
   'https://justinhlottcapstone-default-rtdb.firebaseio.com';
 
-export async function storeMeal(mealData) {
-  console.log("storMeal")
+export async function storeMeal(mealData,addCtxList) {
+  console.log("storeMeal");
+  //const listsCtx = useContext(ListsContext);
   const response = await axios.post(BACKEND_URL + '/meals3.json', mealData);
   const id = response.data.name;
   console.log("mealID: ",id)
   try {
+    let newGroceryList = [];
     for (const item of mealData.groceryItems) {
       const groceryData = {
-        
         description: item.name,
         qty: item.quantity,
         checkedOff: item.checkedOff,
-        id: id,
+        mealId: id,
+        mealDesc: mealData.description,
       };
 
       // Save each item to Firebase using Axios
-      const response = await axios.post(BACKEND_URL + '/grocery.json', groceryData);
+      const responseGrocery = await axios.post(BACKEND_URL + '/grocery.json', groceryData);
+      const groceryId = responseGrocery.data.name;
+      console.log("returned groceryId: ",groceryId)
+      //Add the new grocery id to the groceryData
+      const updatedGrocery = {
+        ...groceryData,
+        thisId: groceryId,
+      };
 
-      console.log("Saved:", response.data);
+      //Add groceryData to new array
+      newGroceryList.push(updatedGrocery);
+      addCtxList(updatedGrocery)//this function is from ManageMeals and it adds the updated grocery list to ctx.
+      //listsCtx.addList(updatedGrocery);
     }
-
-    console.log("All grocery items saved successfully!");
+      //update meal with new grocery list
+      console.log("mealData http: ",mealData)
+      const updatedMeal = {
+        ...mealData,
+        groceryItems: newGroceryList,
+      };
+      console.log("updatedMeal http: ",updatedMeal)
+      //update meal in firebase
+      updateMeal(id, updatedMeal)
+      console.log("Saved:", updatedMeal);
+      console.log("All grocery items saved successfully!");
   } catch (error) {
     console.error("Error saving grocery items:", error);
   }
