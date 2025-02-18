@@ -99,15 +99,15 @@ function ManageMeal({ route, navigation }) {
         });
         //create meal item to update
         const newMeal={
-          id: id,
+          //id: id,
           date: mealData.date,
           description:mealData.description,
           groceryItems:groceryListToSave,
         }
 
         // Wait for all items to be saved
-        mealsCtx.updateMeal(editedMealId, newMeal);
-        await updateMeal(editedMealId, newMeal);
+        mealsCtx.updateMeal(id, newMeal);
+        await updateMeal(id, newMeal);
         console.log("Made it to savePromises")
         //await Promise.all(savePromises);
       }
