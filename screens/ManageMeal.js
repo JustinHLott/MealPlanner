@@ -1,7 +1,6 @@
 import { useContext, useLayoutEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-virtualized-view'
-import firestore from "@react-native-firebase/firestore";
 
 import MealForm from '../components/ManageMeal/MealForm';
 import MealForm2 from '../components/ManageMeal/MealForm2';
@@ -62,6 +61,8 @@ function ManageMeal({ route, navigation }) {
         console.log("Makes it to editing.  MealID:"+editedMealId)
         mealsCtx.updateMeal(editedMealId, mealData);
         await updateMeal(editedMealId, mealData);
+        //maybe delete then add again instead of updating the meal?
+        //also must add meal to ctx and add groceries to ctx.
       } else {
         console.log("Makes it to adding")
         const id = await storeMeal(mealData);//This adds the meal to firebase
@@ -71,19 +72,42 @@ function ManageMeal({ route, navigation }) {
         //console.log(mealsCtx.dates);
         mealsCtx.addMeal({ ...mealData, id: id });//This adds the meal to the Context in the app
         //const listId = await saveGroceryItems(mealData,id);//This adds all grocery items to the grocery list
+
+        //somewhere in the save process it is saving 2 copies to firebase.  One without mealId and one with no id.
+
+
+
+
+
+        
+        const groceryListToSave=[];
          mealData.groceryItems.map((item, index) => {
-          console.log("storeList");
-          const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: id };
+          
+          
           
           //console.log(meal.id);
+          console.log("storeList: ",groceryItem);
+          const anId = listsCtx.addList ( groceryItem );
+          console.log("ctxList item added",anId);
 
-          listsCtx.addList ( groceryItem );
-          console.log("ctxList item added");
+          const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, mealId: id, thisId: anId, mealDesc: mealData.description };  
+          
+          groceryListToSave.push(groceryItem);
           // console.log(listsCtx.lists);
           //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
           
         });
+        //create meal item to update
+        const newMeal={
+          id: id,
+          date: mealData.date,
+          description:mealData.description,
+          groceryItems:groceryListToSave,
+        }
+
         // Wait for all items to be saved
+        mealsCtx.updateMeal(editedMealId, newMeal);
+        await updateMeal(editedMealId, newMeal);
         console.log("Made it to savePromises")
         //await Promise.all(savePromises);
       }
@@ -96,7 +120,7 @@ function ManageMeal({ route, navigation }) {
 
   async function saveGroceryItems(mealData,id){
     mealData.groceryItems.map((item, index) => {
-      const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id };
+      const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id, mealDesc: meal.description };
       console.log("storeList");
       console.log(meal.id);
        storeList(groceryItem);
@@ -158,7 +182,8 @@ function ManageMeal({ route, navigation }) {
           onCancel={cancelHandler}
           onSubmit={confirmHandler}
         />
-        {isEditing && (
+        {/*This delete the meal*/}
+         {isEditing && (
           <View style={styles.deleteContainer}>
             <IconButton
               icon="trash"
@@ -167,7 +192,7 @@ function ManageMeal({ route, navigation }) {
               onPress={deleteMealHandler}
             />
           </View>
-        )}
+        )} 
       
         {/* <MealGroceries addRows={addRows}/> */}
       </ScrollView>

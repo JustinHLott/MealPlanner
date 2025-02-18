@@ -20,15 +20,18 @@ export async function fetchLists() {
     const listObj = {
       id: key,
       qty: response.data[key].qty,
-      description: response.data[key].description
+      description: response.data[key].description,
+      mealId: response.data[key].id,
+      mealDesc: response.data[key].mealDesc,
+      checkedOff: response.data[key].checkedOff,
     };
     listsUnsorted.push(listObj);
-    console.log(listsUnsorted);
+    //console.log(listsUnsorted);
   }
 
   // //This sorts the lists by the date field.
   // const lists = [...listsUnsorted,].sort((a, b) => a.date - b.date);
-  // console.log("This is the grocery list: ");
+   //console.log("grocery list: ",listsUnsorted);
   // console.log( lists);
   return listsUnsorted;
 }
@@ -38,5 +41,6 @@ export function updateList(id, listData) {
 }
 
 export function deleteList(id) {
+  console.log("deletelist: ",id)
   return axios.delete(BACKEND_URL + `/grocery/${id}.json`);
 }

@@ -137,10 +137,14 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   const handleGroceryChange = (index, key, value) => {
     const updatedGroceryItems = [...meal.groceryItems];
     updatedGroceryItems[index][key] = value;
+    console.log("groceryitem before: ",updatedGroceryItems[index])
+    updatedGroceryItems[index]["mealDesc"] = meal.description;
+    console.log("groceryitem after: ",updatedGroceryItems[index])
     setMeal((prevMeal) => ({
       ...prevMeal,
       groceryItems: updatedGroceryItems,
     }));
+    console.log("new meal: ",meal.groceryItems)
   };
 
     // Function to update grocery item checkbox
@@ -192,8 +196,8 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
         ...meal2,
         date: newDate,
       };
-      console.log("updatedMeal");
-      console.log(updatedMeal);
+      console.log("updatedMeal",updatedMeal);
+
       onSubmit(updatedMeal);//this adds or updates the meal in state to firebase
       //This adds the grocery items to firebase and to listsCtx.
       // meal.groceryItems.map((item, index) => {

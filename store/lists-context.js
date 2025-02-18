@@ -3,12 +3,13 @@ import { createContext, useReducer, useState } from 'react';
 export const ListsContext = createContext({
   lists: [],
   qtys: [],
-  addList: ({ item,description, qty, checkedOff, id }) => {},
+  addList: ({ item,description, qty, checkedOff, id, mealId, mealDesc }) => {},
   setLists: (lists) => {},
   deleteList: (id) => {},
-  updateList: (id, { item,description, qty, checkedOff }) => {},
+  updateList: (id, { item,description, qty, checkedOff, mealId, mealDesc }) => {},
   setQty: (qtys) => {}, // Function to set multiple qtys
   addQty: (qty) => {}, // Function to add a single qty
+  pullMeal: (id)=>{},
 });
 
 function listsReducer(state, action) {
@@ -27,6 +28,15 @@ function listsReducer(state, action) {
       const updatedLists = [...state.lists];
       updatedLists[updatableListIndex] = updatedItem;
       return { ...state, lists: updatedLists };
+    case 'PULL_MEAL':
+        const updatableListIndex2 = state.lists.findIndex(
+          (list) => list.id === action.payload.id
+        );
+        const updatableList2 = state.lists[updatableListIndex2];
+        const updatedItem2 = { ...updatableList2, ...action.payload.data };
+        // const updatedLists = [...state.lists];
+        // updatedLists[updatableListIndex] = updatedItem;
+        return { ...state, lists: updatedItem2 };
     case 'DELETE':
       return { ...state, lists: state.lists.filter((list) => list.id !== action.payload) };
     case 'SET_QTYS': 
@@ -59,6 +69,10 @@ function ListsContextProvider({ children }) {
     dispatch({ type: 'UPDATE', payload: { id: id, data: listData } });
   }
 
+  function pullMeal(id, listData) {
+    dispatch({ type: 'PULL_MEAL', payload: { id: id, data: listData } });
+  }
+
   function setQtys(qtys) {
     dispatch({ type: 'SET_QTYS', payload: qtys });
   }
@@ -74,6 +88,7 @@ function ListsContextProvider({ children }) {
     addList: addList,
     deleteList: deleteList,
     updateList: updateList,
+    pullMeal: pullMeal,
     setQtys: setQtys,
     addQty: addQty,
   };

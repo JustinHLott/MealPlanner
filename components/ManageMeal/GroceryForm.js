@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useState, useContext } from 'react';
+import { StyleSheet, Text, View, TextInput } from 'react-native';
 
 import Input from './Input';
 import Button from '../UI/Button';
 //import { getFormattedDate } from '../../util/date';
 import { GlobalStyles } from '../../constants/styles';
 
-function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
+//defaultMealDesc={selectedMeal.description}
+function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues,defaultMealDesc }) {
   const [inputs, setInputs] = useState({
     qty: {
       value: defaultValues ? defaultValues.qty : 0,
@@ -16,7 +17,25 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
       value: defaultValues ? defaultValues.description : '',
       isValid: true,
     },
+    checkedOff: {
+      value: defaultValues ? defaultValues.checkedOff : '',
+      isValid: true,
+    },
+    id: {
+      value: defaultValues ? defaultValues.id : '',
+      isValid: true,
+    },
+    mealId: {
+      value: defaultValues ? defaultValues.mealId : '',
+      isValid: true,
+    },
+    mealDesc: {
+      value: defaultValues ? defaultMealDesc : '',
+      isValid: true,
+    },
   });
+
+  
 
   function inputChangedHandler(inputIdentifier, enteredValue) {
     setInputs((curInputs) => {
@@ -26,6 +45,8 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
       };
     });
   }
+
+  //console.log("inputs.mealDesc",inputs.mealDesc);
 
   function submitHandler() {
     const groceryData = {
@@ -61,6 +82,17 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
     <View style={styles.form}>
       <Text style={styles.title}>Your Grocery Item</Text>
       <View style={styles.inputsRow}>
+        {/* Date Input */}
+        <Text style={styles.label}>Meal</Text>
+        <View style={styles.inputContainer}>
+          <TextInput style={[styles.inputDate,styles.inputAll]}
+            placeholder='No meal associated'
+            editable={false}
+            //if it's a valid date, "validateDate" changes it to a text string.
+            //value={inputs.mealId.value}
+            value={inputs.mealDesc.value}
+          />
+        </View>
         <Input
           style={styles.rowInput}
           label="Qty"
@@ -105,22 +137,45 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
 export default GroceryForm;
 
 const styles = StyleSheet.create({
+  label: {
+    fontSize: 12,
+    color: GlobalStyles.colors.primary100,
+    marginBottom: 4,
+    marginLeft: 4,
+  },
+  inputDate:{
+    width: '98%',
+    marginLeft: 4,
+  },
+  inputContainer:{
+    flexDirection: 'row',
+    marginBottom: 8,
+    marginLeft: 4
+  },
+  inputAll: {
+    backgroundColor: GlobalStyles.colors.primary100,
+    color: GlobalStyles.colors.primary700,
+    padding: 6,
+    borderRadius: 6,
+    fontSize: 18,
+    marginTop: 4,
+  },
   form: {
     marginTop: 40,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
+    color: GlobalStyles.colors.primary50,
     marginVertical: 24,
     textAlign: 'center',
   },
   inputsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    // flexDirection: 'row',
+    // justifyContent: 'space-between',
   },
   rowInput: {
-    flex: 1,
+   // flex: 1,
   },
   errorText: {
     textAlign: 'center',

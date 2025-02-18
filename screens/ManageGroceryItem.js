@@ -7,6 +7,7 @@ import IconButton from '../components/UI/IconButton';
 import LoadingOverlay from '../components/UI/LoadingOverlay';
 import { GlobalStyles } from '../constants/styles';
 import { ListsContext } from '../store/lists-context';
+import { MealsContext } from '../store/meals-context';
 import { storeList, updateList, deleteList } from '../util/http-list';
 
 function ManageGroceryItem({ route, navigation }) {
@@ -14,13 +15,47 @@ function ManageGroceryItem({ route, navigation }) {
   const [error, setError] = useState();
 
   const groceriesCtx = useContext(ListsContext);
+  const mealsCtx = useContext(MealsContext);
+  
 
   const editedGroceryId = route.params?.groceryId;
+  //const groceryItem =groceriesCtx.pullMeal(editedGroceryId,groceriesCtx);
+  
   const isEditing = !!editedGroceryId;
 
   const selectedList = groceriesCtx.lists.find(
     (list) => list.id === editedGroceryId
   );
+  console.log("groceryItem: ",selectedList);
+
+  let selectedMeal = "No Meal"; // Default value
+//////////////////////////////////////////////////
+  for (const meal of mealsCtx.meals) {
+    if (!meal.mealId) {  // Check if mealId is missing
+      selectedMeal = "No Meal";
+    } else {
+      if(meal.id === selectedList.mealId){
+        selectedMeal = meal.description; // Set selectedMeal if id exists
+        break; // Stop looping after finding the first meal without an id
+      }else{
+        selectedMeal = "No Meal";
+        break; // Stop looping after finding the first meal without an id
+      }
+    }
+  }
+
+  // if(selectedList.mealId){
+  //   let selectedMeal = mealsCtx.meals.find(
+  //     (meal) => meal.id === selectedList.mealId
+  //   );
+  //   if(selectedMeal){
+  //     console.log("foundselectedMeal",selectedMeal)
+  //   }
+  // }else{
+  //   selectedMeal="No Meal";
+  // }
+  //console.log("mealDescription: ",selectedMeal.description);
+/////////////////////////////////////////////////
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -50,6 +85,7 @@ function ManageGroceryItem({ route, navigation }) {
       if (isEditing) {
         groceriesCtx.updateList(editedGroceryId, groceryData);
         await updateList(editedGroceryId, groceryData);
+        
       } else {
         const id = await storeList(groceryData);
         groceriesCtx.addList({ ...groceryData, id: id });
@@ -76,6 +112,7 @@ function ManageGroceryItem({ route, navigation }) {
         onSubmit={confirmHandler}
         onCancel={cancelHandler}
         defaultValues={selectedList}
+        defaultMealDesc={selectedMeal?selectedMeal:""}
       />
       {isEditing && (
         <View style={styles.deleteContainer}>
