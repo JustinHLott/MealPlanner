@@ -42,6 +42,9 @@ export function updateList(id, listData) {
 }
 
 export function deleteList(id) {
-  console.log("deletelist: ",id)
+  //console.log("deletelist: ",id)
+  //delete from ctx
+  //deleteFromGroceryCtx(id)
+  //delete from firebase
   return axios.delete(BACKEND_URL + `/grocery/${id}.json`);
 }

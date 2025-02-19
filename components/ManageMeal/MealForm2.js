@@ -18,6 +18,7 @@ const defaultMeal = {
   groceryItems: [], // Start as an empty array
 };
 
+//defaultGroceryItem needs to keep name and quantity as is.
 const defaultGroceryItem = { name: "", quantity: "", checkedOff: "", id: "" };
 
 export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
@@ -30,6 +31,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   const [errorMessage, setErrorMessage] = useState("filled");
   const [editableOr, setEditableOr] = useState(false);
   const [checked,setChecked] = useState(false);
+  const [newGroceryList,setNewGroceryList] = useState();
   // const [showPicker, setShowPicker] = useState(false);
   // const [datePickerDate,setDatePickerDate] = useState(initialMeal.date?initialMeal.date:"");
 
@@ -69,7 +71,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
       }else{
         console.log("Invalid date");
         // console.log(startDate);
-        return startDate;
+        //return startDate;
       }
     }else if(typeof initialMeal.description==="undefined"){
       const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
@@ -216,23 +218,29 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
     }
   }
 
+  function deleteFromGroceryCtx(thisId){
+    // console.log("MealForm2 before delete",listsCtx.lists)
+    // console.log("MealForm2 thisId",thisId)
+    const updatedGroceries1 = listsCtx.lists.filter(grocery => grocery.thisId !== thisId);
+    const updatedGroceries = updatedGroceries1.filter(grocery => grocery.id !== thisId);
+    listsCtx.setLists(updatedGroceries);
+    //listsCtx.setLists(updatedGroceries);
+    // console.log("MealForm2 after delete",updatedGroceries);
+  }
+
   // Function to delete grocery item
   const deleteGroceryItem = (index,mealId,thisId) => {
-    //With delete list it doesn't delete from Grocery List.  With save it does add the groceries to Grocery List.
-    //Maybe we need to pass a delete function through like we do with save.
-
-
 
     //remove grocery item from state
     setMeal((prevMeal) => ({
       ...prevMeal,
       groceryItems: prevMeal.groceryItems.filter((_, i) => i !== index),
     }));
-    //remove grocery item from listCtx
-    listsCtx.deleteList(thisId);
+
     //remove grocery item from firebase
     deleteList(thisId);
     //remove grocery item from mealsCtx
+    deleteFromGroceryCtx(thisId)
     //console.log("MealForm2 @ updateCTX")
     const selectedMeal = mealsCtx.meals.find(
       (meal) => meal.id === mealId

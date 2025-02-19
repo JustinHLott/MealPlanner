@@ -75,18 +75,6 @@ export async function fetchMeals() {
   const groceriesUnsorted = [];
 
   function addGroceries(groceryItems){
-    // console.log("Makes it to addGroceries in http.js")
-    // console.log(groceryItems);
-    // for (const groceryItem in groceryItems) {
-    //   console.log(groceryItem)
-    //     // const groceryObj = {
-    //     //   name: groceryItem.name,
-    //     //   qty: groceryItem.quantity
-    //     // }
-    //     //add individual grocery items to array
-    //     groceriesUnsorted.push({name: groceryItem.name,quantity: groceryItem.quantity});
-    //   }
-    //   console.log(groceriesUnsorted);
       return groceryItems;
   }
 
@@ -98,18 +86,13 @@ export async function fetchMeals() {
       description: response.data[key].description,
       groceryItems: addGroceries(response.data[key].groceryItems)
     };
-    //console.log(mealObj);
+
     //add individual meals to array
     mealsUnsorted.push(mealObj);
   }
 
   //This sorts the meals by the date field.
   const meals = [...mealsUnsorted,].sort((a, b) => a.date - b.date);
-  //console.log("this is the sorted meals list")
-  //console.log(meals);
-
-  //this gets the date of the most recent meal
-  //const mostRecentMeal = meals.reduce((latest, meal) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
 
   return meals;
 }

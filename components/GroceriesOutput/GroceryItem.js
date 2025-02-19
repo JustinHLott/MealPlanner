@@ -116,7 +116,7 @@ function GroceryItem({ itemData }) {
       //console.log("after ctx meal update",mealsCtx.meals)
 
       //update meal in https
-      updateMeal(meal2.id, mealsCtx.meals)
+      await updateMeal(meal2.id, meal2)
 
     } catch (error) {
       console.log(error)
