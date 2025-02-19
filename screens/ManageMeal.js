@@ -58,28 +58,34 @@ function ManageMeal({ route, navigation }) {
     listsCtx.lists.forEach((item,index)=>{
       console.log(item, index)
     })
-    
+  }
+
+  function addCtxMeal(updatedMeal,mealId){
+    console.log
+    mealsCtx.addMeal({ ...updatedMeal, id: mealId });//This adds the meal to the Context in the app
   }
 
   async function confirmHandler(mealData) {
     console.log("Makes it to confirmHandler in ManageMeals")
-    console.log(mealData);
+    //console.log(mealData);
     setIsSubmitting(true);
     try {
       if (isEditing) {
-        console.log("Makes it to editing.  MealID:"+editedMealId)
+        console.log("Makes it to updatinging.  MealID:",editedMealId)
         mealsCtx.updateMeal(editedMealId, mealData);
         await updateMeal(editedMealId, mealData);
         //maybe delete then add again instead of updating the meal?
         //also must add meal to ctx and add groceries to ctx.
       } else {
         console.log("Makes it to adding")
-        const id = await storeMeal(mealData,addCtxList);//This adds the meal to firebase
+        const id = await storeMeal(mealData,addCtxList,addCtxMeal);//This adds the meal to firebase
         console.log("finishes adding")
         theID = id;
         mealsCtx.dates.push(mealData.date);
         //console.log(mealsCtx.dates);
-        mealsCtx.addMeal({ ...mealData, id: id });//This adds the meal to the Context in the app
+
+        //mealsCtx.addMeal({ ...mealData, id: id });//This adds the meal to the Context in the app
+
         //const listId = await saveGroceryItems(mealData,id);//This adds all grocery items to the grocery list
 
         //somewhere in the save process it is saving 2 copies to firebase.  One without mealId and one with no id.

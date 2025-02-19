@@ -76,7 +76,7 @@ function GroceryItem({ itemData }) {
 
   function groceryPressHandler() {
     navigation.navigate('ManageGroceryItem', {
-      groceryId: itemData.item.id
+      groceryId: itemData.item.id?itemData.item.id:itemData.item.thisId
     });
   }
 
@@ -94,7 +94,7 @@ function GroceryItem({ itemData }) {
   async function deleteGroceryHandler() {
     setIsSubmitting(true);
     try {
-      console.log("Made it to deletteGroceryHandler")
+      console.log("Made it to deleteGroceryHandler")
       //delete grocery item from firebase http
       await deleteList(itemData.item.id);
 

@@ -9,7 +9,8 @@ import IconButtonNoText from "../UI/IconButtonNoText";
 import { MealsContext } from '../../store/meals-context';
 import { ListsContext } from '../../store/lists-context';
 import { isValidDate, getDateMinusDays } from "../../util/date";
-import { storeList } from "../../util/http-list";
+import { storeList,deleteList } from "../../util/http-list";
+import { updateMeal } from "../../util/http";
 
 const defaultMeal = {
   date: "",
@@ -28,6 +29,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   const [pencilColor, setPencilColor] = useState(GlobalStyles.colors.primary100);
   const [errorMessage, setErrorMessage] = useState("filled");
   const [editableOr, setEditableOr] = useState(false);
+  const [checked,setChecked] = useState(false);
   // const [showPicker, setShowPicker] = useState(false);
   // const [datePickerDate,setDatePickerDate] = useState(initialMeal.date?initialMeal.date:"");
 
@@ -51,7 +53,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
       };
 
       if(isValidDate(initialMeal.date)){
-        // console.log("valid date");
+        console.log("valid date");
         // console.log(startDate);
         // console.log(startDate.toISOString().slice(0, 10));
         //convert date to text string
@@ -65,7 +67,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
         //And update the meal with the new date
         setMeal(updatedMeal3);
       }else{
-        // console.log("Invalid date");
+        console.log("Invalid date");
         // console.log(startDate);
         return startDate;
       }
@@ -199,28 +201,66 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
       console.log("updatedMeal",updatedMeal);
 
       onSubmit(updatedMeal);//this adds or updates the meal in state to firebase
-      //This adds the grocery items to firebase and to listsCtx.
-      meal.groceryItems.map((item, index) => {
-        const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id };
-        console.log("grocery to Ctx MealForm2");
-        console.log(groceryItem);
-        //storeList(groceryItem);
-        //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
-        listsCtx.addList ( groceryItem );
+      // //This adds the grocery items to firebase and to listsCtx.
+      // meal.groceryItems.map((item, index) => {
+      //   const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id };
+      //   console.log("grocery to Ctx MealForm2");
+      //   console.log(groceryItem);
+      //   //storeList(groceryItem);
+      //   //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
+      //   listsCtx.addList ( groceryItem );
         
-      });
-      console.log("full groceryCtx MealForm2");
-      console.log(listsCtx.lists);
+      // });
+      // console.log("full groceryCtx MealForm2");
+      // console.log(listsCtx.lists);
     }
   }
 
   // Function to delete grocery item
-  const deleteGroceryItem = (index) => {
+  const deleteGroceryItem = (index,mealId,thisId) => {
+    //remove grocery item from state
     setMeal((prevMeal) => ({
       ...prevMeal,
       groceryItems: prevMeal.groceryItems.filter((_, i) => i !== index),
     }));
+    //remove grocery item from listCtx
+    listsCtx.deleteList(thisId);
+    //remove grocery item from firebase
+    deleteList(thisId);
+    //remove grocery item from mealsCtx
+    console.log("MealForm2 @ updateCTX")
+    const selectedMeal = mealsCtx.meals.find(
+      (meal) => meal.id === mealId
+    );
+    if(selectedMeal){
+      console.log("MealForm2 selectedMeal",selectedMeal)
+      createMealWithoutGroceryItem(selectedMeal,thisId)
+    }else{
+      console.log("MealForm2 no selectedMeal")
+    }
   };
+
+  function createMealWithoutGroceryItem(selectedMeal,thisId){
+
+    let newGroceryList = []
+    meal.groceryItems.map((item, index) => {
+      const groceryItem = { description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id };
+      if(item.thisId !== thisId){
+        newGroceryList.push(groceryItem);
+      }
+    });
+
+    const updatedMeal={
+      date: selectedMeal.date,
+      description: selectedMeal.description,
+      id: selectedMeal.id,
+      groceryItem: newGroceryList,
+    }
+    //update meal in firebase
+    updateMeal(selectedMeal.id,updatedMeal)
+    //update meal in ctx
+    mealsCtx.updateMeal(selectedMeal.id,updatedMeal)
+  }
 
   function validateDate(startDate){
     if(isValidDate(startDate)){
@@ -255,6 +295,8 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   //     setDatePickerDate(selectedDate);
   //   }
   // };
+
+  console.log("groceryItems MealForm2", meal.groceryItems);
 
   return (
     <View style={{ padding: 20, flex: 1 }}>
@@ -303,29 +345,31 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
         renderItem={({ item, index }) => (
           <View style={styles.inputContainer}>
             <View style={styles.checkboxContainer}>
-              <Pressable onPress={() => handleGroceryCheckbox(index)} style={styles.checkbox}>
+              {/* <Pressable onPress={() => handleGroceryCheckbox(index)} style={styles.checkbox}> */}
                 <MaterialIcons  
                   size={24} 
-                  color={GlobalStyles.colors.primary100} 
-                  name={() =>handleGroceryCheckbox(index) ? "check-box" : "check-box-outline-blank"}
+                  color={GlobalStyles.colors.primary100}
+                  //name={() =>handleGroceryCheckbox(index) ? "check-box" : "check-box-outline-blank"}
+                  name={checked ? 'check-box' : 'check-box-outline-blank'}
+                  onPress={() => setChecked(!checked)} // Toggle checkbox
                   />
-              </Pressable>
+              {/* </Pressable> */}
             </View>
             <TextInput style={[styles.inputQty,styles.inputAll]}
               keyboardType='numeric'
               placeholder="Qty"
               maxLength={3}
               onChangeText={(text) => handleGroceryChange(index, "quantity", text)}
-              value={item.quantity}
+              value={item.qty?item.qty:item.quantity}
             />
             <TextInput style={[styles.inputGrocery,styles.inputAll]}
               keyboardType='default'
               placeholder="Enter Grocery Item"
               maxLength={50}
               onChangeText={(text) => handleGroceryChange(index, "name", text)}
-              value={item.name}
+              value={item.description?item.description:item.name}
             />
-            <IconButtonNoText icon="trash" size={20} color={GlobalStyles.colors.error500} onPress={() => deleteGroceryItem(index)} />
+            <IconButtonNoText icon="trash" size={20} color={GlobalStyles.colors.error500} onPress={() => deleteGroceryItem(index,item.mealId,item.thisId)} />
           </View>
         )}
       />

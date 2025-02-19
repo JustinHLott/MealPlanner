@@ -22,12 +22,12 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
       value: defaultValues ? defaultValues.checkedOff : '',
       isValid: true,
     },
-    id: {
-      value: defaultValues ? defaultValues.id : '',
+    thisId: {
+      value: defaultValues ? defaultValues.thisId : '',
       isValid: true,
     },
     mealId: {
-      value: defaultValues ? defaultValues.mealId : '',
+      value: defaultValues ? defaultValues.id : '',
       isValid: true,
     },
     mealDesc: {
@@ -92,6 +92,17 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
             //if it's a valid date, "validateDate" changes it to a text string.
             //value={inputs.mealId.value}
             value={inputs.mealDesc.value}
+          />
+        </View>
+        {/* Grocery id */}
+        <Text style={styles.label}>Grocery Id</Text>
+        <View style={styles.inputContainer}>
+          <TextInput style={[styles.inputDate,styles.inputAll]}
+            placeholder='No grocery id'
+            editable={false}
+            //if it's a valid date, "validateDate" changes it to a text string.
+            //value={inputs.mealId.value}
+            value={inputs.thisId.value}
           />
         </View>
         <Input

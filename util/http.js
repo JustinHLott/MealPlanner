@@ -7,7 +7,7 @@ import axios from 'axios';
 const BACKEND_URL =
   'https://justinhlottcapstone-default-rtdb.firebaseio.com';
 
-export async function storeMeal(mealData,addCtxList) {
+export async function storeMeal(mealData,addCtxList,addCtxMeal) {
   console.log("storeMeal");
   //const listsCtx = useContext(ListsContext);
   const response = await axios.post(BACKEND_URL + '/meals3.json', mealData);
@@ -48,6 +48,8 @@ export async function storeMeal(mealData,addCtxList) {
       console.log("updatedMeal http: ",updatedMeal)
       //update meal in firebase
       updateMeal(id, updatedMeal)
+      //this functions adds meal to meals ctx in ManageMeals.
+      addCtxMeal(updatedMeal,id)
       console.log("Saved:", updatedMeal);
       console.log("All grocery items saved successfully!");
   } catch (error) {
