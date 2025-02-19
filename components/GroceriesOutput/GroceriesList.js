@@ -42,7 +42,7 @@ function GroceriesList({ groceries }) {
     <FlatList
       data={groceries}
       renderItem={renderGroceryItem}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => item.id?item.id:item.thisId}
     />
   );
 }

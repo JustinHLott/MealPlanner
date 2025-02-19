@@ -12,7 +12,7 @@ import IconButtonNoText from '../components/UI/IconButtonNoText';
 import Button from '../components/UI/Button';
 
 function RecentMeals() {
-  console.log("Makes it to RecentMeals");
+  //console.log("Makes it to RecentMeals");
   const [isFetching, setIsFetching] = useState(true);
   const [error, setError] = useState();
   const [firstDate, setFirstDate] = useState(getDateMinusDays(new Date(),1));
@@ -26,8 +26,8 @@ function RecentMeals() {
         const meals = await fetchMeals();
         mealsCtx.setMeals(meals);
         //mealsCtx.setDates(meals);
-        console.log("At setDates")
-        console.log(mealsCtx.dates)
+        // console.log("At setDates")
+        // console.log(mealsCtx.dates)
       } catch (error) {
         console.log(error)
         setError('Could not fetch meals!');

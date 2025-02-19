@@ -9,7 +9,7 @@ import { getDateMinusDays } from '../util/date';
 import { fetchLists } from '../util/http-list';
 
 function GroceryList() {
-  console.log("makes it to grocerylist")
+  //console.log("makes it to grocerylist")
   const [isFetching, setIsFetching] = useState(true);
   const [error, setError] = useState();
   const [recentLists, setRecentLists] = useState();
@@ -36,13 +36,17 @@ function GroceryList() {
     getList();
   }, []);
 
+  useEffect(() => {
+    setRecentLists(listsCtx.lists)
+  }, [listsCtx.lists]);
+
     // Trigger update every time the screen is focused
     useFocusEffect(
       
       useCallback(() => {
-        console.log("useFocusEffect")
+        //console.log("useFocusEffect")
         fetchGroceryList();
-      }, []) // Dependencies ensure it runs when meals change
+      }, [listsCtx.lists]) // Dependencies ensure it runs when meals change
     );
 
     function fetchGroceryList(){
@@ -58,7 +62,7 @@ function GroceryList() {
     return <LoadingOverlay />;
   }
 
-  const recentLists2 = listsCtx.lists
+  //const recentLists2 = listsCtx.lists
   // const recentLists = listsCtx.lists.filter((groceryItem) => {
   //   console.log("Get's to GroceryList filter by date: "+groceryItem)
   //   const today = getDateMinusDays(new Date(),1);
@@ -69,8 +73,8 @@ function GroceryList() {
 
   return (
     <GroceriesOutput
-      //groceries={recentLists}
-      groceries={listsCtx.lists}
+      groceries={recentLists}
+      //groceries={listsCtx.lists}
       fallbackText="No grocery items registered..."
     />
   );

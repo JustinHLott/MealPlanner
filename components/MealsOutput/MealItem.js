@@ -23,8 +23,8 @@ function MealItem({ id, description, date, groceries }) {
       date2 = new Date(getDateMinusDays(date2,-1));
     }else{
       date2 = new Date("1975-01-01");
-      console.log('broken date');
-      console.log(date2);
+      // console.log('broken date');
+      // console.log(date2);
     }
 
     const options = { weekday: "short" }; // 'long' for full name (e.g., Monday)

@@ -8,8 +8,8 @@ export function getFormattedDate(date) {
     //console.log(date2);
     return date2.toISOString().slice(0, 10);
   }else{
-    console.log("no date");
-    console.log(date2);
+    // console.log("no date");
+    // console.log(date2);
     return new Date().toISOString().slice(0, 10);
   }
   

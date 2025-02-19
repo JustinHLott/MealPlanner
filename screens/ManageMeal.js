@@ -53,7 +53,7 @@ function ManageMeal({ route, navigation }) {
   }
 
   function addCtxList(updatedGrocery){
-    console.log("Add list to Ctx ManageMeal",updatedGrocery)
+    console.log("Add list to Ctx in ManageMeal",updatedGrocery)
     listsCtx.addList(updatedGrocery);
     listsCtx.lists.forEach((item,index)=>{
       console.log(item, index)
@@ -177,8 +177,8 @@ function ManageMeal({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      {console.log("managemeal")}
-      {console.log(selectedMeal)}
+      {/* {console.log("managemeal")}
+      {console.log(selectedMeal)} */}
       <ScrollView
         keyboardShouldPersistTaps="handled"//This makes it so you can click a button while the keyboard is up
       >

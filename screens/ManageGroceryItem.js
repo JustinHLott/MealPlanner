@@ -24,7 +24,7 @@ function ManageGroceryItem({ route, navigation }) {
   const isEditing = !!editedGroceryId;
 
   const selectedList = groceriesCtx.lists.find(
-    (list) => list.id === editedGroceryId
+    (list) => list.id?list.id:list.thisId === editedGroceryId
   );
   console.log("groceryItem: ",selectedList);
 

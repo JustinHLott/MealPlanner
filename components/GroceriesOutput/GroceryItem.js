@@ -31,9 +31,10 @@ function GroceryItem({ itemData }) {
 
   useEffect(()=>{
     const selectedList = groceriesCtx.lists.find(
+      //(list) => list.id?list.id:list.thisId === itemData.item.id?itemData.item.id:itemData.item.thisId
       (list) => list.id === itemData.item.id
     );
-    console.log("groceryItem: ",selectedList);
+    console.log("GroceryItem selectdList: ",selectedList);
   
     let selectedMeal = mealsCtx.meals.find(
       (meal) => meal.id === selectedList?.mealId
@@ -41,24 +42,25 @@ function GroceryItem({ itemData }) {
     //console.log("meal1: ", meal);
   
     if(selectedMeal){
-      console.log("foundselectedMeal",selectedMeal.description);
+      console.log("GroceryItem foundselectedMeal",selectedMeal.description);
       setMeal2(selectedMeal);
       //console.log("meal2: ", meal);
       selectedMeal = selectedMeal?.description;
     }else{
       selectedMeal={
-          id:"",
+          id: itemData.item.mealId,
           date:"",
           description:"",
           groceryItems:[]
         };
+        setMeal2(selectedMeal);
     }
   },[])
 
   const selectedList = groceriesCtx.lists.find(
     (list) => list.id === itemData.item.id
   );
-  console.log("groceryItem: ",selectedList);
+  //console.log("groceryItem: ",selectedList);
 
   let selectedMeal = mealsCtx.meals.find(
     (meal) => meal.id === selectedList?.mealId
@@ -82,13 +84,13 @@ function GroceryItem({ itemData }) {
 
   // Function to delete grocery item
   const deleteGroceryItem = (id) => {
-    console.log("index",id)
-    console.log("before deleted", id,meal2)
+    //console.log("index",id)
+    console.log("GroceryItem before deleted", id,meal2)
     setMeal2((prevMeal) => ({
       ...prevMeal,
       groceryItems: prevMeal.groceryItems.filter((_, i) => i !== id),
     }));
-    console.log("after deleted", meal2)
+    console.log("GroceryItem after deleted", meal2)
   };
 
   async function deleteGroceryHandler() {
@@ -105,13 +107,13 @@ function GroceryItem({ itemData }) {
       deleteGroceryItem(itemData.item.id)
 
       //update mealsCtx
-      console.log("before ctx meal update",meal2.id,meal2)
+      //console.log("before ctx meal update",meal2.id,meal2)
       //add find statement to get id based on date.
       // let selectedMeal = mealsCtx.meals.find(
       //   (meal) => meal.date === itemData.date
       // );
       mealsCtx.updateMeal(meal2.id, meal2)
-      console.log("after ctx meal update",mealsCtx.meals)
+      //console.log("after ctx meal update",mealsCtx.meals)
 
       //update meal in https
       updateMeal(meal2.id, mealsCtx.meals)

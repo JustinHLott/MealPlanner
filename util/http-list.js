@@ -21,6 +21,7 @@ export async function fetchLists() {
       id: key,
       qty: response.data[key].qty,
       description: response.data[key].description,
+      thisId: response.data[key].id,
       mealId: response.data[key].id,
       mealDesc: response.data[key].mealDesc,
       checkedOff: response.data[key].checkedOff,

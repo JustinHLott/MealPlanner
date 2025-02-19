@@ -26,8 +26,12 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
       value: defaultValues ? defaultValues.thisId : '',
       isValid: true,
     },
-    mealId: {
+    id: {
       value: defaultValues ? defaultValues.id : '',
+      isValid: true,
+    },
+    mealId: {
+      value: defaultValues ? defaultValues.mealId : '',
       isValid: true,
     },
     mealDesc: {
@@ -53,6 +57,11 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
     const groceryData = {
       qty: inputs.qty.value,
       description: inputs.description.value,
+      mealId: inputs.mealId.value,
+      mealDesc: inputs.mealDesc.value,
+      id: inputs.id.value,
+      thisId: inputs.thisId.value,
+      checkedOff: inputs.checkedOff.value,
     };
 
     const qtyIsValid = groceryData.qty.toString() !== '';

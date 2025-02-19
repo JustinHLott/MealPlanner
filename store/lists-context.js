@@ -5,7 +5,7 @@ export const ListsContext = createContext({
   qtys: [],
   addList: ({ item,description, qty, checkedOff, id, mealId,thisId, mealDesc }) => {},
   setLists: (lists) => {},
-  deleteList: (id) => {},
+  deleteList: (thisId) => {},
   updateList: (id, { item,description, qty, checkedOff, mealId,thisId, mealDesc }) => {},
   setQty: (qtys) => {}, // Function to set multiple qtys
   addQty: (qty) => {}, // Function to add a single qty
@@ -38,7 +38,7 @@ function listsReducer(state, action) {
         // updatedLists[updatableListIndex] = updatedItem;
         return { ...state, lists: updatedItem2 };
     case 'DELETE':
-      return { ...state, lists: state.lists.filter((list) => list.id !== action.payload) };
+      return { ...state, lists: state.lists.filter((list) => list.id?list.id:list.thisId !== action.payload.id) };
     case 'SET_QTYS': 
       return { ...state, qtys: action.payload }; // Setting multiple dates
     case 'ADD_QTY': 

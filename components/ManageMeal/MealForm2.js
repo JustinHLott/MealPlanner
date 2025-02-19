@@ -41,8 +41,8 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   useEffect(() => {
     if(typeof initialMeal.description!=="undefined"){
       //do nothing
-      console.log("initialMealDescription");
-      console.log(typeof(initialMeal.description.toString));
+      //console.log("initialMealDescription");
+      //console.log(typeof(initialMeal.description.toString));
       let date = new Date(initialMeal.date);
 
       let updatedMeal3 = {
@@ -53,7 +53,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
       };
 
       if(isValidDate(initialMeal.date)){
-        console.log("valid date");
+        //console.log("valid date");
         // console.log(startDate);
         // console.log(startDate.toISOString().slice(0, 10));
         //convert date to text string
@@ -139,14 +139,14 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   const handleGroceryChange = (index, key, value) => {
     const updatedGroceryItems = [...meal.groceryItems];
     updatedGroceryItems[index][key] = value;
-    console.log("groceryitem before: ",updatedGroceryItems[index])
+    //console.log("groceryitem before: ",updatedGroceryItems[index])
     updatedGroceryItems[index]["mealDesc"] = meal.description;
-    console.log("groceryitem after: ",updatedGroceryItems[index])
+    //console.log("groceryitem after: ",updatedGroceryItems[index])
     setMeal((prevMeal) => ({
       ...prevMeal,
       groceryItems: updatedGroceryItems,
     }));
-    console.log("new meal: ",meal.groceryItems)
+    //console.log("new meal: ",meal.groceryItems)
   };
 
     // Function to update grocery item checkbox
@@ -192,8 +192,8 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
       Alert.alert("Both description and date are required!")
     }else{
       const newDate = new Date(meal2.date);
-      console.log("newDate");
-      console.log(newDate);
+      // console.log("newDate");
+      // console.log(newDate);
       const updatedMeal = {
         ...meal2,
         date: newDate,
@@ -218,6 +218,11 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
 
   // Function to delete grocery item
   const deleteGroceryItem = (index,mealId,thisId) => {
+    //With delete list it doesn't delete from Grocery List.  With save it does add the groceries to Grocery List.
+    //Maybe we need to pass a delete function through like we do with save.
+
+
+
     //remove grocery item from state
     setMeal((prevMeal) => ({
       ...prevMeal,
@@ -228,12 +233,12 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
     //remove grocery item from firebase
     deleteList(thisId);
     //remove grocery item from mealsCtx
-    console.log("MealForm2 @ updateCTX")
+    //console.log("MealForm2 @ updateCTX")
     const selectedMeal = mealsCtx.meals.find(
       (meal) => meal.id === mealId
     );
     if(selectedMeal){
-      console.log("MealForm2 selectedMeal",selectedMeal)
+      //console.log("MealForm2 selectedMeal",selectedMeal)
       createMealWithoutGroceryItem(selectedMeal,thisId)
     }else{
       console.log("MealForm2 no selectedMeal")
@@ -244,7 +249,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
 
     let newGroceryList = []
     meal.groceryItems.map((item, index) => {
-      const groceryItem = { description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id };
+      const groceryItem = { description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId };
       if(item.thisId !== thisId){
         newGroceryList.push(groceryItem);
       }
@@ -254,7 +259,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
       date: selectedMeal.date,
       description: selectedMeal.description,
       id: selectedMeal.id,
-      groceryItem: newGroceryList,
+      groceryItems: newGroceryList,
     }
     //update meal in firebase
     updateMeal(selectedMeal.id,updatedMeal)
@@ -296,7 +301,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   //   }
   // };
 
-  console.log("groceryItems MealForm2", meal.groceryItems);
+  //console.log("groceryItems MealForm2", meal.groceryItems);
 
   return (
     <View style={{ padding: 20, flex: 1 }}>

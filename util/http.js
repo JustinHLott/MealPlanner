@@ -8,11 +8,11 @@ const BACKEND_URL =
   'https://justinhlottcapstone-default-rtdb.firebaseio.com';
 
 export async function storeMeal(mealData,addCtxList,addCtxMeal) {
-  console.log("storeMeal");
+  //console.log("storeMeal");
   //const listsCtx = useContext(ListsContext);
   const response = await axios.post(BACKEND_URL + '/meals3.json', mealData);
   const id = response.data.name;
-  console.log("mealID: ",id)
+  //console.log("mealID: ",id)
   try {
     let newGroceryList = [];
     for (const item of mealData.groceryItems) {
@@ -27,30 +27,32 @@ export async function storeMeal(mealData,addCtxList,addCtxMeal) {
       // Save each item to Firebase using Axios
       const responseGrocery = await axios.post(BACKEND_URL + '/grocery.json', groceryData);
       const groceryId = responseGrocery.data.name;
-      console.log("returned groceryId: ",groceryId)
+      //console.log("returned groceryId: ",groceryId)
       //Add the new grocery id to the groceryData
       const updatedGrocery = {
         ...groceryData,
         thisId: groceryId,
       };
 
+      //update firebase with thisId
+      await axios.put(BACKEND_URL + `/grocery/${groceryId}.json`, updatedGrocery);
       //Add groceryData to new array
       newGroceryList.push(updatedGrocery);
       addCtxList(updatedGrocery)//this function is from ManageMeals and it adds the updated grocery list to ctx.
       //listsCtx.addList(updatedGrocery);
     }
       //update meal with new grocery list
-      console.log("mealData http: ",mealData)
+      //console.log("mealData http: ",mealData)
       const updatedMeal = {
         ...mealData,
         groceryItems: newGroceryList,
       };
-      console.log("updatedMeal http: ",updatedMeal)
+      //console.log("updatedMeal http: ",updatedMeal)
       //update meal in firebase
       updateMeal(id, updatedMeal)
       //this functions adds meal to meals ctx in ManageMeals.
       addCtxMeal(updatedMeal,id)
-      console.log("Saved:", updatedMeal);
+      //console.log("Saved:", updatedMeal);
       console.log("All grocery items saved successfully!");
   } catch (error) {
     console.error("Error saving grocery items:", error);
@@ -61,33 +63,6 @@ export async function storeMeal(mealData,addCtxList,addCtxMeal) {
 export async function storeMeal2(mealData) {
   const response = await axios.post(BACKEND_URL + '/meals2.json', mealData);
   const id = response.data.name;
-  return id;
-}
-export async function storeMeal3(mealData) {
-  console.log("storMeal3")
-  const response = await axios.post(BACKEND_URL + '/meals3.json', mealData);
-  const id = response.data.name;
-  console.log("mealID: ",id)
-  try {
-    for (const item of mealData.groceryItems) {
-      const groceryData = {
-        
-        description: item.name,
-        qty: item.quantity,
-        checkedOff: item.checkedOff,
-        id: id,
-      };
-
-      // Save each item to Firebase using Axios
-      const response = await axios.post(BACKEND_URL + '/grocery.json', groceryData);
-
-      console.log("Saved:", response.data);
-    }
-
-    console.log("All grocery items saved successfully!");
-  } catch (error) {
-    console.error("Error saving grocery items:", error);
-  }
   return id;
 }
 
@@ -123,15 +98,15 @@ export async function fetchMeals() {
       description: response.data[key].description,
       groceryItems: addGroceries(response.data[key].groceryItems)
     };
-    console.log(mealObj);
+    //console.log(mealObj);
     //add individual meals to array
     mealsUnsorted.push(mealObj);
   }
 
   //This sorts the meals by the date field.
   const meals = [...mealsUnsorted,].sort((a, b) => a.date - b.date);
-  console.log("this is the sorted meals list")
-  console.log(meals);
+  //console.log("this is the sorted meals list")
+  //console.log(meals);
 
   //this gets the date of the most recent meal
   //const mostRecentMeal = meals.reduce((latest, meal) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
@@ -164,8 +139,8 @@ export async function fetchMeals3() {
 
   //This sorts the meals by the date field.
   const meals = [...mealsUnsorted,].sort((a, b) => a.date - b.date);
-  console.log("this is the sorted meals list")
-  console.log(meals);
+  //console.log("this is the sorted meals list")
+  //console.log(meals);
 
   //this gets the date of the most recent meal
   //const mostRecentMeal = meals.reduce((latest, meal) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
