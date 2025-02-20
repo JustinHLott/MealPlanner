@@ -28,17 +28,25 @@ function ManageGroceryItem({ route, navigation }) {
   //const groceryItem =groceriesCtx.pullMeal(editedGroceryId,groceriesCtx);
   
   useLayoutEffect(() => {
+    if(!groceryItem){
+      groceryItem = "No grocery item"
+    }else{
+      if(!groceryItem.qty){
+        groceryItem = groceriesCtx.lists.find(
+          (list) => list.id?list.id:list.thisId === editedGroceryId
+        );
+      }
+    }
+    if(!meal){
+      meal = "No meal"
+    }else{
+      if(!meal.date){
+        meal = mealsCtx.meals.find(
+          (meal) => meal.id === groceryItem.mealId
+        );
+      }
+    }
     
-    if(!groceryItem.qty){
-      groceryItem = groceriesCtx.lists.find(
-        (list) => list.id?list.id:list.thisId === editedGroceryId
-      );
-    }
-    if(!meal.date){
-      meal = mealsCtx.meals.find(
-        (meal) => meal.id === groceryItem.mealId
-      );
-    }
   }, [editedGroceryId]);
 
   const isEditing = !!editedGroceryId;
@@ -94,6 +102,7 @@ async function deleteGroceryHandler() {
         }
       }else{
         console.log("ManageGroceryItem no mealId");
+        navigation.goBack();
       }
     }else{
       console.log("ManageGroceryItem no editedGroceryId");
