@@ -187,9 +187,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   };
 
   function saveMeal(meal2){
-    console.log("Makes it to saveMeal in MealForm2");
-    console.log("Meal2");
-    console.log(meal2);
+    console.log("Makes it to saveMeal in MealForm2",meal2);
     if(!meal2.date||!meal2.description.trim()){
       Alert.alert("Both description and date are required!")
     }else{
@@ -203,6 +201,10 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
       console.log("updatedMeal",updatedMeal);
 
       onSubmit(updatedMeal);//this adds or updates the meal in state to firebase
+
+
+
+
       // //This adds the grocery items to firebase and to listsCtx.
       // meal.groceryItems.map((item, index) => {
       //   const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id };

@@ -71,15 +71,15 @@ function ManageMeal({ route, navigation }) {
     setIsSubmitting(true);
     try {
       if (isEditing) {
-        console.log("Makes it to updatinging.  MealID:",editedMealId)
+        console.log("ManageMeal updatinging.  MealID:",editedMealId)
         mealsCtx.updateMeal(editedMealId, mealData);
         await updateMeal(editedMealId, mealData);
         //maybe delete then add again instead of updating the meal?
         //also must add meal to ctx and add groceries to ctx.
       } else {
-        console.log("Makes it to adding")
+        console.log("ManageMeal adding")
         const id = await storeMeal(mealData,addCtxList,addCtxMeal);//This adds the meal to firebase
-        console.log("finishes adding")
+        console.log("ManageMeal finishes adding")
         theID = id;
         mealsCtx.dates.push(mealData.date);
         //console.log(mealsCtx.dates);

@@ -30,13 +30,27 @@ function GroceryItem({ itemData }) {
   const mealsCtx = useContext(MealsContext);
 
   useEffect(()=>{
-    const selectedList = groceriesCtx.lists.find(
-      //(list) => list.id?list.id:list.thisId === itemData.item.id?itemData.item.id:itemData.item.thisId
-      (list) => list.id === itemData.item.id
-    );
-    console.log("GroceryItem selectdList: ",selectedList);
-  
-    let selectedMeal = mealsCtx.meals.find(
+    let selectedMeal;
+    let selectedList;
+    if(itemData.item.id){
+      selectedList = groceriesCtx.lists.find(
+        //(list) => list.id?list.id:list.thisId === itemData.item.id?itemData.item.id:itemData.item.thisId
+        (list) => list.id === itemData.item.id
+      );
+      console.log("GroceryItem id: ",selectedList);
+    
+      selectedMeal = mealsCtx.meals.find(
+        (meal) => meal.id === selectedList?.mealId
+      );
+    }else{
+      selectedList = groceriesCtx.lists.find(
+        //(list) => list.id?list.id:list.thisId === itemData.item.id?itemData.item.id:itemData.item.thisId
+        (list) => list.thisId === itemData.item.thisId
+      );
+      console.log("GroceryItem thisId: ",selectedList);
+    }
+
+    selectedMeal = mealsCtx.meals.find(
       (meal) => meal.id === selectedList?.mealId
     );
     //console.log("meal1: ", meal);
@@ -82,41 +96,92 @@ function GroceryItem({ itemData }) {
     });
   }
 
-  // Function to delete grocery item
-  const deleteGroceryItem = (id) => {
-    //console.log("index",id)
-    console.log("GroceryItem before deleted", id,meal2)
-    setMeal2((prevMeal) => ({
-      ...prevMeal,
-      groceryItems: prevMeal.groceryItems.filter((_, i) => i !== id),
-    }));
-    console.log("GroceryItem after deleted", meal2)
-  };
+  // // Function to delete grocery item
+  // const deleteGroceryItem = (id) => {
+  //   //console.log("index",id)
+  //   console.log("GroceryItem before deleted", id,meal2)
+  //   setMeal2((prevMeal) => ({
+  //     ...prevMeal,
+  //     groceryItems: prevMeal.groceryItems.filter((_, i) => i !== id),
+  //   }));
+  //   console.log("GroceryItem after deleted", meal2)
+  // };
+
+    /////////////////////////////////////////////////////
+    function deleteFromGroceryCtx(thisId){
+      console.log("GroceryIte before delete",groceriesCtx.lists)
+      // console.log("MealForm2 thisId",thisId)
+      const updatedGroceries1 = groceriesCtx.lists.filter(grocery => grocery.thisId !== thisId);
+      const updatedGroceries = updatedGroceries1.filter(grocery => grocery.id !== thisId);
+      groceriesCtx.setLists(updatedGroceries);
+      console.log("GroceryItem after delete",updatedGroceries);
+    }
+    /////////////////////////////////////////////////////
 
   async function deleteGroceryHandler() {
     setIsSubmitting(true);
     try {
       console.log("Made it to deleteGroceryHandler")
-      //delete grocery item from firebase http
-      await deleteList(itemData.item.id);
+      if(itemData.item.id){
+        console.log("GroceryItem id: ",itemData.item.id)
+        //delete grocery item from firebase http
+        await deleteList(itemData.item.id);
 
-      //delete grocery item from grocery ctx
-      groceriesCtx.deleteList(itemData.item.id);
+        //delete grocery item from grocery ctx
+        deleteFromGroceryCtx(itemData.item.id)
+        //groceriesCtx.deleteList(itemData.item.id);
 
-      //update meal state
-      deleteGroceryItem(itemData.item.id)
+        // //update meal state
+        // deleteGroceryItem(itemData.item.id)
+        console.log("GroceryItem meals: ",mealsCtx.meals)
+        //update mealsCtx
+        if(itemData.item.mealId){
+          const selectedMeal = mealsCtx.meals.find(
+            (meal) => meal.id === itemData.item.mealId
+          );
+          if(selectedMeal){
+            //console.log("MealForm2 selectedMeal",selectedMeal)
+            createMealWithoutGroceryItem(selectedMeal,itemData.item.id);
+          }else{
+            console.log("GroceryItem no id");
+          }
+        }else{
+          console.log("GroceryItem no mealId");
+        }
+      }else{
+        console.log("GroceryItem thisId: ",itemData.item.thisId)
+        //delete grocery item from firebase http
+        await deleteList(itemData.item.thisId);
 
-      //update mealsCtx
-      //console.log("before ctx meal update",meal2.id,meal2)
-      //add find statement to get id based on date.
-      // let selectedMeal = mealsCtx.meals.find(
-      //   (meal) => meal.date === itemData.date
-      // );
-      mealsCtx.updateMeal(meal2.id, meal2)
-      //console.log("after ctx meal update",mealsCtx.meals)
+        //delete grocery item from grocery ctx
+        deleteFromGroceryCtx(itemData.item.thisId)
+        //groceriesCtx.deleteList(itemData.item.id);
 
-      //update meal in https
-      await updateMeal(meal2.id, meal2)
+        // //update meal state
+        // deleteGroceryItem(itemData.item.id)
+
+        //console.log("GroceryItem meals: ",mealsCtx.meals)
+        //update mealsCtx
+        if(itemData.item.mealId){
+          const selectedMeal = mealsCtx.meals.find(
+            (meal) => meal.thisId === itemData.item.mealId
+          );
+          if(selectedMeal){
+            //console.log("MealForm2 selectedMeal",selectedMeal)
+            createMealWithoutGroceryItem(selectedMeal,itemData.item.thisId);
+          }else{
+            console.log("GroceryItem no thisId");
+          }
+        }else{
+          console.log("GroceryItem no mealId");
+        }
+      }
+      
+      
+      // mealsCtx.updateMeal(meal2.id, meal2)
+      // //console.log("after ctx meal update",mealsCtx.meals)
+      // //update meal in https
+      // await updateMeal(meal2.id, meal2)
 
     } catch (error) {
       console.log(error)
@@ -124,6 +189,31 @@ function GroceryItem({ itemData }) {
       setIsSubmitting(false);
     }
   }
+
+  /////////////////////////////////////////////////////
+
+    function createMealWithoutGroceryItem(selectedMeal,thisId){
+  
+      let newGroceryList = []
+      selectedMeal.groceryItems.map((item, index) => {
+        const groceryItem = { description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId };
+        if(item.thisId !== thisId){
+          newGroceryList.push(groceryItem);
+        }
+      });
+  
+      const updatedMeal={
+        date: selectedMeal.date,
+        description: selectedMeal.description,
+        id: selectedMeal.id,
+        groceryItems: newGroceryList,
+      }
+      //update meal in firebase
+      updateMeal(selectedMeal.id,updatedMeal)
+      //update meal in ctx
+      mealsCtx.updateMeal(selectedMeal.id,updatedMeal)
+    }
+  /////////////////////////////////////////////////////
 
   if (error && !isSubmitting) {
     return <ErrorOverlay message={error} />
