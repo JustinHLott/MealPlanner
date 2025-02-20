@@ -131,8 +131,8 @@ export async function fetchMeals3() {
   return meals;
 }
 
-export function updateMeal(id, mealData) {
-  return axios.put(BACKEND_URL + `/meals3/${id}.json`, mealData);
+export function updateMeal(mealId, mealData) {
+  return axios.put(BACKEND_URL + `/meals3/${mealId}.json`, mealData);
 }
 
 export function deleteMeal(id) {

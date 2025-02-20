@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useState } from 'react';
+import { useContext, useLayoutEffect, useState, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import GroceryForm from '../components/ManageMeal/GroceryForm';
@@ -9,6 +9,7 @@ import { GlobalStyles } from '../constants/styles';
 import { ListsContext } from '../store/lists-context';
 import { MealsContext } from '../store/meals-context';
 import { storeList, updateList, deleteList } from '../util/http-list';
+import { updateMeal } from '../util/http';
 
 function ManageGroceryItem({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,43 +20,28 @@ function ManageGroceryItem({ route, navigation }) {
   
 
   const editedGroceryId = route.params?.groceryId;
+  let meal = route.params?.meal;
+  let groceryItem = route.params?.item;
+  console.log("ManageGroceryItem editedGroceryId: ",editedGroceryId);
+  console.log("ManageGroceryItem meal: ",meal);
+  console.log("ManageGroceryItem groceryItem: ",groceryItem);
   //const groceryItem =groceriesCtx.pullMeal(editedGroceryId,groceriesCtx);
   
-  const isEditing = !!editedGroceryId;
-
-  const selectedList = groceriesCtx.lists.find(
-    (list) => list.id?list.id:list.thisId === editedGroceryId
-  );
-  console.log("groceryItem: ",selectedList);
-
-  let selectedMeal = "No Meal"; // Default value
-//////////////////////////////////////////////////
-  for (const meal of mealsCtx.meals) {
-    if (!meal.mealId) {  // Check if mealId is missing
-      selectedMeal = "No Meal";
-    } else {
-      if(meal.id === selectedList.mealId){
-        selectedMeal = meal.description; // Set selectedMeal if id exists
-        break; // Stop looping after finding the first meal without an id
-      }else{
-        selectedMeal = "No Meal";
-        break; // Stop looping after finding the first meal without an id
-      }
+  useLayoutEffect(() => {
+    
+    if(!groceryItem.qty){
+      groceryItem = groceriesCtx.lists.find(
+        (list) => list.id?list.id:list.thisId === editedGroceryId
+      );
     }
-  }
+    if(!meal.date){
+      meal = mealsCtx.meals.find(
+        (meal) => meal.id === groceryItem.mealId
+      );
+    }
+  }, [editedGroceryId]);
 
-  // if(selectedList.mealId){
-  //   let selectedMeal = mealsCtx.meals.find(
-  //     (meal) => meal.id === selectedList.mealId
-  //   );
-  //   if(selectedMeal){
-  //     console.log("foundselectedMeal",selectedMeal)
-  //   }
-  // }else{
-  //   selectedMeal="No Meal";
-  // }
-  //console.log("mealDescription: ",selectedMeal.description);
-/////////////////////////////////////////////////
+  const isEditing = !!editedGroceryId;
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -63,17 +49,90 @@ function ManageGroceryItem({ route, navigation }) {
     });
   }, [navigation, isEditing]);
 
-  async function deleteGroceryHandler() {
-    setIsSubmitting(true);
-    try {
-      await deleteList(editedGroceryId);
-      groceriesCtx.deleteList(editedGroceryId);
-      navigation.goBack();
-    } catch (error) {
-      setError('Could not delete grocery list item - please try again later!');
-      setIsSubmitting(false);
-    }
+  /////////////////////////////////////////////////////
+  function deleteFromGroceryCtx(thisId){
+    console.log("ManageGroceryItem before delete",groceriesCtx.lists)
+    // console.log("MealForm2 thisId",thisId)
+    const updatedGroceries1 = groceriesCtx.lists.filter(grocery => grocery.thisId !== thisId);
+    const updatedGroceries = updatedGroceries1.filter(grocery => grocery.id !== thisId);
+    groceriesCtx.setLists(updatedGroceries);
+    console.log("ManageGroceryItem after delete",updatedGroceries);
   }
+  /////////////////////////////////////////////////////
+
+async function deleteGroceryHandler() {
+  setIsSubmitting(true);
+  try {
+    console.log("Made it to deleteGroceryHandler")
+    if(editedGroceryId){
+      console.log("ManageGroceryItem id: ",editedGroceryId)
+      //delete grocery item from firebase http
+      await deleteList(editedGroceryId);
+
+      //delete grocery item from grocery ctx
+      deleteFromGroceryCtx(editedGroceryId)
+      //groceriesCtx.deleteList(itemData.item.id);
+
+      // // //update meal state
+      // const selectedList2 = groceriesCtx.lists.find(
+      //   (list) => list.id?list.id:list.thisId === editedGroceryId
+      // );
+      console.log("ManageGroceryItem groceryItem: ",groceryItem);
+      //update mealsCtx
+      if(groceryItem.mealId){
+
+        const meal3 = mealsCtx.meals.find(
+          (meal) => meal.id === groceryItem.mealId
+        );
+
+        if(meal3){
+          console.log("ManageGroceryItem selectedMeal",meal3)
+          await createMealWithoutGroceryItem(meal3,editedGroceryId);
+          navigation.goBack();
+        }else{
+          console.log("ManageGroceryItem no id");
+        }
+      }else{
+        console.log("ManageGroceryItem no mealId");
+      }
+    }else{
+      console.log("ManageGroceryItem no editedGroceryId");
+    }
+  } catch (error) {
+    console.log(error)
+    setError('Could not delete grocery list item - please try again later!');
+    setIsSubmitting(false);
+  }
+}
+
+/////////////////////////////////////////////////////
+
+  async function createMealWithoutGroceryItem(theMeal,thisId){
+
+    let newGroceryList = []
+    theMeal.groceryItems.map((item) => {
+      const groceryItem = { description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId };
+      //This adds back all grocery items but the one with thisId
+      if(item.thisId !== thisId){
+        newGroceryList.push(groceryItem);
+      }
+    });
+
+    const updatedMeal={
+      date: theMeal.date,
+      description: theMeal.description,
+      id: theMeal.id,
+      groceryItems: newGroceryList,
+    }
+    console.log("ManageGroceryItem updatedMeal: ",updatedMeal)
+    //update meal in firebase
+    //updateMeal(thisId,updatedMeal)
+    await updateMeal(updatedMeal.id,updatedMeal)
+    //update meal in ctx
+    mealsCtx.updateMeal(updatedMeal.id,updatedMeal)
+    //mealsCtx.updateMeal(thisId,updatedMeal)
+  }
+/////////////////////////////////////////////////////
 
   function cancelHandler() {
     navigation.goBack();
@@ -97,6 +156,7 @@ function ManageGroceryItem({ route, navigation }) {
     }
   }
 
+  //prepare the overlays if they are needed.
   if (error && !isSubmitting) {
     return <ErrorOverlay message={error} />;
   }
@@ -111,8 +171,8 @@ function ManageGroceryItem({ route, navigation }) {
         submitButtonLabel={isEditing ? 'Update' : 'Add'}
         onSubmit={confirmHandler}
         onCancel={cancelHandler}
-        defaultValues={selectedList}
-        defaultMealDesc={selectedMeal?selectedMeal:""}
+        defaultValues={groceryItem}
+        defaultMealDesc={meal?meal:""}
       />
       {isEditing && (
         <View style={styles.deleteContainer}>

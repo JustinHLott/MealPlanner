@@ -91,8 +91,13 @@ function GroceryItem({ itemData }) {
   }
 
   function groceryPressHandler() {
+    console.log("GroceryItem id/thisId: ",itemData.item.id?itemData.item.id:itemData.item.thisId);
+    console.log("GroceryItem id: ",itemData.item.id);
+    console.log("GroceryItem thisId: ",itemData.item.thisId);
     navigation.navigate('ManageGroceryItem', {
-      groceryId: itemData.item.id?itemData.item.id:itemData.item.thisId
+      groceryId: itemData.item.id?itemData.item.id:itemData.item.thisId,
+      item: itemData.item,
+      meal: meal2,
     });
   }
 
@@ -176,13 +181,6 @@ function GroceryItem({ itemData }) {
           console.log("GroceryItem no mealId");
         }
       }
-      
-      
-      // mealsCtx.updateMeal(meal2.id, meal2)
-      // //console.log("after ctx meal update",mealsCtx.meals)
-      // //update meal in https
-      // await updateMeal(meal2.id, meal2)
-
     } catch (error) {
       console.log(error)
       setError('Could not delete grocery list item - please try again later!');
