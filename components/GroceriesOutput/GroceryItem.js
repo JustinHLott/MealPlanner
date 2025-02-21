@@ -37,7 +37,7 @@ function GroceryItem({ itemData }) {
         //(list) => list.id?list.id:list.thisId === itemData.item.id?itemData.item.id:itemData.item.thisId
         (list) => list.id === itemData.item.id
       );
-      console.log("GroceryItem id: ",selectedList);
+      //console.log("GroceryItem id: ",selectedList);
     
       selectedMeal = mealsCtx.meals.find(
         (meal) => meal.id === selectedList?.mealId
@@ -47,7 +47,7 @@ function GroceryItem({ itemData }) {
         //(list) => list.id?list.id:list.thisId === itemData.item.id?itemData.item.id:itemData.item.thisId
         (list) => list.thisId === itemData.item.thisId
       );
-      console.log("GroceryItem thisId: ",selectedList);
+      //console.log("GroceryItem thisId: ",selectedList);
     }
 
     selectedMeal = mealsCtx.meals.find(
@@ -56,7 +56,7 @@ function GroceryItem({ itemData }) {
     //console.log("meal1: ", meal);
   
     if(selectedMeal){
-      console.log("GroceryItem foundselectedMeal",selectedMeal.description);
+      //console.log("GroceryItem foundselectedMeal",selectedMeal.description);
       setMeal2(selectedMeal);
       //console.log("meal2: ", meal);
       selectedMeal = selectedMeal?.description;
@@ -82,7 +82,7 @@ function GroceryItem({ itemData }) {
   //console.log("meal1: ", meal);
 
   if(selectedMeal){
-    console.log("foundselectedMeal",selectedMeal.description);
+    //console.log("foundselectedMeal",selectedMeal.description);
     //setMeal2(selectedMeal);
     //console.log("meal2: ", meal);
     selectedMeal = selectedMeal?.description;
@@ -91,9 +91,9 @@ function GroceryItem({ itemData }) {
   }
 
   function groceryPressHandler() {
-    console.log("GroceryItem id/thisId: ",itemData.item.id?itemData.item.id:itemData.item.thisId);
-    console.log("GroceryItem id: ",itemData.item.id);
-    console.log("GroceryItem thisId: ",itemData.item.thisId);
+    // console.log("GroceryItem id/thisId: ",itemData.item.id?itemData.item.id:itemData.item.thisId);
+    // console.log("GroceryItem id: ",itemData.item.id);
+    // console.log("GroceryItem thisId: ",itemData.item.thisId);
     navigation.navigate('ManageGroceryItem', {
       groceryId: itemData.item.id?itemData.item.id:itemData.item.thisId,
       item: itemData.item,
@@ -114,21 +114,21 @@ function GroceryItem({ itemData }) {
 
     /////////////////////////////////////////////////////
     function deleteFromGroceryCtx(thisId){
-      console.log("GroceryIte before delete",groceriesCtx.lists)
+      //console.log("GroceryIte before delete",groceriesCtx.lists)
       // console.log("MealForm2 thisId",thisId)
       const updatedGroceries1 = groceriesCtx.lists.filter(grocery => grocery.thisId !== thisId);
       const updatedGroceries = updatedGroceries1.filter(grocery => grocery.id !== thisId);
       groceriesCtx.setLists(updatedGroceries);
-      console.log("GroceryItem after delete",updatedGroceries);
+      //console.log("GroceryItem after delete",updatedGroceries);
     }
     /////////////////////////////////////////////////////
 
   async function deleteGroceryHandler() {
     setIsSubmitting(true);
     try {
-      console.log("Made it to deleteGroceryHandler")
+      //console.log("Made it to deleteGroceryHandler")
       if(itemData.item.id){
-        console.log("GroceryItem id: ",itemData.item.id)
+        //console.log("GroceryItem id: ",itemData.item.id)
         //delete grocery item from firebase http
         await deleteList(itemData.item.id);
 
@@ -138,7 +138,7 @@ function GroceryItem({ itemData }) {
 
         // //update meal state
         // deleteGroceryItem(itemData.item.id)
-        console.log("GroceryItem meals: ",mealsCtx.meals)
+        //console.log("GroceryItem meals: ",mealsCtx.meals)
         //update mealsCtx
         if(itemData.item.mealId){
           const selectedMeal = mealsCtx.meals.find(
@@ -169,7 +169,7 @@ function GroceryItem({ itemData }) {
         //update mealsCtx
         if(itemData.item.mealId){
           const selectedMeal = mealsCtx.meals.find(
-            (meal) => meal.thisId === itemData.item.mealId
+            (meal) => meal.id === itemData.item.mealId
           );
           if(selectedMeal){
             //console.log("MealForm2 selectedMeal",selectedMeal)

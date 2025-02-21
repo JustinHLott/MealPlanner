@@ -22,9 +22,9 @@ function ManageGroceryItem({ route, navigation }) {
   const editedGroceryId = route.params?.groceryId;
   let meal = route.params?.meal;
   let groceryItem = route.params?.item;
-  console.log("ManageGroceryItem editedGroceryId: ",editedGroceryId);
-  console.log("ManageGroceryItem meal: ",meal);
-  console.log("ManageGroceryItem groceryItem: ",groceryItem);
+  // console.log("ManageGroceryItem editedGroceryId: ",editedGroceryId);
+  // console.log("ManageGroceryItem meal: ",meal);
+  // console.log("ManageGroceryItem groceryItem: ",groceryItem);
   //const groceryItem =groceriesCtx.pullMeal(editedGroceryId,groceriesCtx);
   
   useLayoutEffect(() => {
@@ -71,7 +71,7 @@ function ManageGroceryItem({ route, navigation }) {
 async function deleteGroceryHandler() {
   setIsSubmitting(true);
   try {
-    console.log("Made it to deleteGroceryHandler")
+    console.log("ManageGroceryItem deleteGroceryHandler")
     if(editedGroceryId){
       console.log("ManageGroceryItem id: ",editedGroceryId)
       //delete grocery item from firebase http

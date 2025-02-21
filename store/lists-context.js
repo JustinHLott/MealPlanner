@@ -18,16 +18,31 @@ function listsReducer(state, action) {
     case 'ADD':
       return { ...state, lists: [action.payload, ...state.lists] };
     case 'SORT_LIST':
-      const sorted=[];
+      let sorted=[];
       if(action.payload.sortType==="item"){
         console.log("sort by item")
-        sorted ={ ...state, lists: action.payload.lists.sort((a, b) => a.description.localeCompare(b.description))};
+        //sorted ={ ...state, lists: action.payload.lists.sort((a, b) => a.description.localeCompare(b.description))};
+        sorted = { ...state, lists: action.payload.lists.sort((a, b) => {
+          const nameA = a.description ? a.description.toLowerCase() : ''; // Convert to lowercase, handle undefined
+          const nameB = b.description ? b.description.toLowerCase() : '';
+          return nameA.localeCompare(nameB); // Compare alphabetically
+        })};
       }else if(action.payload.sortType==="meal"){
         console.log("sort by meal")
-        sorted ={ ...state, lists: action.payload.lists.sort((a, b) => a.meal.localeCompare(b.meal))};
+        //sorted ={ ...state, lists: action.payload.lists.sort((a, b) => a.mealDesc.localeCompare(b.mealDesc))};
+        sorted = { ...state, lists: action.payload.lists.sort((a, b) => {
+          const nameA = a.mealDesc ? a.mealDesc.toLowerCase() : ''; // Convert to lowercase, handle undefined
+          const nameB = b.mealDesc ? b.mealDesc.toLowerCase() : '';
+          return nameA.localeCompare(nameB); // Compare alphabetically
+        })};
       }else if(action.payload.sortType==="default"){
         console.log("sort by default")
-        sorted = { ...state, lists: action.payload.lists.reverse() };
+        //sorted = { ...state, lists: action.payload.lists.reverse() };
+        sorted = { ...state, lists: action.payload.lists.sort((a, b) => {
+          const nameA = a.index ? a.index.toLowerCase() : ''; // Convert to lowercase, handle undefined
+          const nameB = b.index ? b.index.toLowerCase() : '';
+          return nameA.localeCompare(nameB); // Compare alphabetically
+        })};
       }
       return sorted;
     case 'SET':
