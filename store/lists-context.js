@@ -10,12 +10,26 @@ export const ListsContext = createContext({
   setQty: (qtys) => {}, // Function to set multiple qtys
   addQty: (qty) => {}, // Function to add a single qty
   pullMeal: (id)=>{},
+  sortList: (lists,sortType)=>{},
 });
 
 function listsReducer(state, action) {
   switch (action.type) {
     case 'ADD':
       return { ...state, lists: [action.payload, ...state.lists] };
+    case 'SORT_LIST':
+      const sorted=[];
+      if(action.payload.sortType==="item"){
+        console.log("sort by item")
+        sorted ={ ...state, lists: action.payload.lists.sort((a, b) => a.description.localeCompare(b.description))};
+      }else if(action.payload.sortType==="meal"){
+        console.log("sort by meal")
+        sorted ={ ...state, lists: action.payload.lists.sort((a, b) => a.meal.localeCompare(b.meal))};
+      }else if(action.payload.sortType==="default"){
+        console.log("sort by default")
+        sorted = { ...state, lists: action.payload.lists.reverse() };
+      }
+      return sorted;
     case 'SET':
       const inverted = { ...state, lists: action.payload.reverse() };
       return inverted;
@@ -84,6 +98,10 @@ function ListsContextProvider({ children }) {
     dispatch({ type: 'ADD_QTY', payload: qty });
   }
 
+  function sortList(lists,sortType) {
+    dispatch({ type: 'SORT_LIST', payload: { lists: lists, sortType: sortType } });
+  }
+
   const value = {
     lists: listsState.lists,
     qtys: listsState.qtys,
@@ -94,6 +112,7 @@ function ListsContextProvider({ children }) {
     pullMeal: pullMeal,
     setQtys: setQtys,
     addQty: addQty,
+    sortList: sortList,
   };
 
   return (

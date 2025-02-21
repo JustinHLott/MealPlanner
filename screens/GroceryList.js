@@ -62,15 +62,6 @@ function GroceryList() {
     return <LoadingOverlay />;
   }
 
-  //const recentLists2 = listsCtx.lists
-  // const recentLists = listsCtx.lists.filter((groceryItem) => {
-  //   console.log("Get's to GroceryList filter by date: "+groceryItem)
-  //   const today = getDateMinusDays(new Date(),1);
-  //   const datePlus7 = getDateMinusDays(today, -7);
-
-  //   return groceryItem.date >= today && groceryItem.date <= datePlus7;
-  // });
-
   return (
     <GroceriesOutput
       groceries={recentLists}

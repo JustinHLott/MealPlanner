@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { GlobalStyles } from '../../constants/styles';
@@ -5,10 +6,37 @@ import GroceriesList from './GroceriesList';
 
 
 function GroceriesOutput({ groceries, fallbackText }) {
+
+  const [theArray, setTheArray] = useState(groceries);
+
+  function handleSorting(sortType){
+    console.log("GroceriesOutput")
+    let sortedGroceries = [];
+    if(sortType==="default"){
+      sortedGroceries = [...groceries].reverse();
+      setTheArray(sortedGroceries);
+    }else if(sortType==="item"){
+      sortedGroceries = [...groceries].sort((a, b) => {
+        const nameA = a.description ? a.description.toLowerCase() : ''; // Convert to lowercase, handle undefined
+        const nameB = b.description ? b.description.toLowerCase() : '';
+        return nameA.localeCompare(nameB); // Compare alphabetically
+      });
+      setTheArray(sortedGroceries);
+    }else if(sortType==="meal"){
+      sortedGroceries = [...groceries].sort((a, b) => {
+        const nameA = a.mealDesc ? a.mealDesc.toLowerCase() : ''; // Convert to lowercase, handle undefined
+        const nameB = b.mealDesc ? b.mealDesc.toLowerCase() : '';
+        return nameA.localeCompare(nameB); // Compare alphabetically
+      });
+      setTheArray(sortedGroceries);
+    }
+  }
+
+
   let content = <Text style={styles.infoText}>{fallbackText}</Text>;
 
   if (groceries.length > 0) {
-    content = <GroceriesList groceries={groceries} />;
+    content = <GroceriesList groceries={theArray} handleSorting={handleSorting} />;
   }
 
   return (
