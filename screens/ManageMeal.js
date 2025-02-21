@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useState } from 'react';
+import { useContext, useLayoutEffect, useState, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-virtualized-view'
 
@@ -54,32 +54,37 @@ function ManageMeal({ route, navigation }) {
   function cancelHandler() {
     navigation.goBack();
   }
+  function first(updatedGrocery){
+    setNewItemId(storeList(updatedGrocery));
+    console.log("ManageMeals newItemId: ", newItemId)
+    console.log("first");
+  }
+  function second(updatedGrocery){
+    setNewGroceryItem({
+      ...updatedGrocery,id: newItemId, thisId: newItemId
+    });
+    console.log("second");
+    console.log("ManageMeal add groceryItem: ",newGroceryItem)
+  }
+  function third(newGroceryItem){
+    console.log("ManageMeal add groceryItem: ",newGroceryItem)
+    listsCtx.addList(newGroceryItem);
+    console.log("third");
+  }
+
+  const runFunctionsInOrder = useCallback((updatedGrocery)=>{
+    first(updatedGrocery);
+    second(updatedGrocery);
+    third(newGroceryItem);
+  },[]);
 
   function addCtxList(updatedGrocery){
     console.log("ManageMeal addCtxlist")
 
-    let newGroceryItem={};
-    function first(callback){
-      setNewItemId(storeList(updatedGrocery));
-      console.log("ManageMeals newItemId: ", newItemId)
-      console.log("first");
-      callback();
-    }
-    function second(callback){
-      setNewGroceryItem({
-        ...updatedGrocery,id: newItemId, thisId: newItemId
-      });
-      console.log("second");
-      console.log("ManageMeal add groceryItem: ",newGroceryItem)
-      callback();
-    }
-    function third(){
-      //console.log("ManageMeal add groceryItem: ",newGroceryItem)
-      listsCtx.addList(newGroceryItem);
-      console.log("third");
-    }
-    first(second);
-    second(third)
+    //let newGroceryItem={};
+    
+    
+    runFunctionsInOrder(updatedGrocery)
     
     
     
