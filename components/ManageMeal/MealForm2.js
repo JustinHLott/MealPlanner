@@ -180,10 +180,18 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
 
   // Function to add a new grocery item
   const addGroceryItem = () => {
-    setMeal((prevMeal) => ({
-      ...prevMeal,
-      groceryItems: [...prevMeal.groceryItems, { ...defaultGroceryItem }],
-    }));
+    if(meal.groceryItems){
+      setMeal((prevMeal) => ({
+        ...prevMeal,
+        groceryItems: [...prevMeal.groceryItems, { ...defaultGroceryItem }],
+      }));
+    }else{
+      setMeal((prevMeal) => ({
+        ...prevMeal,
+        groceryItems: [{ ...defaultGroceryItem }],
+      }));
+    }
+    
   };
 
   function saveMeal(meal2){
@@ -201,22 +209,6 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
       console.log("updatedMeal",updatedMeal);
 
       onSubmit(updatedMeal);//this adds or updates the meal in state to firebase
-
-
-
-
-      // //This adds the grocery items to firebase and to listsCtx.
-      // meal.groceryItems.map((item, index) => {
-      //   const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id };
-      //   console.log("grocery to Ctx MealForm2");
-      //   console.log(groceryItem);
-      //   //storeList(groceryItem);
-      //   //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
-      //   listsCtx.addList ( groceryItem );
-        
-      // });
-      // console.log("full groceryCtx MealForm2");
-      // console.log(listsCtx.lists);
     }
   }
 
@@ -301,17 +293,6 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
     }
     
   }
-
-  // const onChange = (event, selectedDate) => {
-  //   if (Platform.OS === "android") {
-  //     setShowPicker(false); // Hide picker after selecting on Android
-  //   }
-  //   if (selectedDate) {
-  //     setDatePickerDate(selectedDate);
-  //   }
-  // };
-
-  //console.log("groceryItems MealForm2", meal.groceryItems);
 
   return (
     <View style={{ padding: 20, flex: 1 }}>

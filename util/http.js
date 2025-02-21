@@ -23,7 +23,7 @@ export async function storeMeal(mealData,addCtxList,addCtxMeal) {
         mealId: id,
         mealDesc: mealData.description,
       };
-
+      console.log("http storeMeal groceryItem: ",groceryData);
       // Save each item to Firebase using Axios
       const responseGrocery = await axios.post(BACKEND_URL + '/grocery.json', groceryData);
       const groceryId = responseGrocery.data.name;
@@ -131,8 +131,36 @@ export async function fetchMeals3() {
   return meals;
 }
 
-export function updateMeal(mealId, mealData) {
-  return axios.put(BACKEND_URL + `/meals3/${mealId}.json`, mealData);
+export async function updateMeal(mealId, mealData,currentMealData, addCtxList, deleteCtxList) {
+  //add new grocery items
+  mealData.groceryItems.forEach((item,index)=>{
+    //console.log(item, index)
+    const oldItem = currentMealData.groceryItems.find(
+      (meal) => meal.description === item.description
+    );
+    console.log("http updateMeal add: ", item);
+    console.log("http updateMeal oldItem: ", oldItem);
+    if(!oldItem){
+      console.log("http updateMeal add: ", item)
+      //add new grocery item
+      addCtxList(item);
+    }
+  });
+
+  //delete old grocery items
+  currentMealData.groceryItems.forEach((item,index)=>{
+    //console.log(item, index)
+    const newItem = mealData.groceryItems.find(
+      (meal) => meal.description === item.description
+    );
+    if(!newItem){
+      console.log("http updateMeal delete: ", item)
+      //delete old grocery item
+      deleteCtxList(item);
+    }
+  });
+  const updatedMeal = await axios.put(BACKEND_URL + `/meals3/${mealId}.json`, mealData);
+  return updatedMeal;
 }
 
 export function deleteMeal(id) {

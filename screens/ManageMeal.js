@@ -11,6 +11,7 @@ import { GlobalStyles } from '../constants/styles';
 import { MealsContext } from '../store/meals-context';
 import { ListsContext } from '../store/lists-context';
 import { storeMeal, updateMeal, deleteMeal } from '../util/http';
+import { storeList, deleteList } from '../util/http-list';
 import MealGroceries from '../components/MealsOutput/MealGroceries';
 
 let theID ="";
@@ -19,6 +20,8 @@ function ManageMeal({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [latestDate, setLatestDate] = useState();
   const [error, setError] = useState();
+  const [newItemId, setNewItemId] = useState();
+  const [newGroceryItem,setNewGroceryItem] = useState({});
 
   const mealsCtx = useContext(MealsContext);
   const listsCtx = useContext(ListsContext);
@@ -53,15 +56,45 @@ function ManageMeal({ route, navigation }) {
   }
 
   function addCtxList(updatedGrocery){
-    console.log("Add list to Ctx in ManageMeal",updatedGrocery)
-    listsCtx.addList(updatedGrocery);
-    listsCtx.lists.forEach((item,index)=>{
-      console.log(item, index)
-    })
+    console.log("ManageMeal addCtxlist")
+
+    let newGroceryItem={};
+    function first(callback){
+      setNewItemId(storeList(updatedGrocery));
+      console.log("ManageMeals newItemId: ", newItemId)
+      console.log("first");
+      callback();
+    }
+    function second(callback){
+      setNewGroceryItem({
+        ...updatedGrocery,id: newItemId, thisId: newItemId
+      });
+      console.log("second");
+      console.log("ManageMeal add groceryItem: ",newGroceryItem)
+      callback();
+    }
+    function third(){
+      //console.log("ManageMeal add groceryItem: ",newGroceryItem)
+      listsCtx.addList(newGroceryItem);
+      console.log("third");
+    }
+    first(second);
+    second(third)
+    
+    
+    
+    // listsCtx.lists.forEach((item,index)=>{
+    //   console.log(item, index)
+    // })
+  }
+  
+  function deleteCtxList(groceryItem){
+    console.log("ManageMeal delete groceryItem: ",groceryItem)
+    listsCtx.deleteList(groceryItem);
   }
 
   function addCtxMeal(updatedMeal,mealId){
-    console.log
+    console.log("ManageMeal addCtxMeal: ",updatedMeal)
     mealsCtx.addMeal({ ...updatedMeal, id: mealId });//This adds the meal to the Context in the app
   }
 
@@ -72,8 +105,9 @@ function ManageMeal({ route, navigation }) {
     try {
       if (isEditing) {
         console.log("ManageMeal updatinging.  MealID:",editedMealId)
+        
+        await updateMeal(editedMealId, mealData, selectedMeal, addCtxList, deleteCtxList);
         mealsCtx.updateMeal(editedMealId, mealData);
-        await updateMeal(editedMealId, mealData);
         //maybe delete then add again instead of updating the meal?
         //also must add meal to ctx and add groceries to ctx.
       } else {
@@ -82,47 +116,6 @@ function ManageMeal({ route, navigation }) {
         console.log("ManageMeal finishes adding")
         theID = id;
         mealsCtx.dates.push(mealData.date);
-        //console.log(mealsCtx.dates);
-
-        //mealsCtx.addMeal({ ...mealData, id: id });//This adds the meal to the Context in the app
-
-        //const listId = await saveGroceryItems(mealData,id);//This adds all grocery items to the grocery list
-
-        //somewhere in the save process it is saving 2 copies to firebase.  One without mealId and one with no id.
-
-
-
-
-
-        
-        // const groceryListToSave=[];
-        //  mealData.groceryItems.map((item, index) => {
-          
-          
-          
-        //   //console.log(meal.id);
-        //   console.log("storeList: ",groceryItem);
-        //   const anId = listsCtx.addList ( groceryItem );
-        //   console.log("ctxList item added",anId);
-
-        //   const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, mealId: id, thisId: anId, mealDesc: mealData.description };  
-          
-        //   groceryListToSave.push(groceryItem);
-        //   // console.log(listsCtx.lists);
-        //   //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
-          
-        // });
-        // //create meal item to update
-        // const newMeal={
-        //   //id: id,
-        //   date: mealData.date,
-        //   description:mealData.description,
-        //   groceryItems:groceryListToSave,
-        // }
-
-        // // Wait for all items to be saved
-        // mealsCtx.updateMeal(id, newMeal);
-        // await updateMeal(id, newMeal);
         console.log("Made it to savePromises")
         //await Promise.all(savePromises);
       }
