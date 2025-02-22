@@ -7,10 +7,20 @@ import axios from 'axios';
 const BACKEND_URL =
   'https://justinhlottcapstone-default-rtdb.firebaseio.com';
 
+function addGroceryId(groceryData,groceryId){
+  const updatedGrocery = {
+    ...groceryData,
+    thisId: groceryId,
+  };
+  return updatedGrocery
+}
 export async function storeMeal(mealData,addCtxList,addCtxMeal) {
   //console.log("storeMeal");
   //const listsCtx = useContext(ListsContext);
   const response = await axios.post(BACKEND_URL + '/meals3.json', mealData);
+  if(response && response.data){
+    console.log("http mealId: ", response.data.name);
+  }
   const id = response.data.name;
   //console.log("mealID: ",id)
   try {
@@ -26,20 +36,24 @@ export async function storeMeal(mealData,addCtxList,addCtxMeal) {
       console.log("http storeMeal groceryItem: ",groceryData);
       // Save each item to Firebase using Axios
       const responseGrocery = await axios.post(BACKEND_URL + '/grocery.json', groceryData);
-      const groceryId = responseGrocery.data.name;
-      //console.log("returned groceryId: ",groceryId)
-      //Add the new grocery id to the groceryData
-      const updatedGrocery = {
-        ...groceryData,
-        thisId: groceryId,
-      };
 
-      //update firebase with thisId
-      await axios.put(BACKEND_URL + `/grocery/${groceryId}.json`, updatedGrocery);
-      //Add groceryData to new array
-      newGroceryList.push(updatedGrocery);
-      addCtxList(updatedGrocery)//this function is from ManageMeals and it adds the updated grocery list to ctx.
-      //listsCtx.addList(updatedGrocery);
+      if(responseGrocery&&responseGrocery.data){
+        console.log("http new id: ",responseGrocery.data.name)
+        const groceryId = responseGrocery.data.name;
+        //console.log("returned groceryId: ",groceryId)
+        //Add the new grocery id to the groceryData
+        const updatedGrocery = await addGroceryId(groceryData,groceryId);
+        // const updatedGrocery = {
+        //   ...groceryData,
+        //   thisId: groceryId,
+        // };
+        //update firebase with thisId
+        await axios.put(BACKEND_URL + `/grocery/${groceryId}.json`, updatedGrocery);
+        //Add groceryData to new array
+        newGroceryList.push(updatedGrocery);
+        addCtxList(updatedGrocery,responseGrocery)//this function is from ManageMeals and it adds the updated grocery list to ctx.
+        
+      }
     }
       //update meal with new grocery list
       //console.log("mealData http: ",mealData)
@@ -48,10 +62,11 @@ export async function storeMeal(mealData,addCtxList,addCtxMeal) {
         groceryItems: newGroceryList,
       };
       //console.log("updatedMeal http: ",updatedMeal)
-      //update meal in firebase
-      updateMeal(id, updatedMeal)
+      
       //this functions adds meal to meals ctx in ManageMeals.
       addCtxMeal(updatedMeal,id)
+      //update meal in firebase
+      await updateMealRaw(id, updatedMeal)
       //console.log("Saved:", updatedMeal);
       console.log("All grocery items saved successfully!");
   } catch (error) {
@@ -129,6 +144,11 @@ export async function fetchMeals3() {
   //const mostRecentMeal = meals.reduce((latest, meal) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
 
   return meals;
+}
+
+export async function updateMealRaw(mealId, mealData){
+  const updatedMeal = await axios.put(BACKEND_URL + `/meals3/${mealId}.json`, mealData);
+  return updatedMeal;
 }
 
 export async function updateMeal(mealId, mealData,currentMealData, addCtxList, deleteCtxList) {

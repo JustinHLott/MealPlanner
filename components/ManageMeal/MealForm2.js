@@ -21,7 +21,7 @@ const defaultMeal = {
 //defaultGroceryItem needs to keep name and quantity as is.
 const defaultGroceryItem = { name: "", quantity: "", checkedOff: "", id: "" };
 
-export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
+export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, submitButtonLabel }) {
   // Merge `initialMeal` with `defaultMeal` to avoid undefined values
   const [meal, setMeal] = useState({ ...defaultMeal, ...initialMeal });
   const [maxDate, setMaxDate] = useState("");
@@ -206,7 +206,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
         ...meal2,
         date: newDate,
       };
-      console.log("updatedMeal",updatedMeal);
+      console.log("MealForm2 updatedMeal: ",updatedMeal);
 
       onSubmit(updatedMeal);//this adds or updates the meal in state to firebase
     }
@@ -375,7 +375,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
         {/* Add Grocery Item Button */}
         <Button onPress={addGroceryItem}>Add Grocery Item</Button>
         {/* Save/Update Button */}
-        <Button style={{marginLeft:8}} onPress={() => saveMeal(meal)}>Save Meal</Button>
+        <Button style={{marginLeft:8}} onPress={() => saveMeal(meal)}>{submitButtonLabel}</Button>
       </View>
       
     </View>

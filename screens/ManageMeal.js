@@ -11,7 +11,7 @@ import { GlobalStyles } from '../constants/styles';
 import { MealsContext } from '../store/meals-context';
 import { ListsContext } from '../store/lists-context';
 import { storeMeal, updateMeal, deleteMeal } from '../util/http';
-import { storeList, deleteList } from '../util/http-list';
+import { storeList, deleteList, updateList } from '../util/http-list';
 import MealGroceries from '../components/MealsOutput/MealGroceries';
 
 let theID ="";
@@ -54,6 +54,7 @@ function ManageMeal({ route, navigation }) {
   function cancelHandler() {
     navigation.goBack();
   }
+
   function first(updatedGrocery){
     setNewItemId(storeList(updatedGrocery));
     console.log("ManageMeals newItemId: ", newItemId)
@@ -78,19 +79,29 @@ function ManageMeal({ route, navigation }) {
     third(newGroceryItem);
   },[]);
 
-  function addCtxList(updatedGrocery){
-    console.log("ManageMeal addCtxlist")
-
-    //let newGroceryItem={};
-    
-    
+  function updateCtxList(updatedGrocery){
+    console.log("ManageMeal updateCtxlist")
     runFunctionsInOrder(updatedGrocery)
-    
-    
-    
     // listsCtx.lists.forEach((item,index)=>{
     //   console.log(item, index)
     // })
+  }
+
+  function addCtxList(updatedGrocery,responseGrocery){
+    try{
+      console.log("ManageMeal addCtxlist")
+      //setNewItemId(responseGrocery.data.name);
+      //console.log("ManageMeals newItemId: ", newItemId)
+      console.log("ManageMeals newItemId2: ", responseGrocery.data.name)
+      const groceryItem={
+        ...updatedGrocery,id: responseGrocery.data.name, thisId: responseGrocery.data.name
+      };
+      //const groceryId = responseGrocery.data.name;
+      updateList(responseGrocery.data.name,groceryItem);
+      listsCtx.addList(groceryItem);
+    }catch(error){
+      console.error("ManageMeal addCtxList Error:", error);
+    }
   }
   
   function deleteCtxList(groceryItem){
@@ -188,12 +199,13 @@ function ManageMeal({ route, navigation }) {
           defaultDate={getLatestDate()}
         /> */}
         <MealForm2
-          id={theID}
+          //id={theID}
           initialMeal={selectedMeal}
           defaultDate={getLatestDate()}
           //defaultDate={new Date()}
-          onCancel={cancelHandler}
+          //onCancel={cancelHandler}
           onSubmit={confirmHandler}
+          submitButtonLabel={isEditing ? 'Update' : 'Add'}
         />
         {/*This delete the meal*/}
          {isEditing && (
