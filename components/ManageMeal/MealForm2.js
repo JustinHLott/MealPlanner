@@ -293,16 +293,43 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   }
 
   function validateDate(startDate){
+    const startDate1 = new Date(startDate);
     if(isValidDate(startDate)){
-      // console.log("valid date");
-      // console.log(startDate);
-      // console.log(startDate.toISOString().slice(0, 10));
-      //convert date to text string
-      return startDate//.toISOString().slice(0, 10);
+      const today=getDateMinusDays(startDate,1);
+       console.log("valid date");
+      //  const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+      //  console.log("dayOfWeek",dayOfWeek);
+      //  const diff = today.getDate() - dayOfWeek; // Calculate the difference to Sunday
+      //  console.log("Diff",diff);
+       return new Date(today.setDate(0));
+      //return startDate2//.toISOString().slice(0, 10);
     }else{
-      // console.log("Invalid date");
+      console.log("Invalid date",startDate);
+      if(startDate.length>0){
+        console.log("startDate length:",startDate.length)
+        //Add one day to the most recent date to get the date for the next new meal
+      let startDate2 = new Date(startDate);
+      startDate2 = getDateMinusDays(startDate2, 0);
+       console.log("Invalid date2",startDate2);
+       return startDate2.toISOString().slice(0, 10);
+      }else{
+        //const startDate2=getDateMinusDays(startDate,0);
+       
+      //  const today = new Date(date);
+      //  const startDate2=getDateMinusDays(today,0);
+      const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
+      console.log("Mostrecentmealdate");
+      console.log(mostRecentMealDate);
+      
+      //Add one day to the most recent date to get the date for the next new meal
+      let startDate2 = new Date(mostRecentMealDate.date);
+      startDate2 = getDateMinusDays(startDate2, -1);
+       console.log("Invalid date2",startDate2);
+       return startDate2.toISOString().slice(0, 10);
       // console.log(startDate);
-      return startDate;
+      //return startDate;
+      }
+      
     }
   }
 

@@ -54,7 +54,7 @@ function RecentMeals() {
   }
   
   function getSundayOfThisWeek(){
-    const today = getDateMinusDays(new Date(),4);
+    const today = getDateMinusDays(new Date(),1);
     const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
     console.log("dayOfWeek",dayOfWeek);
     const diff = today.getDate() - dayOfWeek; // Calculate the difference to Sunday
@@ -99,6 +99,7 @@ function RecentMeals() {
     //console.log(thisGroupOfMeals)
     if(thisGroupOfMeals.length>0){
       const today = getDateMinusDays(firstDate,-7);
+      console.log("next Sunday: ",today)
       setFirstDate(today);
     }
   }

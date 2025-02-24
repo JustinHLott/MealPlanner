@@ -1,7 +1,7 @@
 export function getFormattedDate(date) {
   //console.log("Made it to getFormattedDate");
 
-  let date2 = new Date(date);
+  let date2 = new Date(getDateMinusDays(date,0));
 
   if (isValidDate(date2)){
     //console.log("valid date");

@@ -20,7 +20,7 @@ function MealItem({ id, description, date, groceries }) {
     let date2 = new Date(dateString)
 
     if(isValidDate(date2)){
-      date2 = new Date(getDateMinusDays(date2,-1));
+      date2 = new Date(getDateMinusDays(date2,0));
     }else{
       date2 = new Date("1975-01-01");
       // console.log('broken date');
