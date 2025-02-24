@@ -94,7 +94,7 @@ function ManageMeal({ route, navigation }) {
       //console.log("ManageMeals newItemId: ", newItemId)
       console.log("ManageMeals newItemId2: ", responseGrocery.data.name)
       const groceryItem={
-        ...updatedGrocery,id: responseGrocery.data.name, thisId: responseGrocery.data.name
+        ...updatedGrocery, thisId: responseGrocery.data.name
       };
       //const groceryId = responseGrocery.data.name;
       updateList(responseGrocery.data.name,groceryItem);

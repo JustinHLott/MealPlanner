@@ -248,11 +248,12 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   };
 
   function createMealWithoutGroceryItem(selectedMeal,thisId){
-
+    let noGroceries = true;
     let newGroceryList = []
     meal.groceryItems.map((item, index) => {
       const groceryItem = { description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId };
       if(item.thisId !== thisId){
+        noGroceries = false;
         newGroceryList.push(groceryItem);
       }
     });
@@ -264,9 +265,31 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       groceryItems: newGroceryList,
     }
     //update meal in firebase
-    updateMeal(selectedMeal.id,updatedMeal)
+    updateMeal(selectedMeal.id,updatedMeal, selectedMeal, addCtxList, deleteCtxList, noGroceries)
     //update meal in ctx
     mealsCtx.updateMeal(selectedMeal.id,updatedMeal)
+  }
+
+  function addCtxList(updatedGrocery,responseGrocery){
+    try{
+      console.log("ManageMeal addCtxlist")
+      //setNewItemId(responseGrocery.data.name);
+      //console.log("ManageMeals newItemId: ", newItemId)
+      console.log("ManageMeals newItemId2: ", responseGrocery.data.name)
+      const groceryItem={
+        ...updatedGrocery, thisId: responseGrocery.data.name
+      };
+      //const groceryId = responseGrocery.data.name;
+      updateList(responseGrocery.data.name,groceryItem);
+      listsCtx.addList(groceryItem);
+    }catch(error){
+      console.error("ManageMeal addCtxList Error:", error);
+    }
+  }
+  
+  function deleteCtxList(groceryItem){
+    console.log("ManageMeal delete groceryItem: ",groceryItem)
+    listsCtx.deleteList(groceryItem);
   }
 
   function validateDate(startDate){

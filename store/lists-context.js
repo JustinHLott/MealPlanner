@@ -46,7 +46,8 @@ function listsReducer(state, action) {
       }
       return sorted;
     case 'SET':
-      const inverted = { ...state, lists: action.payload.reverse() };
+      //const inverted = { ...state, lists: action.payload.reverse() };
+      const inverted = { ...state, lists: action.payload };
       return inverted;
     case 'UPDATE':
       const updatableListIndex = state.lists.findIndex(

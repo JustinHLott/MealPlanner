@@ -108,7 +108,7 @@ async function deleteGroceryHandler() {
       console.log("ManageGroceryItem no editedGroceryId");
     }
   } catch (error) {
-    console.log(error)
+    console.log("Error:",error)
     setError('Could not delete grocery list item - please try again later!');
     setIsSubmitting(false);
   }
@@ -126,22 +126,60 @@ async function deleteGroceryHandler() {
         newGroceryList.push(groceryItem);
       }
     });
-
-    const updatedMeal={
-      date: theMeal.date,
-      description: theMeal.description,
-      id: theMeal.id,
-      groceryItems: newGroceryList,
+    let updatedMeal;
+    let noGroceries;
+    if(newGroceryList.length>0){
+      updatedMeal={
+        date: theMeal.date,
+        description: theMeal.description,
+        id: theMeal.id,
+        groceryItems: newGroceryList,
+      }
+    }else{
+      noGroceries = true;
+      updatedMeal={
+        date: theMeal.date,
+        description: theMeal.description,
+        id: theMeal.id,
+      }
     }
+    
+    const currentMealData = mealsCtx.meals.find(
+      (meal) => meal.id === thisId
+    );
+
     console.log("ManageGroceryItem updatedMeal: ",updatedMeal)
     //update meal in firebase
     //updateMeal(thisId,updatedMeal)
-    await updateMeal(updatedMeal.id,updatedMeal)
+    await updateMeal(updatedMeal.id,updatedMeal,currentMealData, addCtxList, deleteCtxList, noGroceries)
+    //mealId, mealData,currentMealData, addCtxList, deleteCtxList,noGroceries
     //update meal in ctx
     mealsCtx.updateMeal(updatedMeal.id,updatedMeal)
     //mealsCtx.updateMeal(thisId,updatedMeal)
   }
-/////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////
+
+  function addCtxList(updatedGrocery,responseGrocery){
+    try{
+      console.log("ManageMeal addCtxlist")
+      //setNewItemId(responseGrocery.data.name);
+      //console.log("ManageMeals newItemId: ", newItemId)
+      console.log("ManageMeals newItemId2: ", responseGrocery.data.name)
+      const groceryItem={
+        ...updatedGrocery, thisId: responseGrocery.data.name
+      };
+      //const groceryId = responseGrocery.data.name;
+      updateList(responseGrocery.data.name,groceryItem);
+      groceriesCtx.addList(groceryItem);
+    }catch(error){
+      console.error("ManageMeal addCtxList Error:", error);
+    }
+  }
+
+  function deleteCtxList(groceryItem){
+    console.log("ManageMeal delete groceryItem: ",groceryItem)
+    groceriesCtx.deleteList(groceryItem);
+  }
 
   function cancelHandler() {
     navigation.goBack();

@@ -151,35 +151,71 @@ export async function updateMealRaw(mealId, mealData){
   return updatedMeal;
 }
 
-export async function updateMeal(mealId, mealData,currentMealData, addCtxList, deleteCtxList) {
-  //add new grocery items
-  mealData.groceryItems.forEach((item,index)=>{
-    //console.log(item, index)
-    const oldItem = currentMealData.groceryItems.find(
-      (meal) => meal.description === item.description
-    );
-    console.log("http updateMeal add: ", item);
-    console.log("http updateMeal oldItem: ", oldItem);
-    if(!oldItem){
-      console.log("http updateMeal add: ", item)
-      //add new grocery item
-      addCtxList(item);
-    }
-  });
+async function updateGroceryItem(item,addCtxList){
+  console.log("http updateMeal add: ", item);
+  //add new grocery item
+  // Save each item to Firebase using Axios
+  const responseGrocery = await axios.post(BACKEND_URL + '/grocery.json', item);
 
-  //delete old grocery items
-  currentMealData.groceryItems.forEach((item,index)=>{
-    //console.log(item, index)
-    const newItem = mealData.groceryItems.find(
-      (meal) => meal.description === item.description
-    );
-    if(!newItem){
-      console.log("http updateMeal delete: ", item)
-      //delete old grocery item
-      deleteCtxList(item);
-    }
-  });
-  const updatedMeal = await axios.put(BACKEND_URL + `/meals3/${mealId}.json`, mealData);
+  if(responseGrocery&&responseGrocery.data){
+    console.log("http new id: ",responseGrocery.data.name)
+    const groceryId = responseGrocery.data.name;
+    //Add the new grocery id to the groceryData
+    const updatedGrocery = await addGroceryId(item,groceryId);
+    //update firebase with thisId
+    await axios.put(BACKEND_URL + `/grocery/${groceryId}.json`, updatedGrocery);
+    //Add groceryData to new array
+    newGroceryList.push(updatedGrocery);
+    //this function is from ManageMeals and it adds the updated grocery list to ctx.
+    addCtxList(updatedGrocery,responseGrocery);
+  }
+}
+
+export async function updateMeal(mealId, mealData, currentMealData, addCtxList, deleteCtxList, noGroceries) {
+  let newGroceryList=[];
+  if(noGroceries===false){
+    //add new grocery items
+    mealData.groceryItems.forEach((item,index)=>{
+      //console.log(item, index)
+      const oldItem = currentMealData.groceryItems.find(
+        (meal) => meal.description === item.description
+      );
+      console.log("http updateMeal add: ", item);
+      console.log("http updateMeal oldItem: ", oldItem);
+      if(!oldItem){
+        const updatedGrocery = updateGroceryItem(item,addCtxList);
+
+        //Add groceryData to new array
+        newGroceryList.push(updatedGrocery);
+      }
+    });
+
+    //delete old grocery items
+    currentMealData.groceryItems.forEach((item,index)=>{
+      //console.log(item, index)
+      const newItem = mealData.groceryItems.find(
+        (meal) => meal.description === item.description
+      );
+      if(!newItem){
+        console.log("http updateMeal delete: ", item)
+        //delete old grocery item
+        deleteCtxList(item);
+      }
+    });
+    //eventurally I need to add an update for if a grocery item is updated.
+
+
+
+
+  }
+
+  //this replaces the updated grocery list for the meal.
+  const newMeal = {
+    ...mealData,
+    groceryItems: newGroceryList,
+  };
+
+  const updatedMeal = await axios.put(BACKEND_URL + `/meals3/${mealId}.json`, newMeal);
   return updatedMeal;
 }
 
