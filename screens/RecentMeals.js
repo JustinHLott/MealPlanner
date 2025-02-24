@@ -49,16 +49,16 @@ function RecentMeals() {
   if(!firstDate){
     //setFirstDate(new Date());
     const today = getSundayOfThisWeek();
-    console.log("today",today)
+    //console.log("today",today)
     setFirstDate(today);
   }
   
   function getSundayOfThisWeek(){
     const today = getDateMinusDays(new Date(),1);
     const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-    console.log("dayOfWeek",dayOfWeek);
+    //console.log("dayOfWeek",dayOfWeek);
     const diff = today.getDate() - dayOfWeek; // Calculate the difference to Sunday
-    console.log("Diff",diff);
+    //console.log("Diff",diff);
     return new Date(today.setDate(diff));
   };
 

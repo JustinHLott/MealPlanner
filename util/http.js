@@ -1,4 +1,5 @@
-import {useContext} from 'react';
+//import {useContext} from 'react';
+import { deleteList } from './http-list';
 
 import axios from 'axios';
 //import { ListsContext } from '../store/lists-context';
@@ -164,24 +165,28 @@ async function updateGroceryItem(item,addCtxList){
     const updatedGrocery = await addGroceryId(item,groceryId);
     //update firebase with thisId
     await axios.put(BACKEND_URL + `/grocery/${groceryId}.json`, updatedGrocery);
-    //Add groceryData to new array
-    newGroceryList.push(updatedGrocery);
+    // //Add groceryData to new array
+    // newGroceryList.push(updatedGrocery);
     //this function is from ManageMeals and it adds the updated grocery list to ctx.
     addCtxList(updatedGrocery,responseGrocery);
+    return responseGrocery;
   }
 }
 
-export async function updateMeal(mealId, mealData, currentMealData, addCtxList, deleteCtxList, noGroceries) {
+export async function updateMeal(mealId, mealData, currentMealData, addCtxList, deleteCtxList, updateCtxMeal, noGroceries) {
+  console.log("http noGroceries",noGroceries);
+  console.log("http mealData",mealData);
+  console.log("http currentMealData",currentMealData);
   let newGroceryList=[];
   if(noGroceries===false){
     //add new grocery items
     mealData.groceryItems.forEach((item,index)=>{
       //console.log(item, index)
       const oldItem = currentMealData.groceryItems.find(
-        (meal) => meal.description === item.description
+        (meal) => meal.thisId === item.thisId
       );
-      console.log("http updateMeal add: ", item);
-      console.log("http updateMeal oldItem: ", oldItem);
+      // console.log("http updateMeal add: ", item);
+      // console.log("http updateMeal oldItem: ", oldItem);
       if(!oldItem){
         const updatedGrocery = updateGroceryItem(item,addCtxList);
 
@@ -194,12 +199,14 @@ export async function updateMeal(mealId, mealData, currentMealData, addCtxList, 
     currentMealData.groceryItems.forEach((item,index)=>{
       //console.log(item, index)
       const newItem = mealData.groceryItems.find(
-        (meal) => meal.description === item.description
+        (meal) => meal.thisId === item.thisId
       );
       if(!newItem){
-        console.log("http updateMeal delete: ", item)
-        //delete old grocery item
+        //console.log("http updateMeal delete: ", item)
+        //delete old grocery item from context
         deleteCtxList(item);
+        //delete old grocery item from firebase
+        deleteList(item.thisId)
       }
     });
     //eventurally I need to add an update for if a grocery item is updated.
@@ -215,7 +222,11 @@ export async function updateMeal(mealId, mealData, currentMealData, addCtxList, 
     groceryItems: newGroceryList,
   };
 
+  //update firebase with new mealData
   const updatedMeal = await axios.put(BACKEND_URL + `/meals3/${mealId}.json`, newMeal);
+  //update meal in context
+  updateCtxMeal(mealId,newMeal);
+
   return updatedMeal;
 }
 

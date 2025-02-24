@@ -265,7 +265,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       groceryItems: newGroceryList,
     }
     //update meal in firebase
-    updateMeal(selectedMeal.id,updatedMeal, selectedMeal, addCtxList, deleteCtxList, noGroceries)
+    updateMeal(selectedMeal.id,updatedMeal, selectedMeal, addCtxList, deleteCtxList, updateCtxMeal, noGroceries)
     //update meal in ctx
     mealsCtx.updateMeal(selectedMeal.id,updatedMeal)
   }
@@ -280,13 +280,18 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
         ...updatedGrocery, thisId: responseGrocery.data.name
       };
       //const groceryId = responseGrocery.data.name;
-      updateList(responseGrocery.data.name,groceryItem);
+      //updateList(responseGrocery.data.name,groceryItem);
       listsCtx.addList(groceryItem);
     }catch(error){
       console.error("ManageMeal addCtxList Error:", error);
     }
   }
   
+  function updateCtxMeal(id,mealData){
+    //update meal in context
+    mealsCtx.updateMeal(id,mealData);
+  }
+
   function deleteCtxList(groceryItem){
     console.log("ManageMeal delete groceryItem: ",groceryItem)
     listsCtx.deleteList(groceryItem);
@@ -296,7 +301,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     const startDate1 = new Date(startDate);
     if(isValidDate(startDate)){
       const today=getDateMinusDays(startDate,1);
-       console.log("valid date");
+       //console.log("valid date");
       //  const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
       //  console.log("dayOfWeek",dayOfWeek);
       //  const diff = today.getDate() - dayOfWeek; // Calculate the difference to Sunday
@@ -304,13 +309,13 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
        return new Date(today.setDate(0));
       //return startDate2//.toISOString().slice(0, 10);
     }else{
-      console.log("Invalid date",startDate);
+      //console.log("Invalid date",startDate);
       if(startDate.length>0){
-        console.log("startDate length:",startDate.length)
+        //console.log("startDate length:",startDate.length)
         //Add one day to the most recent date to get the date for the next new meal
       let startDate2 = new Date(startDate);
       startDate2 = getDateMinusDays(startDate2, 0);
-       console.log("Invalid date2",startDate2);
+       //console.log("Invalid date2",startDate2);
        return startDate2.toISOString().slice(0, 10);
       }else{
         //const startDate2=getDateMinusDays(startDate,0);
@@ -318,13 +323,13 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       //  const today = new Date(date);
       //  const startDate2=getDateMinusDays(today,0);
       const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
-      console.log("Mostrecentmealdate");
-      console.log(mostRecentMealDate);
+      // console.log("Mostrecentmealdate");
+      // console.log(mostRecentMealDate);
       
       //Add one day to the most recent date to get the date for the next new meal
       let startDate2 = new Date(mostRecentMealDate.date);
       startDate2 = getDateMinusDays(startDate2, -1);
-       console.log("Invalid date2",startDate2);
+       //console.log("Invalid date2",startDate2);
        return startDate2.toISOString().slice(0, 10);
       // console.log(startDate);
       //return startDate;
