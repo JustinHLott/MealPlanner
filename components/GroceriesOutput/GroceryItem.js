@@ -8,7 +8,7 @@ import ErrorOverlay from '../UI/ErrorOverlay'
 import LoadingOverlay from '../UI/LoadingOverlay'
 import { ListsContext } from '../../store/lists-context';
 import { MealsContext } from '../../store/meals-context';
-import { deleteList } from '../../util/http-list';
+import { deleteList,updateList } from '../../util/http-list';
 import { updateMeal } from '../../util/http';
 //import { getFormattedDate } from '../../util/date';
 
@@ -154,7 +154,7 @@ function GroceryItem({ itemData }) {
           console.log("GroceryItem no mealId");
         }
       }else{
-        console.log("GroceryItem thisId: ",itemData.item.thisId)
+        console.log("GroceryItem thisId: ",itemData.item.thisId);
         //delete grocery item from firebase http
         await deleteList(itemData.item.thisId);
 
@@ -191,12 +191,17 @@ function GroceryItem({ itemData }) {
   /////////////////////////////////////////////////////
 
     function createMealWithoutGroceryItem(selectedMeal,thisId){
-  
+      let noGroceries = true;
       let newGroceryList = []
       selectedMeal.groceryItems.map((item, index) => {
-        const groceryItem = { description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId };
-        if(item.thisId !== thisId){
+        const groceryItem = { description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.id?item.id:item.thisId, id:item.id?item.id:item.thisId };
+        
+        //console.log("GroceryItems combinedId:",item.id?item.id:item.thisId)
+        if(item.id?item.id:item.thisId !== thisId){
+          // console.log("GroceryItems thisId:",item.id);
+          // console.log("GroceryItems item.thisId:",item.thisId);
           newGroceryList.push(groceryItem);
+          noGroceries=false;
         }
       });
   
@@ -206,12 +211,45 @@ function GroceryItem({ itemData }) {
         id: selectedMeal.id,
         groceryItems: newGroceryList,
       }
+
+      // console.log("GroceryItem before delete",selectedMeal);
+      // console.log("groceryItem after delete:",updatedMeal);
       //update meal in firebase
-      updateMeal(selectedMeal.id,updatedMeal)
+      updateMeal(selectedMeal.id,selectedMeal,updatedMeal, addCtxList, deleteCtxList, updateCtxMeal, noGroceries)
+      //(mealId, mealData, currentMealData, addCtxList, deleteCtxList, updateCtxMeal, noGroceries)
       //update meal in ctx
       mealsCtx.updateMeal(selectedMeal.id,updatedMeal)
     }
   /////////////////////////////////////////////////////
+
+  function addCtxList(updatedGrocery,id){
+    try{
+      console.log("GroceryItems addCtxlist")
+      //setNewItemId(responseGrocery.data.name);
+      //console.log("ManageMeals newItemId: ", newItemId)
+      console.log("GroceryItems newItemId2: ", id)
+      const groceryItem={
+        ...updatedGrocery, thisId: id
+      };
+      //const groceryId = responseGrocery.data.name;
+      //updateList(responseGrocery.data.name,groceryItem);
+      updateList(id,groceryItem);
+      groceriesCtx.addList(groceryItem);
+    }catch(error){
+      console.error("ManageMeal addCtxList Error:", error);
+    }
+  }
+
+  //this function is used in http where it cannot work with context.
+  function updateCtxMeal(id,mealData){
+    //update meal in context
+    mealsCtx.updateMeal(id,mealData);
+  }
+
+  function deleteCtxList(groceryItem){
+    console.log("GroceryItems delete groceryItem: ",groceryItem)
+    groceriesCtx.deleteList(groceryItem);
+  }
 
   if (error && !isSubmitting) {
     return <ErrorOverlay message={error} />

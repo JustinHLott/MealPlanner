@@ -92,12 +92,12 @@ function ManageMeal({ route, navigation }) {
       console.log("ManageMeal addCtxlist")
       //setNewItemId(responseGrocery.data.name);
       //console.log("ManageMeals newItemId: ", newItemId)
-      console.log("ManageMeals newItemId2: ", responseGrocery.data.name)
+      console.log("ManageMeals newItemId2: ", responseGrocery)
       const groceryItem={
-        ...updatedGrocery, thisId: responseGrocery.data.name
+        ...updatedGrocery, thisId: responseGrocery
       };
       //const groceryId = responseGrocery.data.name;
-      updateList(responseGrocery.data.name,groceryItem);
+      updateList(responseGrocery,groceryItem);
       listsCtx.addList(groceryItem);
     }catch(error){
       console.error("ManageMeal addCtxList Error:", error);

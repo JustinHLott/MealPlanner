@@ -86,7 +86,7 @@ function ListsContextProvider({ children }) {
   }
 
   function setLists(lists2) {
-    console.log("lists-context setLists: ",lists2);
+    //console.log("lists-context setLists: ",lists2);
     //Only resets the grocery list array if there is a replacement.
     if(lists2){
       dispatch({ type: 'SET', payload: lists2 });

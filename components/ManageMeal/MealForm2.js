@@ -9,7 +9,7 @@ import IconButtonNoText from "../UI/IconButtonNoText";
 import { MealsContext } from '../../store/meals-context';
 import { ListsContext } from '../../store/lists-context';
 import { isValidDate, getDateMinusDays } from "../../util/date";
-import { storeList,deleteList } from "../../util/http-list";
+import { storeList,deleteList,updateList } from "../../util/http-list";
 import { updateMeal } from "../../util/http";
 
 const defaultMeal = {
@@ -272,28 +272,29 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
 
   function addCtxList(updatedGrocery,responseGrocery){
     try{
-      console.log("ManageMeal addCtxlist")
+      console.log("MealForm2 addCtxlist")
       //setNewItemId(responseGrocery.data.name);
       //console.log("ManageMeals newItemId: ", newItemId)
-      console.log("ManageMeals newItemId2: ", responseGrocery.data.name)
+      console.log("MealForm2 newItemId2: ", responseGrocery)
       const groceryItem={
-        ...updatedGrocery, thisId: responseGrocery.data.name
+        ...updatedGrocery, thisId: responseGrocery
       };
       //const groceryId = responseGrocery.data.name;
-      //updateList(responseGrocery.data.name,groceryItem);
+      updateList(responseGrocery,groceryItem);
       listsCtx.addList(groceryItem);
     }catch(error){
-      console.error("ManageMeal addCtxList Error:", error);
+      console.error("MealForm2 addCtxList Error:", error);
     }
   }
   
+  //this function is used in http where it cannot work with context.
   function updateCtxMeal(id,mealData){
     //update meal in context
     mealsCtx.updateMeal(id,mealData);
   }
 
   function deleteCtxList(groceryItem){
-    console.log("ManageMeal delete groceryItem: ",groceryItem)
+    console.log("MealForm2 delete groceryItem: ",groceryItem)
     listsCtx.deleteList(groceryItem);
   }
 
