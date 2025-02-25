@@ -247,7 +247,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     }
   };
 
-  function createMealWithoutGroceryItem(selectedMeal,thisId){
+  async function createMealWithoutGroceryItem(selectedMeal,thisId){
     let noGroceries = true;
     let newGroceryList = []
     meal.groceryItems.map((item, index) => {
@@ -265,12 +265,12 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       groceryItems: newGroceryList,
     }
     //update meal in firebase
-    updateMeal(selectedMeal.id,updatedMeal, selectedMeal, addCtxList, deleteCtxList, updateCtxMeal, noGroceries)
+    await updateMeal(selectedMeal.id,updatedMeal, selectedMeal, addCtxList, deleteCtxList, updateCtxMeal, noGroceries)
     //update meal in ctx
     mealsCtx.updateMeal(selectedMeal.id,updatedMeal)
   }
 
-  function addCtxList(updatedGrocery,responseGrocery){
+  async function addCtxList(updatedGrocery,responseGrocery){
     try{
       console.log("MealForm2 addCtxlist")
       //setNewItemId(responseGrocery.data.name);
@@ -280,7 +280,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
         ...updatedGrocery, thisId: responseGrocery
       };
       //const groceryId = responseGrocery.data.name;
-      updateList(responseGrocery,groceryItem);
+      await updateList(responseGrocery,groceryItem);
       listsCtx.addList(groceryItem);
     }catch(error){
       console.error("MealForm2 addCtxList Error:", error);

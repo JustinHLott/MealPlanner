@@ -120,12 +120,12 @@ async function deleteGroceryHandler() {
 
     let newGroceryList = []
     theMeal.groceryItems.map((item) => {
-      const groceryItem = { description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId };
       //This adds back all grocery items but the one with thisId
       if(item.thisId !== thisId){
-        newGroceryList.push(groceryItem);
+        newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId });
       }
     });
+
     let updatedMeal;
     let noGroceries;
     if(newGroceryList.length>0){

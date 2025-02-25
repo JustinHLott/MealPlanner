@@ -146,7 +146,8 @@ function GroceryItem({ itemData }) {
           );
           if(selectedMeal){
             //console.log("MealForm2 selectedMeal",selectedMeal)
-            createMealWithoutGroceryItem(selectedMeal,itemData.item.id);
+            await createMealWithoutGroceryItem(selectedMeal,itemData.item.id);
+            console.log("GroceryItem delete Hi")
           }else{
             console.log("GroceryItem no id");
           }
@@ -173,7 +174,8 @@ function GroceryItem({ itemData }) {
           );
           if(selectedMeal){
             //console.log("MealForm2 selectedMeal",selectedMeal)
-            createMealWithoutGroceryItem(selectedMeal,itemData.item.thisId);
+            await createMealWithoutGroceryItem(selectedMeal,itemData.item.thisId);
+            console.log("GroceryItem delete Hi(no id)")
           }else{
             console.log("GroceryItem no thisId");
           }
@@ -190,7 +192,7 @@ function GroceryItem({ itemData }) {
 
   /////////////////////////////////////////////////////
 
-    function createMealWithoutGroceryItem(selectedMeal,thisId){
+    async function createMealWithoutGroceryItem(selectedMeal,thisId){
       let noGroceries = true;
       let newGroceryList = []
       selectedMeal.groceryItems.map((item, index) => {
@@ -215,14 +217,16 @@ function GroceryItem({ itemData }) {
       // console.log("GroceryItem before delete",selectedMeal);
       // console.log("groceryItem after delete:",updatedMeal);
       //update meal in firebase
-      updateMeal(selectedMeal.id,selectedMeal,updatedMeal, addCtxList, deleteCtxList, updateCtxMeal, noGroceries)
+      console.log("GroceryItem delete print before await") 
+      await updateMeal(selectedMeal.id,selectedMeal,updatedMeal, addCtxList, deleteCtxList, updateCtxMeal, noGroceries)
+      console.log("GroceryItem delete print after await")
       //(mealId, mealData, currentMealData, addCtxList, deleteCtxList, updateCtxMeal, noGroceries)
       //update meal in ctx
       mealsCtx.updateMeal(selectedMeal.id,updatedMeal)
     }
   /////////////////////////////////////////////////////
 
-  function addCtxList(updatedGrocery,id){
+  async function addCtxList(updatedGrocery,id){
     try{
       console.log("GroceryItems addCtxlist")
       //setNewItemId(responseGrocery.data.name);
@@ -233,7 +237,7 @@ function GroceryItem({ itemData }) {
       };
       //const groceryId = responseGrocery.data.name;
       //updateList(responseGrocery.data.name,groceryItem);
-      updateList(id,groceryItem);
+      await updateList(id,groceryItem);
       groceriesCtx.addList(groceryItem);
     }catch(error){
       console.error("ManageMeal addCtxList Error:", error);

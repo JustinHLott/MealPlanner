@@ -19,10 +19,17 @@ export async function storeMeal(mealData,addCtxList,addCtxMeal) {
   //console.log("storeMeal");
   //const listsCtx = useContext(ListsContext);
   const response = await axios.post(BACKEND_URL + '/meals3.json', mealData);
+  let id;
   if(response && response.data){
     console.log("http mealId: ", response.data.name);
   }
-  const id = response.data.name;
+
+  try{
+    id = response.data.name;
+  }catch(error){
+    console.log("http addGroceryId error:",error)
+  }
+  
   //console.log("mealID: ",id)
   try {
     let newGroceryList = [];
@@ -40,16 +47,16 @@ export async function storeMeal(mealData,addCtxList,addCtxMeal) {
 
       if(responseGrocery&&responseGrocery.data){
         console.log("http storeMeal new grocery id: ",responseGrocery.data.name)
-        const groceryId = responseGrocery.data.name;
+        //const groceryId = responseGrocery.data.name;
         //console.log("returned groceryId: ",groceryId)
         //Add the new grocery id to the groceryData
-        const updatedGrocery = await addGroceryId(groceryData,groceryId);
+        const updatedGrocery = await addGroceryId(groceryData,responseGrocery.data.name);
         // const updatedGrocery = {
         //   ...groceryData,
         //   thisId: groceryId,
         // };
         //update firebase with thisId
-        await axios.put(BACKEND_URL + `/grocery/${groceryId}.json`, updatedGrocery);
+        await axios.put(BACKEND_URL + `/grocery/${responseGrocery.data.name}.json`, updatedGrocery);
         //Add groceryData to new array
         newGroceryList.push(updatedGrocery);
         addCtxList(updatedGrocery,responseGrocery.data.name)//this function is from ManageMeals and it adds the updated grocery list to ctx.
@@ -76,11 +83,11 @@ export async function storeMeal(mealData,addCtxList,addCtxMeal) {
   return id;
 }
 
-export async function storeMeal2(mealData) {
-  const response = await axios.post(BACKEND_URL + '/meals2.json', mealData);
-  const id = response.data.name;
-  return id;
-}
+// export async function storeMeal2(mealData) {
+//   const response = await axios.post(BACKEND_URL + '/meals2.json', mealData);
+//   const id = response.data.name;
+//   return id;
+// }
 
 export async function fetchMeals() {
   const response = await axios.get(BACKEND_URL + '/meals3.json');
@@ -158,31 +165,38 @@ async function updateGroceryItem(item,addCtxList){
   //only add new grocery item if it doesn't exist before (no thisId).
   if(!item.thisId?item.thisId:item.id){
     //add new grocery item
-    // Save each item to Firebase using Axios
-    const responseGrocery = await axios.post(BACKEND_URL + '/grocery.json', item);
+    try{
+      // Save each item to Firebase using Axios
+      const responseGrocery = await axios.post(BACKEND_URL + '/grocery.json', item);
 
-    if(responseGrocery&&responseGrocery.data){
-      console.log("http updateGroceryItem new groceryid: ",responseGrocery.data.name)
-      const groceryId = responseGrocery.data.name;
-      //Add the new grocery id to the groceryData
-      const updatedGrocery = addGroceryId(item,groceryId);
-      //update firebase with thisId
-      await axios.put(BACKEND_URL + `/grocery/${groceryId}.json`, updatedGrocery);
-      // //Add groceryData to new array
-      // newGroceryList.push(updatedGrocery);
-      //this function is from ManageMeals and it adds the updated grocery list to ctx.
-      addCtxList(updatedGrocery,responseGrocery.data.name);
-      return responseGrocery.data.name;
+      if(responseGrocery&&responseGrocery.data){
+        console.log("http updateGroceryItem new groceryid: ",responseGrocery.data.name)
+        //const groceryId = responseGrocery.data.name;
+        //Add the new grocery id to the groceryData
+        const updatedGrocery = addGroceryId(item,responseGrocery.data.name);
+        //update firebase with thisId
+        await axios.put(BACKEND_URL + `/grocery/${responseGrocery.data.name}.json`, updatedGrocery);
+        // //Add groceryData to new array
+        // newGroceryList.push(updatedGrocery);
+        //this function is from ManageMeals and it adds the updated grocery list to ctx.
+        addCtxList(updatedGrocery,responseGrocery.data.name);
+        return responseGrocery.data.name;
+      }
+    }catch(error){
+      console.log("http updateGroceryItem error:",error);
     }
+    
   }else{
     //update the item with its new information
 
 
 
-
-    addCtxList(item,item.thisId);
+    console.log("http updateGroceryItem id/thisId:",item.thisId?item.thisId:item.id)
+    console.log("http updateGroceryItem id:",item.id)
+    console.log("http updateGroceryItem thisId:",item.thisId)
+    addCtxList(item,item.thisId?item.thisId:item.id);
     //return the id that it already has.
-    return item.thisId;
+    return item.thisId?item.thisId:item.id;
   }
   
 }
@@ -195,18 +209,34 @@ export async function updateMeal(mealId, mealData, currentMealData, addCtxList, 
   if(noGroceries===false){
     //add new grocery items
     mealData.groceryItems.forEach((item,index)=>{
-      //console.log(item, index)
-      const oldItem = currentMealData.groceryItems.find(
+      //loop through all of the new grocery items
+      console.log("http updateMeal item:",item)
+      console.log("http updateMeal item.id:",item.thisId?item.thisId:item.id)
+      //add all new items to the grocery list
+      if(!currentMealData.groceryItems.find(
         (meal) => meal.thisId?meal.thisId:meal.id === item.thisId?item.thisId:item.id
-      );
-      console.log("http updateMeal item: ", item);
-      console.log("http updateMeal oldItem: ", oldItem);
-      if(item !== oldItem){
+      )){
+        //get either a newId or the currentId
         const updatedGroceryid = updateGroceryItem(item,addCtxList);
-
+        console.log("http updateMeal grocId:",updatedGroceryid)
         //Add thisId to groceryData (if it already exits it will just write over the top of it).
         const groceryItem2 = {
-          ...item,thisId: updatedGroceryid.item.name
+          ...item,thisId: updatedGroceryid
+        }
+        //Add groceryData to new array
+        newGroceryList.push(groceryItem2);
+      }
+
+      //add all matching items to grocery list
+      if(currentMealData.groceryItems.find(
+        (meal) => meal.thisId?meal.thisId:meal.id === item.thisId?item.thisId:item.id
+      )){
+        //get either a newId or the currentId
+        const updatedGroceryid = updateGroceryItem(item,addCtxList);
+        console.log("http updateMeal grocId:",updatedGroceryid)
+        //Add thisId to groceryData (if it already exits it will just write over the top of it).
+        const groceryItem2 = {
+          ...item,thisId: updatedGroceryid
         }
         //Add groceryData to new array
         newGroceryList.push(groceryItem2);
@@ -215,13 +245,22 @@ export async function updateMeal(mealId, mealData, currentMealData, addCtxList, 
 
     //delete old grocery items
     currentMealData.groceryItems.forEach((item,index)=>{
-      //console.log(item, index)
-      const newItem = mealData.groceryItems.find(
+      // //console.log(item, index)
+      // const newItem = mealData.groceryItems.find(
+      //   (meal) => meal.thisId?meal.thisId:meal.id === item.thisId?item.thisId:item.id
+      // );
+      // console.log("http updateMeal newItem: ",newItem);
+      // console.log("http updateMeal itemUnderConsideration: ",item);
+      // if(!newItem){
+      //   console.log("http updateMeal deleteId: ", item.thisId?item.thisId:item.id)
+      //   //delete old grocery item from context
+      //   deleteCtxList(item);
+      //   //delete old grocery item from firebase
+      //   deleteList(item.thisId?item.thisId:item.id)
+      // }
+      if(!mealData.groceryItems.find(
         (meal) => meal.thisId?meal.thisId:meal.id === item.thisId?item.thisId:item.id
-      );
-      console.log("http updateMeal newItem: ",newItem);
-      console.log("http updateMeal itemUnderConsideration: ",item);
-      if(!newItem){
+      )){
         console.log("http updateMeal deleteId: ", item.thisId?item.thisId:item.id)
         //delete old grocery item from context
         deleteCtxList(item);

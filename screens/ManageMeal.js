@@ -87,7 +87,7 @@ function ManageMeal({ route, navigation }) {
     // })
   }
 
-  function addCtxList(updatedGrocery,responseGrocery){
+  async function addCtxList(updatedGrocery,responseGrocery){
     try{
       console.log("ManageMeal addCtxlist")
       //setNewItemId(responseGrocery.data.name);
@@ -97,7 +97,7 @@ function ManageMeal({ route, navigation }) {
         ...updatedGrocery, thisId: responseGrocery
       };
       //const groceryId = responseGrocery.data.name;
-      updateList(responseGrocery,groceryItem);
+      await updateList(responseGrocery,groceryItem);
       listsCtx.addList(groceryItem);
     }catch(error){
       console.error("ManageMeal addCtxList Error:", error);
@@ -115,14 +115,19 @@ function ManageMeal({ route, navigation }) {
   }
 
   async function confirmHandler(mealData) {
+    let noGroceries = true;
     console.log("Makes it to confirmHandler in ManageMeals")
     //console.log(mealData);
     setIsSubmitting(true);
     try {
       if (isEditing) {
         console.log("ManageMeal updatinging.  MealID:",editedMealId)
-        
-        await updateMeal(editedMealId, mealData, selectedMeal, addCtxList, deleteCtxList);
+        if(!mealData.groceryItems){
+          noGroceries=true;
+        }else{
+          noGroceries=false;
+        }
+        await updateMeal(editedMealId, mealData, selectedMeal, addCtxList, deleteCtxList,noGroceries);
         mealsCtx.updateMeal(editedMealId, mealData);
         //maybe delete then add again instead of updating the meal?
         //also must add meal to ctx and add groceries to ctx.
