@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, TextInput, FlatList, Text, Pressable, Alert } from "react-native";
+import { View, TextInput, FlatList, Text, Pressable, Alert, ActivityIndicator } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 import { GlobalStyles } from '../../constants/styles';
@@ -7,8 +7,10 @@ import Input from './Input';
 import Button from '../UI/Button';
 import IconButtonNoText from "../UI/IconButtonNoText";
 import { MealsContext } from '../../store/meals-context';
+import { ListsContext } from '../../store/lists-context';
 import { isValidDate, getDateMinusDays } from "../../util/date";
-import { storeList } from "../../util/http-list";
+import { storeList,deleteList,updateList } from "../../util/http-list";
+import { updateMeal,updateMealRaw } from "../../util/http";
 
 const defaultMeal = {
   date: "",
@@ -16,9 +18,10 @@ const defaultMeal = {
   groceryItems: [], // Start as an empty array
 };
 
+//defaultGroceryItem needs to keep name and quantity as is.
 const defaultGroceryItem = { name: "", quantity: "", checkedOff: "", id: "" };
 
-export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
+export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, submitButtonLabel }) {
   // Merge `initialMeal` with `defaultMeal` to avoid undefined values
   const [meal, setMeal] = useState({ ...defaultMeal, ...initialMeal });
   const [maxDate, setMaxDate] = useState("");
@@ -27,18 +30,22 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   const [pencilColor, setPencilColor] = useState(GlobalStyles.colors.primary100);
   const [errorMessage, setErrorMessage] = useState("filled");
   const [editableOr, setEditableOr] = useState(false);
+  const [checked,setChecked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  //const [newGroceryList,setNewGroceryList] = useState();
   // const [showPicker, setShowPicker] = useState(false);
   // const [datePickerDate,setDatePickerDate] = useState(initialMeal.date?initialMeal.date:"");
 
   //const [firstDate, setFirstDate] = useState(getDateMinusDays(new Date(),1));
   const mealsCtx = useContext(MealsContext);
+  const listsCtx = useContext(ListsContext);
 
   //This only runs once when the screen starts up.
   useEffect(() => {
     if(typeof initialMeal.description!=="undefined"){
       //do nothing
-      console.log("initialMealDescription");
-      console.log(typeof(initialMeal.description.toString));
+      //console.log("initialMealDescription");
+      //console.log(typeof(initialMeal.description.toString));
       let date = new Date(initialMeal.date);
 
       let updatedMeal3 = {
@@ -49,7 +56,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
       };
 
       if(isValidDate(initialMeal.date)){
-        // console.log("valid date");
+        //console.log("valid date");
         // console.log(startDate);
         // console.log(startDate.toISOString().slice(0, 10));
         //convert date to text string
@@ -63,9 +70,9 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
         //And update the meal with the new date
         setMeal(updatedMeal3);
       }else{
-        // console.log("Invalid date");
+        console.log("Invalid date");
         // console.log(startDate);
-        return startDate;
+        //return startDate;
       }
     }else if(typeof initialMeal.description==="undefined"){
       const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
@@ -95,13 +102,13 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
     }
   }, []);
 
-  useEffect(() => {
-    if (!description.trim()) {
-      setErrorMessage("Both description and date are required!");
-    } else {
-      setErrorMessage(""); // Clear error when inputs are valid
-    }
-  }, [description]);
+  // useEffect(() => {
+  //   if (!description.trim()) {
+  //     setErrorMessage("Both description and date are required!");
+  //   } else {
+  //     setErrorMessage(""); // Clear error when inputs are valid
+  //   }
+  // }, [description]);
 
   useEffect(() => {
     if (description === "" || date === "") {
@@ -135,10 +142,14 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
   const handleGroceryChange = (index, key, value) => {
     const updatedGroceryItems = [...meal.groceryItems];
     updatedGroceryItems[index][key] = value;
+    //console.log("groceryitem before: ",updatedGroceryItems[index])
+    updatedGroceryItems[index]["mealDesc"] = meal.description;
+    //console.log("groceryitem after: ",updatedGroceryItems[index])
     setMeal((prevMeal) => ({
       ...prevMeal,
       groceryItems: updatedGroceryItems,
     }));
+    //console.log("new meal: ",meal.groceryItems)
   };
 
     // Function to update grocery item checkbox
@@ -170,57 +181,206 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
 
   // Function to add a new grocery item
   const addGroceryItem = () => {
-    setMeal((prevMeal) => ({
-      ...prevMeal,
-      groceryItems: [...prevMeal.groceryItems, { ...defaultGroceryItem }],
-    }));
+    if(meal.groceryItems){
+      setMeal((prevMeal) => ({
+        ...prevMeal,
+        groceryItems: [...prevMeal.groceryItems, { ...defaultGroceryItem }],
+      }));
+    }else{
+      setMeal((prevMeal) => ({
+        ...prevMeal,
+        groceryItems: [{ ...defaultGroceryItem }],
+      }));
+    }
+    
   };
 
   function saveMeal(meal2){
-    console.log("Makes it to saveMeal in MealForm2");
-    console.log("Meal2");
-    console.log(meal2);
+    console.log("Makes it to saveMeal in MealForm2",meal2);
     if(!meal2.date||!meal2.description.trim()){
       Alert.alert("Both description and date are required!")
     }else{
       const newDate = new Date(meal2.date);
-      console.log("newDate");
-      console.log(newDate);
+      // console.log("newDate");
+      // console.log(newDate);
       const updatedMeal = {
         ...meal2,
         date: newDate,
       };
-      console.log("updatedMeal");
-      console.log(updatedMeal);
-      onSubmit(updatedMeal);//this uses the meal in state
-      meal.groceryItems.map((item, index) => {
-        const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id };
-        console.log("storeList");
-        console.log(meal.id);
-        storeList(groceryItem);
-      });
+      console.log("MealForm2 updatedMeal: ",updatedMeal);
+
+      onSubmit(updatedMeal);//this adds or updates the meal in state to firebase
     }
   }
 
+  //DELETING/////////////////////////////////////////////////////
+  function deleteFromGroceryCtx(thisId){
+    // console.log("MealForm2 before delete",listsCtx.lists)
+    // console.log("MealForm2 thisId",thisId)
+    if(listsCtx.lists.find(
+      (theList) => thisId === theList.id?theList.id:theList.thisId
+    )){
+      const updatedGroceries1 = listsCtx.lists.filter(grocery => grocery.thisId !== thisId);
+      const updatedGroceries = updatedGroceries1.filter(grocery => grocery.id !== thisId);
+      listsCtx.setLists(updatedGroceries);
+    }else{
+      console.log("MealForm2 no selectedMeal")
+    }
+    // console.log("MealForm2 after delete",updatedGroceries);
+  }
+  //DELETING/////////////////////////////////////////////////////
   // Function to delete grocery item
-  const deleteGroceryItem = (index) => {
-    setMeal((prevMeal) => ({
-      ...prevMeal,
-      groceryItems: prevMeal.groceryItems.filter((_, i) => i !== index),
-    }));
+  async function deleteGroceryItem(index,mealId,thisId){
+    //console.log("MealForm2 deleteGroceryItem",mealId);
+    setIsLoading(true);
+    try{
+      //remove grocery item from mealsCtx
+      deleteFromGroceryCtx(thisId)
+
+      //remove grocery item from firebase
+      await deleteList(thisId);
+      
+      //console.log("MealForm2 @ updateCTX")
+
+      if(mealsCtx.meals.find(
+        (theMeal) => meal.id === theMeal.id
+      )){
+        //console.log("MealForm2 selectedMeal",selectedMeal)
+        createMealWithoutGroceryItem(meal,thisId)
+      }else{
+        console.log("MealForm2 no selectedMeal")
+      }
+    }catch(error){
+
+    }finally{
+      //remove grocery item from state
+      setMeal((prevMeal) => ({
+        ...prevMeal,
+        groceryItems: prevMeal.groceryItems.filter((_, i) => i !== index),
+      }));
+      setIsLoading(false);
+    }
+    
   };
 
-  function validateDate(startDate){
-    if(isValidDate(startDate)){
-      // console.log("valid date");
-      // console.log(startDate);
-      // console.log(startDate.toISOString().slice(0, 10));
-      //convert date to text string
-      return startDate//.toISOString().slice(0, 10);
+//DELETING/////////////////////////////////////////////////////
+
+  async function createMealWithoutGroceryItem(theMeal,thisId){
+    //console.log("MealForm2 createMealWithoutGroceryItem",theMeal.date)
+    let newGroceryList = []
+    theMeal.groceryItems.map((item) => {
+      //This adds back all grocery items but the one with thisId
+      if(item.thisId !== thisId){
+        newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId });
+      }
+    });
+
+    let updatedMeal;
+    let noGroceries;
+    if(newGroceryList.length>0){
+      updatedMeal={
+        date: new Date(theMeal.date),
+        description: theMeal.description,
+        id: theMeal.id,
+        groceryItems: newGroceryList,
+      }
     }else{
-      // console.log("Invalid date");
+      noGroceries = true;
+      updatedMeal={
+        date: new Date(theMeal.date),
+        description: theMeal.description,
+        id: theMeal.id,
+        groceryItems: [],
+      }
+    }
+    
+    const currentMealData = mealsCtx.meals.find(
+      (meal) => meal.id === thisId
+    );
+
+    
+    console.log("MealForm2 updatedMeal: ",updatedMeal)
+    try{
+      //update meal in ctx
+      console.log("first")
+      mealsCtx.updateMeal(updatedMeal.id,updatedMeal)
+    }finally{
+      console.log("second")
+      setMeal(updatedMeal);
+    }
+    
+    //update meal in firebase
+    await updateMealRaw(updatedMeal.id,updatedMeal);
+    //await updateMeal(updatedMeal.id,updatedMeal,currentMealData, addCtxList, deleteCtxList, noGroceries)
+  }
+  //DELETING/////////////////////////////////////////////////////
+
+  async function addCtxList(updatedGrocery,id){
+    try{
+      console.log("MealForm2 addCtxlist")
+      //setNewItemId(responseGrocery.data.name);
+      //console.log("ManageMeals newItemId: ", newItemId)
+      console.log("MealForm2 newItemId2: ", id)
+      const groceryItem={
+        ...updatedGrocery, thisId: id
+      };
+      //const groceryId = responseGrocery.data.name;
+      await updateList(id,groceryItem);
+      listsCtx.addList(groceryItem);
+    }catch(error){
+      console.error("MealForm2 addCtxList Error:", error);
+    }
+  }
+  
+  //this function is used in http where it cannot work with context.
+  function updateCtxMeal(id,mealData){
+    //update meal in context
+    mealsCtx.updateMeal(id,mealData);
+  }
+
+  function deleteCtxList(groceryItem){
+    console.log("MealForm2 delete groceryItem: ",groceryItem)
+    listsCtx.deleteList(groceryItem);
+  }
+
+  function validateDate(startDate){
+    const startDate1 = new Date(startDate);
+    if(isValidDate(startDate)){
+      const today=getDateMinusDays(startDate,1);
+       //console.log("valid date");
+      //  const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+      //  console.log("dayOfWeek",dayOfWeek);
+      //  const diff = today.getDate() - dayOfWeek; // Calculate the difference to Sunday
+      //  console.log("Diff",diff);
+       return new Date(today.setDate(0));
+      //return startDate2//.toISOString().slice(0, 10);
+    }else{
+      //console.log("Invalid date",startDate);
+      if(startDate.length>0){
+        //console.log("startDate length:",startDate.length)
+        //Add one day to the most recent date to get the date for the next new meal
+      let startDate2 = new Date(startDate);
+      startDate2 = getDateMinusDays(startDate2, 0);
+       //console.log("Invalid date2",startDate2);
+       return startDate2.toISOString().slice(0, 10);
+      }else{
+        //const startDate2=getDateMinusDays(startDate,0);
+       
+      //  const today = new Date(date);
+      //  const startDate2=getDateMinusDays(today,0);
+      const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
+      // console.log("Mostrecentmealdate");
+      // console.log(mostRecentMealDate);
+      
+      //Add one day to the most recent date to get the date for the next new meal
+      let startDate2 = new Date(mostRecentMealDate.date);
+      startDate2 = getDateMinusDays(startDate2, -1);
+       //console.log("Invalid date2",startDate2);
+       return startDate2.toISOString().slice(0, 10);
       // console.log(startDate);
-      return startDate;
+      //return startDate;
+      }
+      
     }
   }
 
@@ -235,14 +395,18 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
     
   }
 
-  // const onChange = (event, selectedDate) => {
-  //   if (Platform.OS === "android") {
-  //     setShowPicker(false); // Hide picker after selecting on Android
-  //   }
-  //   if (selectedDate) {
-  //     setDatePickerDate(selectedDate);
-  //   }
-  // };
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ topMargin: 80 }}>
+          <ActivityIndicator size="large" color='#c6affc' />
+        </View>
+        <View style={{ topMargin: 80 }}>
+          <Text style={{ color:'#c6affc' }}>Loading Meal...</Text>
+        </View>  
+      </View>
+    );
+  }
 
   return (
     <View style={{ padding: 20, flex: 1 }}>
@@ -291,29 +455,35 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
         renderItem={({ item, index }) => (
           <View style={styles.inputContainer}>
             <View style={styles.checkboxContainer}>
-              <Pressable onPress={() => handleGroceryCheckbox(index)} style={styles.checkbox}>
+              {/* <Pressable onPress={() => handleGroceryCheckbox(index)} style={styles.checkbox}> */}
                 <MaterialIcons  
                   size={24} 
-                  color={GlobalStyles.colors.primary100} 
-                  name={() =>handleGroceryCheckbox(index) ? "check-box" : "check-box-outline-blank"}
+                  color={GlobalStyles.colors.primary100}
+                  //name={() =>handleGroceryCheckbox(index) ? "check-box" : "check-box-outline-blank"}
+                  name={checked ? 'check-box' : 'check-box-outline-blank'}
+                  onPress={() => setChecked(!checked)} // Toggle checkbox
                   />
-              </Pressable>
+              {/* </Pressable> */}
             </View>
             <TextInput style={[styles.inputQty,styles.inputAll]}
               keyboardType='numeric'
               placeholder="Qty"
               maxLength={3}
               onChangeText={(text) => handleGroceryChange(index, "quantity", text)}
-              value={item.quantity}
+              value={item.qty?item.qty:item.quantity}
             />
             <TextInput style={[styles.inputGrocery,styles.inputAll]}
               keyboardType='default'
               placeholder="Enter Grocery Item"
               maxLength={50}
               onChangeText={(text) => handleGroceryChange(index, "name", text)}
-              value={item.name}
+              value={item.description?item.description:item.name}
             />
-            <IconButtonNoText icon="trash" size={20} color={GlobalStyles.colors.error500} onPress={() => deleteGroceryItem(index)} />
+            <IconButtonNoText
+              icon="trash"
+              size={20}
+              color={GlobalStyles.colors.error500} 
+              onPress={() => deleteGroceryItem(index,item.mealId,item.thisId?item.thisId:item.id)} />
           </View>
         )}
       />
@@ -323,7 +493,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit }) {
         {/* Add Grocery Item Button */}
         <Button onPress={addGroceryItem}>Add Grocery Item</Button>
         {/* Save/Update Button */}
-        <Button style={{marginLeft:8}} onPress={() => saveMeal(meal)}>Save Meal</Button>
+        <Button style={{marginLeft:8}} onPress={() => saveMeal(meal)}>{submitButtonLabel}</Button>
       </View>
       
     </View>

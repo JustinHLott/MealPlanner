@@ -12,10 +12,10 @@ import IconButtonNoText from '../components/UI/IconButtonNoText';
 import Button from '../components/UI/Button';
 
 function RecentMeals() {
-  console.log("Makes it to RecentMeals");
+  //console.log("Makes it to RecentMeals");
   const [isFetching, setIsFetching] = useState(true);
   const [error, setError] = useState();
-  const [firstDate, setFirstDate] = useState(getDateMinusDays(new Date(),1));
+  const [firstDate, setFirstDate] = useState(getSundayOfThisWeek());
 
   const mealsCtx = useContext(MealsContext);
 
@@ -26,8 +26,8 @@ function RecentMeals() {
         const meals = await fetchMeals();
         mealsCtx.setMeals(meals);
         //mealsCtx.setDates(meals);
-        console.log("At setDates")
-        console.log(mealsCtx.dates)
+        // console.log("At setDates")
+        // console.log(mealsCtx.dates)
       } catch (error) {
         console.log(error)
         setError('Could not fetch meals!');
@@ -38,16 +38,6 @@ function RecentMeals() {
     getMeals();
   }, []);
 
-  // const getMaxDate = (meals) => {
-  //     return meals.reduce((max, meal) => 
-  //       new Date(meal.date) > new Date(max) ? meal.date : max, meals[0].date
-  //     );
-  //   };
-  
-
-  //   const maxDate = getMaxDate(mealsCtx.meals);
-
-
   if (error && !isFetching) {
     return <ErrorOverlay message={error} />;
   }
@@ -57,9 +47,21 @@ function RecentMeals() {
   }
 
   if(!firstDate){
-    setFirstDate(new Date());
+    //setFirstDate(new Date());
+    const today = getSundayOfThisWeek();
+    //console.log("today",today)
+    setFirstDate(today);
   }
   
+  function getSundayOfThisWeek(){
+    const today = getDateMinusDays(new Date(),1);
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    //console.log("dayOfWeek",dayOfWeek);
+    const diff = today.getDate() - dayOfWeek; // Calculate the difference to Sunday
+    //console.log("Diff",diff);
+    return new Date(today.setDate(diff));
+  };
+
   function previous(){
     const mealsSorted = [...mealsCtx.meals,].sort((a, b) => a.date - b.date);
     const thisGroupOfMeals = mealsSorted.filter((meal) => {
@@ -67,17 +69,22 @@ function RecentMeals() {
       let datePlus7 = getDateMinusDays(firstDay, -7);
       let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
    
+      console.log("RecentMeals 1st:",firstDay,"End:",datePlus7)
       return theMeals;
     });
-    console.log(thisGroupOfMeals.length)
+    console.log("RecentMeals Meals this week",thisGroupOfMeals.length)
     if(thisGroupOfMeals.length>0){
       const today = getDateMinusDays(firstDate,7);
+      // const today = getSundayOfThisWeek();
       setFirstDate(today);
     }
   }
+
   function currentWeek(){
-    console.log(mealsCtx.dates)
-    const today = getDateMinusDays(new Date(),1);
+    //console.log(mealsCtx.dates)
+    //const today = getDateMinusDays(new Date(),1);
+    const today = getSundayOfThisWeek();
+    console.log("today",today)
     setFirstDate(today);
   }
   function next(){
@@ -89,9 +96,10 @@ function RecentMeals() {
    
       return theMeals;
     });
-    console.log(thisGroupOfMeals)
+    //console.log(thisGroupOfMeals)
     if(thisGroupOfMeals.length>0){
       const today = getDateMinusDays(firstDate,-7);
+      console.log("next Sunday: ",today)
       setFirstDate(today);
     }
   }

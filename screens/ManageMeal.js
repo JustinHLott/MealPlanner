@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useState } from 'react';
+import { useContext, useLayoutEffect, useState, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-virtualized-view'
 
@@ -11,6 +11,7 @@ import { GlobalStyles } from '../constants/styles';
 import { MealsContext } from '../store/meals-context';
 import { ListsContext } from '../store/lists-context';
 import { storeMeal, updateMeal, deleteMeal } from '../util/http';
+import { storeList, deleteList, updateList } from '../util/http-list';
 import MealGroceries from '../components/MealsOutput/MealGroceries';
 
 let theID ="";
@@ -19,6 +20,8 @@ function ManageMeal({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [latestDate, setLatestDate] = useState();
   const [error, setError] = useState();
+  const [newItemId, setNewItemId] = useState();
+  const [newGroceryItem,setNewGroceryItem] = useState({});
 
   const mealsCtx = useContext(MealsContext);
   const listsCtx = useContext(ListsContext);
@@ -52,23 +55,90 @@ function ManageMeal({ route, navigation }) {
     navigation.goBack();
   }
 
+  function first(updatedGrocery){
+    setNewItemId(storeList(updatedGrocery));
+    console.log("ManageMeals newItemId: ", newItemId)
+    console.log("first");
+  }
+  function second(updatedGrocery){
+    setNewGroceryItem({
+      ...updatedGrocery,id: newItemId, thisId: newItemId
+    });
+    console.log("second");
+    console.log("ManageMeal add groceryItem: ",newGroceryItem)
+  }
+  function third(newGroceryItem){
+    console.log("ManageMeal add groceryItem: ",newGroceryItem)
+    listsCtx.addList(newGroceryItem);
+    console.log("third");
+  }
+
+  const runFunctionsInOrder = useCallback((updatedGrocery)=>{
+    first(updatedGrocery);
+    second(updatedGrocery);
+    third(newGroceryItem);
+  },[]);
+
+  function updateCtxList(updatedGrocery){
+    console.log("ManageMeal updateCtxlist")
+    runFunctionsInOrder(updatedGrocery)
+    // listsCtx.lists.forEach((item,index)=>{
+    //   console.log(item, index)
+    // })
+  }
+
+  async function addCtxList(updatedGrocery,responseGrocery){
+    try{
+      console.log("ManageMeal addCtxlist")
+      //setNewItemId(responseGrocery.data.name);
+      //console.log("ManageMeals newItemId: ", newItemId)
+      console.log("ManageMeals newItemId2: ", responseGrocery)
+      const groceryItem={
+        ...updatedGrocery, thisId: responseGrocery
+      };
+      //const groceryId = responseGrocery.data.name;
+      await updateList(responseGrocery,groceryItem);
+      listsCtx.addList(groceryItem);
+    }catch(error){
+      console.error("ManageMeal addCtxList Error:", error);
+    }
+  }
+  
+  function deleteCtxList(groceryItem){
+    console.log("ManageMeal delete groceryItem: ",groceryItem)
+    listsCtx.deleteList(groceryItem);
+  }
+
+  function addCtxMeal(updatedMeal,mealId){
+    console.log("ManageMeal addCtxMeal: ",updatedMeal)
+    mealsCtx.addMeal({ ...updatedMeal, id: mealId });//This adds the meal to the Context in the app
+  }
+
   async function confirmHandler(mealData) {
+    let noGroceries = true;
     console.log("Makes it to confirmHandler in ManageMeals")
-    console.log(mealData);
+    //console.log(mealData);
     setIsSubmitting(true);
     try {
       if (isEditing) {
-        console.log("Makes it to editing.  MealID:"+editedMealId)
+        console.log("ManageMeal updatinging.  MealID:",editedMealId)
+        if(!mealData.groceryItems){
+          noGroceries=true;
+        }else{
+          noGroceries=false;
+        }
+        await updateMeal(editedMealId, mealData, selectedMeal, addCtxList, deleteCtxList,noGroceries);
         mealsCtx.updateMeal(editedMealId, mealData);
-        await updateMeal(editedMealId, mealData);
+        //maybe delete then add again instead of updating the meal?
+        //also must add meal to ctx and add groceries to ctx.
       } else {
-        console.log("Makes it to adding")
-        const id = await storeMeal(mealData);//This adds the meal to firebase
+        console.log("ManageMeal adding")
+        const id = await storeMeal(mealData,addCtxList,addCtxMeal);//This adds the meal to firebase
+        console.log("ManageMeal finishes adding")
         theID = id;
         mealsCtx.dates.push(mealData.date);
-        //console.log(mealsCtx.dates);
-        mealsCtx.addMeal({ ...mealData, id: id });//This adds the meal to the Context in the app
-        saveGroceryItems(mealData,id);//This adds all grocery items to the grocery list
+        console.log("Made it to savePromises")
+        //await Promise.all(savePromises);
       }
       navigation.goBack();
     } catch (error) {
@@ -77,9 +147,18 @@ function ManageMeal({ route, navigation }) {
     }
   }
 
-  function saveGroceryItems(mealData,id){
-
-  }
+  // async function saveGroceryItems(mealData,id){
+  //   mealData.groceryItems.map((item, index) => {
+  //     const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id, mealDesc: meal.description };
+  //     console.log("storeList");
+  //     console.log(meal.id);
+  //      storeList(groceryItem);
+  //     //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
+  //     listsCtx.addList ( groceryItem );
+  //     console.log("ctxList");
+  //     console.log(listsCtx.lists);
+  //   });
+  // }
 
   function getLatestDate(){
     const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
@@ -112,8 +191,8 @@ function ManageMeal({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      {console.log("managemeal")}
-      {console.log(selectedMeal)}
+      {/* {console.log("managemeal")}
+      {console.log(selectedMeal)} */}
       <ScrollView
         keyboardShouldPersistTaps="handled"//This makes it so you can click a button while the keyboard is up
       >
@@ -125,13 +204,16 @@ function ManageMeal({ route, navigation }) {
           defaultDate={getLatestDate()}
         /> */}
         <MealForm2
-          id={theID}
+          //id={theID}
           initialMeal={selectedMeal}
           defaultDate={getLatestDate()}
           //defaultDate={new Date()}
+          //onCancel={cancelHandler}
           onSubmit={confirmHandler}
+          submitButtonLabel={isEditing ? 'Update' : 'Add'}
         />
-        {isEditing && (
+        {/*This delete the meal*/}
+         {isEditing && (
           <View style={styles.deleteContainer}>
             <IconButton
               icon="trash"
@@ -140,7 +222,7 @@ function ManageMeal({ route, navigation }) {
               onPress={deleteMealHandler}
             />
           </View>
-        )}
+        )} 
       
         {/* <MealGroceries addRows={addRows}/> */}
       </ScrollView>

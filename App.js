@@ -9,14 +9,14 @@ import ManageMeal from './screens/ManageMeal';
 import ManageGroceryItem from './screens/ManageGroceryItem';
 import RecentMeals from './screens/RecentMeals';
 import AllMeals from './screens/AllMeals';
-import AddMealAndGrocery from './screens/AddMealAndGrocery';
-import AddMealAndGrocery3 from './screens/AddMealAndGrocery3';
+//import AddMealAndGrocery from './screens/AddMealAndGrocery';
+//import AddMealAndGrocery3 from './screens/AddMealAndGrocery3';
 import GroceryList from './screens/GroceryList';
 import { GlobalStyles } from './constants/styles';
 import IconButton from './components/UI/IconButton';
 import MealsContextProvider from './store/meals-context';
 import ListsContextProvider from './store/lists-context';
-import AllMeals3 from './screens/AllMeals3';
+//import AllMeals3 from './screens/AllMeals3';
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
