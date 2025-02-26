@@ -155,6 +155,7 @@ export async function fetchMeals3() {
 }
 
 export async function updateMealRaw(mealId, mealData){
+  //update firebase with new mealData
   const updatedMeal = await axios.put(BACKEND_URL + `/meals3/${mealId}.json`, mealData);
   return updatedMeal;
 }
@@ -188,20 +189,19 @@ async function updateGroceryItem(item,addCtxList){
     
   }else{
     //update the item with its new information
-
-
+    //updateCtxList(item,item.thisId?item.thisId:item.id);
 
     console.log("http updateGroceryItem id/thisId:",item.thisId?item.thisId:item.id)
     console.log("http updateGroceryItem id:",item.id)
     console.log("http updateGroceryItem thisId:",item.thisId)
-    addCtxList(item,item.thisId?item.thisId:item.id);
+    
     //return the id that it already has.
     return item.thisId?item.thisId:item.id;
   }
   
 }
 
-export async function updateMeal(mealId, mealData, currentMealData, addCtxList, deleteCtxList, updateCtxMeal, noGroceries) {
+export async function updateMeal(mealId, mealData, currentMealData, addCtxList, deleteCtxList, updateCtxList, updateCtxMeal, noGroceries) {
   console.log("http noGroceries",noGroceries);
   console.log("http mealData",mealData);
   console.log("http currentMealData",currentMealData);
@@ -218,10 +218,10 @@ export async function updateMeal(mealId, mealData, currentMealData, addCtxList, 
       )){
         //get either a newId or the currentId
         const updatedGroceryid = updateGroceryItem(item,addCtxList);
-        console.log("http updateMeal grocId:",updatedGroceryid)
+        console.log("http updateMeal grocId:",updatedGroceryid._j)
         //Add thisId to groceryData (if it already exits it will just write over the top of it).
         const groceryItem2 = {
-          ...item,thisId: updatedGroceryid
+          ...item,thisId: updatedGroceryid._j
         }
         //Add groceryData to new array
         newGroceryList.push(groceryItem2);
@@ -233,10 +233,10 @@ export async function updateMeal(mealId, mealData, currentMealData, addCtxList, 
       )){
         //get either a newId or the currentId
         const updatedGroceryid = updateGroceryItem(item,addCtxList);
-        console.log("http updateMeal grocId:",updatedGroceryid)
+        console.log("http updateMeal grocId:",updatedGroceryid._j)
         //Add thisId to groceryData (if it already exits it will just write over the top of it).
         const groceryItem2 = {
-          ...item,thisId: updatedGroceryid
+          ...item,thisId: updatedGroceryid._j
         }
         //Add groceryData to new array
         newGroceryList.push(groceryItem2);
@@ -245,19 +245,6 @@ export async function updateMeal(mealId, mealData, currentMealData, addCtxList, 
 
     //delete old grocery items
     currentMealData.groceryItems.forEach((item,index)=>{
-      // //console.log(item, index)
-      // const newItem = mealData.groceryItems.find(
-      //   (meal) => meal.thisId?meal.thisId:meal.id === item.thisId?item.thisId:item.id
-      // );
-      // console.log("http updateMeal newItem: ",newItem);
-      // console.log("http updateMeal itemUnderConsideration: ",item);
-      // if(!newItem){
-      //   console.log("http updateMeal deleteId: ", item.thisId?item.thisId:item.id)
-      //   //delete old grocery item from context
-      //   deleteCtxList(item);
-      //   //delete old grocery item from firebase
-      //   deleteList(item.thisId?item.thisId:item.id)
-      // }
       if(!mealData.groceryItems.find(
         (meal) => meal.thisId?meal.thisId:meal.id === item.thisId?item.thisId:item.id
       )){

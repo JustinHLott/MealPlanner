@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, TextInput, FlatList, Text, Pressable, Alert } from "react-native";
+import { View, TextInput, FlatList, Text, Pressable, Alert, ActivityIndicator } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 import { GlobalStyles } from '../../constants/styles';
@@ -10,7 +10,7 @@ import { MealsContext } from '../../store/meals-context';
 import { ListsContext } from '../../store/lists-context';
 import { isValidDate, getDateMinusDays } from "../../util/date";
 import { storeList,deleteList,updateList } from "../../util/http-list";
-import { updateMeal } from "../../util/http";
+import { updateMeal,updateMealRaw } from "../../util/http";
 
 const defaultMeal = {
   date: "",
@@ -31,7 +31,8 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   const [errorMessage, setErrorMessage] = useState("filled");
   const [editableOr, setEditableOr] = useState(false);
   const [checked,setChecked] = useState(false);
-  const [newGroceryList,setNewGroceryList] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  //const [newGroceryList,setNewGroceryList] = useState();
   // const [showPicker, setShowPicker] = useState(false);
   // const [datePickerDate,setDatePickerDate] = useState(initialMeal.date?initialMeal.date:"");
 
@@ -212,75 +213,119 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     }
   }
 
+  //DELETING/////////////////////////////////////////////////////
   function deleteFromGroceryCtx(thisId){
     // console.log("MealForm2 before delete",listsCtx.lists)
     // console.log("MealForm2 thisId",thisId)
-    const updatedGroceries1 = listsCtx.lists.filter(grocery => grocery.thisId !== thisId);
-    const updatedGroceries = updatedGroceries1.filter(grocery => grocery.id !== thisId);
-    listsCtx.setLists(updatedGroceries);
-    //listsCtx.setLists(updatedGroceries);
-    // console.log("MealForm2 after delete",updatedGroceries);
-  }
-
-  // Function to delete grocery item
-  const deleteGroceryItem = (index,mealId,thisId) => {
-
-    //remove grocery item from state
-    setMeal((prevMeal) => ({
-      ...prevMeal,
-      groceryItems: prevMeal.groceryItems.filter((_, i) => i !== index),
-    }));
-
-    //remove grocery item from firebase
-    deleteList(thisId);
-    //remove grocery item from mealsCtx
-    deleteFromGroceryCtx(thisId)
-    //console.log("MealForm2 @ updateCTX")
-    const selectedMeal = mealsCtx.meals.find(
-      (meal) => meal.id === mealId
-    );
-    if(selectedMeal){
-      //console.log("MealForm2 selectedMeal",selectedMeal)
-      createMealWithoutGroceryItem(selectedMeal,thisId)
+    if(listsCtx.lists.find(
+      (theList) => thisId === theList.id?theList.id:theList.thisId
+    )){
+      const updatedGroceries1 = listsCtx.lists.filter(grocery => grocery.thisId !== thisId);
+      const updatedGroceries = updatedGroceries1.filter(grocery => grocery.id !== thisId);
+      listsCtx.setLists(updatedGroceries);
     }else{
       console.log("MealForm2 no selectedMeal")
     }
+    // console.log("MealForm2 after delete",updatedGroceries);
+  }
+  //DELETING/////////////////////////////////////////////////////
+  // Function to delete grocery item
+  async function deleteGroceryItem(index,mealId,thisId){
+    //console.log("MealForm2 deleteGroceryItem",mealId);
+    setIsLoading(true);
+    try{
+      //remove grocery item from mealsCtx
+      deleteFromGroceryCtx(thisId)
+
+      //remove grocery item from firebase
+      await deleteList(thisId);
+      
+      //console.log("MealForm2 @ updateCTX")
+
+      if(mealsCtx.meals.find(
+        (theMeal) => meal.id === theMeal.id
+      )){
+        //console.log("MealForm2 selectedMeal",selectedMeal)
+        createMealWithoutGroceryItem(meal,thisId)
+      }else{
+        console.log("MealForm2 no selectedMeal")
+      }
+    }catch(error){
+
+    }finally{
+      //remove grocery item from state
+      setMeal((prevMeal) => ({
+        ...prevMeal,
+        groceryItems: prevMeal.groceryItems.filter((_, i) => i !== index),
+      }));
+      setIsLoading(false);
+    }
+    
   };
 
-  async function createMealWithoutGroceryItem(selectedMeal,thisId){
-    let noGroceries = true;
+//DELETING/////////////////////////////////////////////////////
+
+  async function createMealWithoutGroceryItem(theMeal,thisId){
+    //console.log("MealForm2 createMealWithoutGroceryItem",theMeal.date)
     let newGroceryList = []
-    meal.groceryItems.map((item, index) => {
-      const groceryItem = { description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId };
+    theMeal.groceryItems.map((item) => {
+      //This adds back all grocery items but the one with thisId
       if(item.thisId !== thisId){
-        noGroceries = false;
-        newGroceryList.push(groceryItem);
+        newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId });
       }
     });
 
-    const updatedMeal={
-      date: selectedMeal.date,
-      description: selectedMeal.description,
-      id: selectedMeal.id,
-      groceryItems: newGroceryList,
+    let updatedMeal;
+    let noGroceries;
+    if(newGroceryList.length>0){
+      updatedMeal={
+        date: new Date(theMeal.date),
+        description: theMeal.description,
+        id: theMeal.id,
+        groceryItems: newGroceryList,
+      }
+    }else{
+      noGroceries = true;
+      updatedMeal={
+        date: new Date(theMeal.date),
+        description: theMeal.description,
+        id: theMeal.id,
+        groceryItems: [],
+      }
     }
-    //update meal in firebase
-    await updateMeal(selectedMeal.id,updatedMeal, selectedMeal, addCtxList, deleteCtxList, updateCtxMeal, noGroceries)
-    //update meal in ctx
-    mealsCtx.updateMeal(selectedMeal.id,updatedMeal)
-  }
+    
+    const currentMealData = mealsCtx.meals.find(
+      (meal) => meal.id === thisId
+    );
 
-  async function addCtxList(updatedGrocery,responseGrocery){
+    
+    console.log("MealForm2 updatedMeal: ",updatedMeal)
+    try{
+      //update meal in ctx
+      console.log("first")
+      mealsCtx.updateMeal(updatedMeal.id,updatedMeal)
+    }finally{
+      console.log("second")
+      setMeal(updatedMeal);
+    }
+    
+    //update meal in firebase
+    await updateMealRaw(updatedMeal.id,updatedMeal);
+    //await updateMeal(updatedMeal.id,updatedMeal,currentMealData, addCtxList, deleteCtxList, noGroceries)
+  }
+  //DELETING/////////////////////////////////////////////////////
+
+  async function addCtxList(updatedGrocery,id){
     try{
       console.log("MealForm2 addCtxlist")
       //setNewItemId(responseGrocery.data.name);
       //console.log("ManageMeals newItemId: ", newItemId)
-      console.log("MealForm2 newItemId2: ", responseGrocery)
+      console.log("MealForm2 newItemId2: ", id)
       const groceryItem={
-        ...updatedGrocery, thisId: responseGrocery
+        ...updatedGrocery, thisId: id
       };
       //const groceryId = responseGrocery.data.name;
-      await updateList(responseGrocery,groceryItem);
+      await updateList(id,groceryItem);
       listsCtx.addList(groceryItem);
     }catch(error){
       console.error("MealForm2 addCtxList Error:", error);
@@ -348,6 +393,19 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       setPencilColor("green");
     }
     
+  }
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ topMargin: 80 }}>
+          <ActivityIndicator size="large" color='#c6affc' />
+        </View>
+        <View style={{ topMargin: 80 }}>
+          <Text style={{ color:'#c6affc' }}>Loading Meal...</Text>
+        </View>  
+      </View>
+    );
   }
 
   return (
@@ -421,7 +479,11 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
               onChangeText={(text) => handleGroceryChange(index, "name", text)}
               value={item.description?item.description:item.name}
             />
-            <IconButtonNoText icon="trash" size={20} color={GlobalStyles.colors.error500} onPress={() => deleteGroceryItem(index,item.mealId,item.thisId)} />
+            <IconButtonNoText
+              icon="trash"
+              size={20}
+              color={GlobalStyles.colors.error500} 
+              onPress={() => deleteGroceryItem(index,item.mealId,item.thisId?item.thisId:item.id)} />
           </View>
         )}
       />

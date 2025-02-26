@@ -9,7 +9,7 @@ import { GlobalStyles } from '../constants/styles';
 import { ListsContext } from '../store/lists-context';
 import { MealsContext } from '../store/meals-context';
 import { storeList, updateList, deleteList } from '../util/http-list';
-import { updateMeal } from '../util/http';
+import { updateMealRaw } from '../util/http';
 
 function ManageGroceryItem({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,10 +22,6 @@ function ManageGroceryItem({ route, navigation }) {
   const editedGroceryId = route.params?.groceryId;
   let meal = route.params?.meal;
   let groceryItem = route.params?.item;
-  // console.log("ManageGroceryItem editedGroceryId: ",editedGroceryId);
-  // console.log("ManageGroceryItem meal: ",meal);
-  // console.log("ManageGroceryItem groceryItem: ",groceryItem);
-  //const groceryItem =groceriesCtx.pullMeal(editedGroceryId,groceriesCtx);
   
   useLayoutEffect(() => {
     if(!groceryItem){
@@ -57,7 +53,7 @@ function ManageGroceryItem({ route, navigation }) {
     });
   }, [navigation, isEditing]);
 
-  /////////////////////////////////////////////////////
+  //DELETING/////////////////////////////////////////////////////
   function deleteFromGroceryCtx(thisId){
     console.log("ManageGroceryItem before delete",groceriesCtx.lists)
     // console.log("MealForm2 thisId",thisId)
@@ -66,7 +62,7 @@ function ManageGroceryItem({ route, navigation }) {
     groceriesCtx.setLists(updatedGroceries);
     console.log("ManageGroceryItem after delete",updatedGroceries);
   }
-  /////////////////////////////////////////////////////
+  //DELETING/////////////////////////////////////////////////////
 
 async function deleteGroceryHandler() {
   setIsSubmitting(true);
@@ -114,7 +110,7 @@ async function deleteGroceryHandler() {
   }
 }
 
-/////////////////////////////////////////////////////
+//DELETING/////////////////////////////////////////////////////
 
   async function createMealWithoutGroceryItem(theMeal,thisId){
 
@@ -150,36 +146,14 @@ async function deleteGroceryHandler() {
 
     console.log("ManageGroceryItem updatedMeal: ",updatedMeal)
     //update meal in firebase
-    //updateMeal(thisId,updatedMeal)
-    await updateMeal(updatedMeal.id,updatedMeal,currentMealData, addCtxList, deleteCtxList, noGroceries)
+    await updateMealRaw(updatedMeal.id,updatedMeal);
+    //await updateMeal(updatedMeal.id,updatedMeal,currentMealData, addCtxList, deleteCtxList, noGroceries)
     //mealId, mealData,currentMealData, addCtxList, deleteCtxList,noGroceries
     //update meal in ctx
     mealsCtx.updateMeal(updatedMeal.id,updatedMeal)
     //mealsCtx.updateMeal(thisId,updatedMeal)
   }
-  /////////////////////////////////////////////////////
-
-  function addCtxList(updatedGrocery,responseGrocery){
-    try{
-      console.log("ManageGroceryItes addCtxlist")
-      //setNewItemId(responseGrocery.data.name);
-      //console.log("ManageMeals newItemId: ", newItemId)
-      console.log("ManageGroceryItems newItemId2: ", responseGrocery)
-      const groceryItem={
-        ...updatedGrocery, thisId: responseGrocery
-      };
-      //const groceryId = responseGrocery.data.name;
-      updateList(responseGrocery,groceryItem);
-      groceriesCtx.addList(groceryItem);
-    }catch(error){
-      console.error("ManageGroceryItems addCtxList Error:", error);
-    }
-  }
-
-  function deleteCtxList(groceryItem){
-    console.log("ManageGroceryItes delete groceryItem: ",groceryItem)
-    groceriesCtx.deleteList(groceryItem);
-  }
+  //DELETING/////////////////////////////////////////////////////
 
   function cancelHandler() {
     navigation.goBack();
