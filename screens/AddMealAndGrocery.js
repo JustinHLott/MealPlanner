@@ -16,7 +16,7 @@ const AddMealAndGrocery = () => {
       const newMeal = {
         meal,
         date,
-        groceryItems: [{ name: groceryItem, quantity }],
+        groceryItems: [{ description: groceryItem, qty: quantity }],
       };
 
       setMeals([...meals, newMeal]); // Add to array
@@ -64,7 +64,7 @@ const AddMealAndGrocery = () => {
           <View style={styles.listItem}>
             <Text>🍽 {item.meal} - 📅 {item.date}</Text>
             {item.groceryItems.map((g, i) => (
-              <Text key={i}>🛒 {g.name} - {g.quantity}</Text>
+              <Text key={i}>🛒 {g.description} - {g.qty}</Text>
             ))}
           </View>
         )}

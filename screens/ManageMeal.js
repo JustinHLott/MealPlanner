@@ -75,9 +75,9 @@ function ManageMeal({ route, navigation }) {
     third(newGroceryItem);
   },[]);
 
-  function updateCtxList(updatedGrocery){
-    console.log("ManageMeal updateCtxlist")
-    runFunctionsInOrder(updatedGrocery)
+  function updateCtxList(updatedGrocery,id){
+    console.log("ManageMeal updateCtxlist:",updatedGrocery,id);
+    //runFunctionsInOrder(updatedGrocery)
     // listsCtx.lists.forEach((item,index)=>{
     //   console.log(item, index)
     // })
@@ -97,11 +97,14 @@ function ManageMeal({ route, navigation }) {
         thisId: id,
         checkedOff: updatedGrocery.checkedOff,
         mealDesc: updatedGrocery.mealDesc,
-        description: updatedGrocery.name,
-        qty: updatedGrocery.quantity
+        mealId: updatedGrocery.mealId,
+        description: updatedGrocery.description,
+        qty: updatedGrocery.qty
       };
-      //const groceryId = responseGrocery.data.name;
-      //await addList(id,groceryItem);
+
+      // let newCtxGroceryList=listsCtx.lists;
+      // newCtxGroceryList.push(groceryItem);
+      // listsCtx.setLists(newCtxGroceryList)
       listsCtx.addList(groceryItem);
     }catch(error){
       console.error("ManageMeal addCtxList Error:", error);

@@ -101,17 +101,6 @@ function GroceryItem({ itemData }) {
     });
   }
 
-  // // Function to delete grocery item
-  // const deleteGroceryItem = (id) => {
-  //   //console.log("index",id)
-  //   console.log("GroceryItem before deleted", id,meal2)
-  //   setMeal2((prevMeal) => ({
-  //     ...prevMeal,
-  //     groceryItems: prevMeal.groceryItems.filter((_, i) => i !== id),
-  //   }));
-  //   console.log("GroceryItem after deleted", meal2)
-  // };
-
     /////////////////////////////////////////////////////
     function deleteFromGroceryCtx(thisId){
       //console.log("GroceryIte before delete",groceriesCtx.lists)
@@ -128,17 +117,17 @@ function GroceryItem({ itemData }) {
     try {
       //console.log("Made it to deleteGroceryHandler")
       if(itemData.item.id){
-        //console.log("GroceryItem id: ",itemData.item.id)
+        console.log("GroceryItem id: ",itemData.item.id)
         //delete grocery item from firebase http
         await deleteList(itemData.item.id);
 
         //delete grocery item from grocery ctx
-        deleteFromGroceryCtx(itemData.item.id)
-        //groceriesCtx.deleteList(itemData.item.id);
+        deleteFromGroceryCtx(itemData.item.id);
+            //groceriesCtx.deleteList(itemData.item.id);
 
         // //update meal state
         // deleteGroceryItem(itemData.item.id)
-        //console.log("GroceryItem meals: ",mealsCtx.meals)
+        console.log("GroceryItem delete meal: ",itemData.item)
         //update mealsCtx
         if(itemData.item.mealId){
           const selectedMeal = mealsCtx.meals.find(
@@ -156,17 +145,8 @@ function GroceryItem({ itemData }) {
         }
       }else{
         console.log("GroceryItem thisId: ",itemData.item.thisId);
-        //delete grocery item from firebase http
-        await deleteList(itemData.item.thisId);
+        console.log("GroceryItem item: ",itemData.item);
 
-        //delete grocery item from grocery ctx
-        deleteFromGroceryCtx(itemData.item.thisId)
-        //groceriesCtx.deleteList(itemData.item.id);
-
-        // //update meal state
-        // deleteGroceryItem(itemData.item.id)
-
-        //console.log("GroceryItem meals: ",mealsCtx.meals)
         //update mealsCtx
         if(itemData.item.mealId){
           const selectedMeal = mealsCtx.meals.find(
@@ -182,6 +162,19 @@ function GroceryItem({ itemData }) {
         }else{
           console.log("GroceryItem no mealId");
         }
+
+        //delete grocery item from firebase http
+        await deleteList(itemData.item.thisId);
+
+        //delete grocery item from grocery ctx
+        deleteFromGroceryCtx(itemData.item.thisId)
+            //groceriesCtx.deleteList(itemData.item.thisId);
+
+        // //update meal state
+        // deleteGroceryItem(itemData.item.id)
+
+        //console.log("GroceryItem meals: ",mealsCtx.meals)
+        
       }
     } catch (error) {
       console.log(error)
@@ -199,7 +192,7 @@ function GroceryItem({ itemData }) {
     theMeal.groceryItems.map((item) => {
       //This adds back all grocery items but the one with thisId
       if(item.thisId !== thisId){
-        newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId });
+        newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: theMeal.id, thisId: item.thisId?item.thisId:item.id, id:item.id?item.id:item.thisId });
       }
     });
 
@@ -220,60 +213,18 @@ function GroceryItem({ itemData }) {
       }
     }
     
-    const currentMealData = mealsCtx.meals.find(
-      (meal) => meal.id === thisId
-    );
-    //update meal in firebase
-    console.log("GroceryItem delete print before await");
-    await updateMealRaw(updatedMeal.id,updatedMeal);
-    //await updateMeal(theMeal.id,selectedMeal,updatedMeal, addCtxList, deleteCtxList, updateCtxMeal, noGroceries)
-    console.log("GroceryItem delete print after await")
+    // const currentMealData = mealsCtx.meals.find(
+    //   (meal) => meal.id === thisId
+    // );
 
     //update meal in ctx
     mealsCtx.updateMeal(theMeal.id,updatedMeal)
+
+    //update meal in firebase
+    console.log("GroceryItem delete print before await",theMeal.groceryItems);
+    await updateMealRaw(updatedMeal.id,updatedMeal);
+    console.log("GroceryItem delete print after await",updatedMeal.groceryItems)
   }
-  //DELETING/////////////////////////////////////////////////////
-
-  // async function createMealWithoutGroceryItem(theMeal,thisId){
-
-  //   let newGroceryList = []
-  //   theMeal.groceryItems.map((item) => {
-  //     //This adds back all grocery items but the one with thisId
-  //     if(item.thisId !== thisId){
-  //       newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId });
-  //     }
-  //   });
-
-  //   let updatedMeal;
-  //   let noGroceries;
-  //   if(newGroceryList.length>0){
-  //     updatedMeal={
-  //       date: theMeal.date,
-  //       description: theMeal.description,
-  //       id: theMeal.id,
-  //       groceryItems: newGroceryList,
-  //     }
-  //   }else{
-  //     noGroceries = true;
-  //     updatedMeal={
-  //       date: theMeal.date,
-  //       description: theMeal.description,
-  //       id: theMeal.id,
-  //     }
-  //   }
-    
-  //   const currentMealData = mealsCtx.meals.find(
-  //     (meal) => meal.id === thisId
-  //   );
-
-  //   console.log("ManageGroceryItem updatedMeal: ",updatedMeal)
-  //   //update meal in firebase
-  //   await updateMealRaw(updatedMeal.id,updatedMeal);
-  //   //await updateMeal(updatedMeal.id,updatedMeal,currentMealData, addCtxList, deleteCtxList, noGroceries)
-
-  //   //update meal in ctx
-  //   mealsCtx.updateMeal(updatedMeal.id,updatedMeal)
-  // }
   //DELETING/////////////////////////////////////////////////////
 
   async function addCtxList(updatedGrocery,id){

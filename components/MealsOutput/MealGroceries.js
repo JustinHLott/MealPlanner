@@ -6,14 +6,14 @@ import Button from '../UI/Button';
 
 const MealGroceries = ({addRows}) => {
   const [data, setData] = useState([]);
-  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [qty, setQty] = useState();
 
 const  addRow = () => {
-    if (name) {
+    if (description) {
 
-      setData([...data, { id: Date.now().toString(), name, qty:(!qty? 1:qty)}]);
-      setName("");
+      setData([...data, { id: Date.now().toString(), description, qty:(!qty? 1:qty)}]);
+      setDescription("");
       setQty("");
       
     }
@@ -35,8 +35,8 @@ const  addRow = () => {
             keyboardType='default'
             placeholder="Enter Grocery Item"
             maxLength={50}
-            onChangeText={setName}
-            value={name}
+            onChangeText={setDescription}
+            value={description}
           />
         </View>
         
@@ -55,7 +55,7 @@ const  addRow = () => {
             {data.map((item) => (
               <DataTable.Row key={item.id}>
                 <DataTable.Cell><Text style={styles.text}>{item.qty}</Text></DataTable.Cell>
-                <DataTable.Cell><Text style={styles.text}>{item.name}</Text></DataTable.Cell>
+                <DataTable.Cell><Text style={styles.text}>{item.description}</Text></DataTable.Cell>
               </DataTable.Row>
             ))}
           </ScrollView>

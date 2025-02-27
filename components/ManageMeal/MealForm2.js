@@ -18,8 +18,8 @@ const defaultMeal = {
   groceryItems: [], // Start as an empty array
 };
 
-//defaultGroceryItem needs to keep name and quantity as is.
-const defaultGroceryItem = { name: "", quantity: "", checkedOff: "", id: "" };
+//defaultGroceryItem needs to keep description and qty as is.
+const defaultGroceryItem = { description: "", qty: "", checkedOff: "", id: "" };
 
 export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, submitButtonLabel }) {
   // Merge `initialMeal` with `defaultMeal` to avoid undefined values
@@ -473,15 +473,15 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
               keyboardType='numeric'
               placeholder="Qty"
               maxLength={3}
-              onChangeText={(text) => handleGroceryChange(index, "quantity", text)}
-              value={item.qty?item.qty:item.quantity}
+              onChangeText={(text) => handleGroceryChange(index, "qty", text)}
+              value={item.qty?item.qty:item.qty}
             />
             <TextInput style={[styles.inputGrocery,styles.inputAll]}
               keyboardType='default'
               placeholder="Enter Grocery Item"
               maxLength={50}
-              onChangeText={(text) => handleGroceryChange(index, "name", text)}
-              value={item.description?item.description:item.name}
+              onChangeText={(text) => handleGroceryChange(index, "description", text)}
+              value={item.description?item.description:item.description}
             />
             <IconButtonNoText
               icon="trash"

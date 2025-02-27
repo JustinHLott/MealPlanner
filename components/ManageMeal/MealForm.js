@@ -35,7 +35,7 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
 
   // Function to add a new grocery item input
   const addGroceryItem = () => {
-    setGroceryItems([...groceryItems, { name: "", quantity: "" }]);
+    setGroceryItems([...groceryItems, { description: "", qty: "" }]);
   };
 
   function addGroceryList(inputs){
@@ -45,8 +45,8 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
       //setGroceryItems([]);
       Object.entries(defaultValues.groceryItems).map(([mealkey,meal])=>{
           //addGroceryItem()
-          groceryItems.push({index: mealkey, name: meal.name, quantity: meal.quantity})
-          console.log(meal.name + " " + meal.quantity);
+          groceryItems.push({index: mealkey, description: meal.description, qty: meal.qty})
+          console.log(meal.description + " " + meal.qty);
         }
       )
 
@@ -62,15 +62,15 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
               keyboardType='numeric'
               placeholder="Enter Qty"
               maxLength={3}
-              onChangeText={(text) => updateGroceryItem(index, "quantity", text)}
-              value={item.quantity}
+              onChangeText={(text) => updateGroceryItem(index, "qty", text)}
+              value={item.qty}
             />
             <TextInput style={[styles.inputGrocery,styles.inputAll]}
               keyboardType='default'
               placeholder="Enter Grocery Item"
               maxLength={50}
-              onChangeText={(text) => updateGroceryItem(index, "name", text)}
-              value={item.name}
+              onChangeText={(text) => updateGroceryItem(index, "description", text)}
+              value={item.description}
             />
           </View>
         )}
@@ -96,7 +96,7 @@ function MealForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaul
     const mealData = {
       date: new Date(inputs.date.value),//defaultDate,//
       description: inputs.description.value,
-      groceryItems: groceryItems.filter(item => item.name.trim() && item.quantity.trim()), // Remove empty entries
+      groceryItems: groceryItems.filter(item => item.description.trim() && item.qty.trim()), // Remove empty entries
     };
 
     const dateIsValid = mealData.date.toString() !== 'Invalid Date';
