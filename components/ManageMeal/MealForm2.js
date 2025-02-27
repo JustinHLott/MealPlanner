@@ -196,20 +196,24 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   };
 
   function saveMeal(meal2){
+    let noGroceries = false;
     console.log("Makes it to saveMeal in MealForm2",meal2);
     if(!meal2.date||!meal2.description.trim()){
       Alert.alert("Both description and date are required!")
     }else{
       const newDate = new Date(meal2.date);
-      // console.log("newDate");
-      // console.log(newDate);
       const updatedMeal = {
         ...meal2,
         date: newDate,
       };
       console.log("MealForm2 updatedMeal: ",updatedMeal);
-
-      onSubmit(updatedMeal);//this adds or updates the meal in state to firebase
+      if(!meal.groceryItems){
+        noGroceries=true;
+      }else{
+        noGroceries=false;
+      }
+      //this does Add or Update the meal in state to firebase
+      onSubmit(updatedMeal,noGroceries);
     }
   }
 

@@ -51,10 +51,6 @@ function ManageMeal({ route, navigation }) {
     }
   }
 
-  function cancelHandler() {
-    navigation.goBack();
-  }
-
   function first(updatedGrocery){
     setNewItemId(storeList(updatedGrocery));
     console.log("ManageMeals newItemId: ", newItemId)
@@ -87,17 +83,25 @@ function ManageMeal({ route, navigation }) {
     // })
   }
 
-  async function addCtxList(updatedGrocery,responseGrocery){
+  function updateCtxMeal(mealId,newMeal){
+    console.log("ManageMeals updateCtxMeal meal:",newMeal);
+  }
+
+  async function addCtxList(updatedGrocery,id){
     try{
       console.log("ManageMeal addCtxlist")
       //setNewItemId(responseGrocery.data.name);
       //console.log("ManageMeals newItemId: ", newItemId)
-      console.log("ManageMeals newItemId2: ", responseGrocery)
+      console.log("ManageMeals newItemId2: ", id)
       const groceryItem={
-        ...updatedGrocery, thisId: responseGrocery
+        thisId: id,
+        checkedOff: updatedGrocery.checkedOff,
+        mealDesc: updatedGrocery.mealDesc,
+        description: updatedGrocery.name,
+        qty: updatedGrocery.quantity
       };
       //const groceryId = responseGrocery.data.name;
-      await updateList(responseGrocery,groceryItem);
+      //await addList(id,groceryItem);
       listsCtx.addList(groceryItem);
     }catch(error){
       console.error("ManageMeal addCtxList Error:", error);
@@ -114,23 +118,24 @@ function ManageMeal({ route, navigation }) {
     mealsCtx.addMeal({ ...updatedMeal, id: mealId });//This adds the meal to the Context in the app
   }
 
-  async function confirmHandler(mealData) {
-    let noGroceries = true;
+  async function confirmHandler(mealData, noGroceries) {
+    //let noGroceries = true;
     console.log("Makes it to confirmHandler in ManageMeals")
     //console.log(mealData);
     setIsSubmitting(true);
     try {
       if (isEditing) {
-        console.log("ManageMeal updatinging.  MealID:",editedMealId)
-        if(!mealData.groceryItems){
-          noGroceries=true;
-        }else{
-          noGroceries=false;
-        }
-        await updateMeal(editedMealId, mealData, selectedMeal, addCtxList, deleteCtxList,noGroceries);
-        mealsCtx.updateMeal(editedMealId, mealData);
+        console.log("ManageMeal updatinging.  noGroceries:",noGroceries)
+        // if(!mealData.groceryItems){
+        //   noGroceries=true;
+        // }else{
+        //   noGroceries=false;
+        // }
+        await updateMeal(mealData.id, mealData, selectedMeal, addCtxList, deleteCtxList,updateCtxList,updateCtxMeal,noGroceries);
+        mealsCtx.updateMeal(mealData.id, mealData);
         //maybe delete then add again instead of updating the meal?
         //also must add meal to ctx and add groceries to ctx.
+        navigation.goBack();
       } else {
         console.log("ManageMeal adding")
         const id = await storeMeal(mealData,addCtxList,addCtxMeal);//This adds the meal to firebase
@@ -139,26 +144,17 @@ function ManageMeal({ route, navigation }) {
         mealsCtx.dates.push(mealData.date);
         console.log("Made it to savePromises")
         //await Promise.all(savePromises);
+        navigation.goBack();
       }
-      navigation.goBack();
+      
     } catch (error) {
-      setError('Could not save data - please try again later!');
+      console.log("ManageMeal save error:",error)
+      //setError('Could not save data - please try again later!',error);
       setIsSubmitting(false);
     }
   }
 
-  // async function saveGroceryItems(mealData,id){
-  //   mealData.groceryItems.map((item, index) => {
-  //     const groceryItem = { item: index+1, description: item.name, qty: item.quantity, checkedOff: item.checkOff, id: meal.id, mealDesc: meal.description };
-  //     console.log("storeList");
-  //     console.log(meal.id);
-  //      storeList(groceryItem);
-  //     //listsCtx.addList ( index+1, item.name, item.quantity, item.checkedOff, meal.id )
-  //     listsCtx.addList ( groceryItem );
-  //     console.log("ctxList");
-  //     console.log(listsCtx.lists);
-  //   });
-  // }
+  
 
   function getLatestDate(){
     const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
