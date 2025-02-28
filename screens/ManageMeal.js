@@ -162,11 +162,7 @@ function ManageMeal({ route, navigation }) {
     try {
       if (isEditing) {
         console.log("ManageMeal updatinging.  noGroceries:",noGroceries)
-        // if(!mealData.groceryItems){
-        //   noGroceries=true;
-        // }else{
-        //   noGroceries=false;
-        // }
+        
         await updateMeal(mealData.id, mealData, theMeal, addCtxList, deleteCtxList,updateCtxList,updateCtxMeal,noGroceries);
         mealsCtx.updateMeal(mealData.id, mealData);
         //maybe delete then add again instead of updating the meal?
