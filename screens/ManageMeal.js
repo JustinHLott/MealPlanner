@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useState, useCallback } from 'react';
+import { useContext, useLayoutEffect, useState, useCallback, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-virtualized-view'
 
@@ -22,6 +22,7 @@ function ManageMeal({ route, navigation }) {
   const [error, setError] = useState();
   const [newItemId, setNewItemId] = useState();
   const [newGroceryItem,setNewGroceryItem] = useState({});
+  const [theMeal,setTheMeal] = useState({});
 
   const mealsCtx = useContext(MealsContext);
   const listsCtx = useContext(ListsContext);
@@ -29,9 +30,19 @@ function ManageMeal({ route, navigation }) {
   const editedMealId = route.params?.mealId;
   const isEditing = !!editedMealId;
 
-  const selectedMeal = mealsCtx.meals.find(
-    (meal) => meal.id === editedMealId
-  );
+  //let selectedMeal = 
+  useEffect(()=>{
+    setTheMeal(mealsCtx.meals.find(
+      (meal) => meal.id === editedMealId
+    ));
+  },[]);
+
+  useEffect(()=>{
+    setTheMeal(mealsCtx.meals.find(
+      (meal) => meal.id === editedMealId
+    ));
+  },[mealsCtx.meals,deleteMealHandler])
+  
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -51,29 +62,29 @@ function ManageMeal({ route, navigation }) {
     }
   }
 
-  function first(updatedGrocery){
-    setNewItemId(storeList(updatedGrocery));
-    console.log("ManageMeals newItemId: ", newItemId)
-    console.log("first");
-  }
-  function second(updatedGrocery){
-    setNewGroceryItem({
-      ...updatedGrocery,id: newItemId, thisId: newItemId
-    });
-    console.log("second");
-    console.log("ManageMeal add groceryItem: ",newGroceryItem)
-  }
-  function third(newGroceryItem){
-    console.log("ManageMeal add groceryItem: ",newGroceryItem)
-    listsCtx.addList(newGroceryItem);
-    console.log("third");
-  }
+  // function first(updatedGrocery){
+  //   setNewItemId(storeList(updatedGrocery));
+  //   console.log("ManageMeals newItemId: ", newItemId)
+  //   console.log("first");
+  // }
+  // function second(updatedGrocery){
+  //   setNewGroceryItem({
+  //     ...updatedGrocery,id: newItemId, thisId: newItemId
+  //   });
+  //   console.log("second");
+  //   console.log("ManageMeal add groceryItem: ",newGroceryItem)
+  // }
+  // function third(newGroceryItem){
+  //   console.log("ManageMeal add groceryItem: ",newGroceryItem)
+  //   listsCtx.addList(newGroceryItem);
+  //   console.log("third");
+  // }
 
-  const runFunctionsInOrder = useCallback((updatedGrocery)=>{
-    first(updatedGrocery);
-    second(updatedGrocery);
-    third(newGroceryItem);
-  },[]);
+  // const runFunctionsInOrder = useCallback((updatedGrocery)=>{
+  //   first(updatedGrocery);
+  //   second(updatedGrocery);
+  //   third(newGroceryItem);
+  // },[]);
 
   function updateCtxList(updatedGrocery,id){
     console.log("ManageMeal updateCtxlist:",updatedGrocery,id);
@@ -85,6 +96,8 @@ function ManageMeal({ route, navigation }) {
 
   function updateCtxMeal(mealId,newMeal){
     console.log("ManageMeals updateCtxMeal meal:",newMeal);
+    setTheMeal(newMeal);
+    mealsCtx.updateMeal(mealId,newMeal);
   }
 
   async function addCtxList(updatedGrocery,id){
@@ -113,11 +126,31 @@ function ManageMeal({ route, navigation }) {
   
   function deleteCtxList(groceryItem){
     console.log("ManageMeal delete groceryItem: ",groceryItem)
+    const currentMeal = mealsCtx.meals.find((meal) => meal.id === editedMealId)
+    if(currentMeal){
+      const updatedGroceries1 = currentMeal.groceryitems.filter(grocery => grocery.thisId !== groceryItem.thisId);
+      const updatedGroceries = updatedGroceries1.filter(grocery => grocery.id !== groceryItem.id);
+
+      console.log("ManageMeals delete groceryItem meal:",
+        {
+          id: currentMeal.id,
+          date: currentMeal.date,
+          groceryItems: updatedGroceries
+        });
+      //update the state for the page.
+      setTheMeal({
+        id: currentMeal.id,
+        date: currentMeal.date,
+        groceryItems: updatedGroceries
+      })
+    }
+    //update the groceries ctx list
     listsCtx.deleteList(groceryItem);
   }
 
   function addCtxMeal(updatedMeal,mealId){
     console.log("ManageMeal addCtxMeal: ",updatedMeal)
+    setTheMeal(updatedMeal);
     mealsCtx.addMeal({ ...updatedMeal, id: mealId });//This adds the meal to the Context in the app
   }
 
@@ -134,7 +167,7 @@ function ManageMeal({ route, navigation }) {
         // }else{
         //   noGroceries=false;
         // }
-        await updateMeal(mealData.id, mealData, selectedMeal, addCtxList, deleteCtxList,updateCtxList,updateCtxMeal,noGroceries);
+        await updateMeal(mealData.id, mealData, theMeal, addCtxList, deleteCtxList,updateCtxList,updateCtxMeal,noGroceries);
         mealsCtx.updateMeal(mealData.id, mealData);
         //maybe delete then add again instead of updating the meal?
         //also must add meal to ctx and add groceries to ctx.
@@ -204,7 +237,7 @@ function ManageMeal({ route, navigation }) {
         /> */}
         <MealForm2
           //id={theID}
-          initialMeal={selectedMeal}
+          initialMeal={theMeal}
           defaultDate={getLatestDate()}
           //defaultDate={new Date()}
           //onCancel={cancelHandler}
