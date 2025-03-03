@@ -30,7 +30,7 @@ function ManageMeal({ route, navigation }) {
   const editedMealId = route.params?.mealId;
   const isEditing = !!editedMealId;
 
-  //let selectedMeal = 
+  let newGroceryList = [];
   useEffect(()=>{
     setTheMeal(mealsCtx.meals.find(
       (meal) => meal.id === editedMealId
@@ -86,18 +86,36 @@ function ManageMeal({ route, navigation }) {
   //   third(newGroceryItem);
   // },[]);
 
-  function updateCtxList(updatedGrocery,id){
-    console.log("ManageMeal updateCtxlist:",updatedGrocery,id);
-    //runFunctionsInOrder(updatedGrocery)
-    // listsCtx.lists.forEach((item,index)=>{
-    //   console.log(item, index)
-    // })
+function updateCtxList(updatedGrocery,id){
+  console.log("ManageMeal updateCtxlist:",updatedGrocery,id);
+  newGroceryList.push(updatedGrocery);
+  //runFunctionsInOrder(updatedGrocery)
+  // listsCtx.lists.forEach((item,index)=>{
+  //   console.log(item, index)
+  // })
+}
+
+function addGroceriesToMeal(newMeal){
+  const newMeal2={
+    ...newMeal, groceryItems: newGroceryList
   }
+  if(newMeal2){
+    return newMeal2;
+  }
+}
 
   function updateCtxMeal(mealId,newMeal){
-    console.log("ManageMeals updateCtxMeal meal:",newMeal);
-    setTheMeal(newMeal);
-    mealsCtx.updateMeal(mealId,newMeal);
+    const newMeal1=addGroceriesToMeal(newMeal)
+    //.then((newMeal1)=>{
+      if(newMeal1){
+        console.log("ManageMeals updateCtxMeal meal:",newMeal);
+        console.log("ManageMeals updateCtxMeal meal2:",newMeal1);
+        setTheMeal(newMeal1);
+        mealsCtx.updateMeal(mealId,newMeal1);
+      }
+      
+    //})
+    
   }
 
   async function addCtxList(updatedGrocery,id){
@@ -118,6 +136,7 @@ function ManageMeal({ route, navigation }) {
       // let newCtxGroceryList=listsCtx.lists;
       // newCtxGroceryList.push(groceryItem);
       // listsCtx.setLists(newCtxGroceryList)
+      newGroceryList.push(groceryItem);//this adds the grocery item to the groceryItems for the meal
       listsCtx.addList(groceryItem);
     }catch(error){
       console.error("ManageMeal addCtxList Error:", error);
@@ -162,9 +181,9 @@ function ManageMeal({ route, navigation }) {
     try {
       if (isEditing) {
         console.log("ManageMeal updatinging.  noGroceries:",noGroceries)
-        
+        newGroceryList.length = 0;//This resets the grocery array.
         await updateMeal(mealData.id, mealData, theMeal, addCtxList, deleteCtxList,updateCtxList,updateCtxMeal,noGroceries);
-        mealsCtx.updateMeal(mealData.id, mealData);
+        //mealsCtx.updateMeal(mealData.id, mealData);
         //maybe delete then add again instead of updating the meal?
         //also must add meal to ctx and add groceries to ctx.
         navigation.goBack();

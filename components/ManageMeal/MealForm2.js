@@ -19,7 +19,7 @@ const defaultMeal = {
 };
 
 //defaultGroceryItem needs to keep description and qty as is.
-const defaultGroceryItem = { description: "", qty: "", checkedOff: "", id: "" };
+const defaultGroceryItem = { description: "", qty: "", checkedOff: "" };
 
 export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, submitButtonLabel }) {
   // Merge `initialMeal` with `defaultMeal` to avoid undefined values
