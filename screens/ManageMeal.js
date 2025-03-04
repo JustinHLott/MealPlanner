@@ -1,6 +1,9 @@
 import { useContext, useLayoutEffect, useState, useCallback, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-virtualized-view'
+import axios from 'axios';
+const BACKEND_URL =
+  'https://justinhlottcapstone-default-rtdb.firebaseio.com';
 
 import MealForm from '../components/ManageMeal/MealForm';
 import MealForm2 from '../components/ManageMeal/MealForm2';
@@ -18,9 +21,7 @@ let theID ="";
 
 function ManageMeal({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [latestDate, setLatestDate] = useState();
   const [error, setError] = useState();
-  const [newItemId, setNewItemId] = useState();
   const [newGroceryItem,setNewGroceryItem] = useState({});
   const [theMeal,setTheMeal] = useState({});
   const [newGroceryList1,setNewGroceryList1] = useState([]);
@@ -106,20 +107,6 @@ function addGroceriesToMeal(newMeal){
   }
 }
 
-  function updateCtxMeal(mealId,newMeal){
-    const newMeal1=addGroceriesToMeal(newMeal)
-    //.then((newMeal1)=>{
-      if(newMeal1){
-        console.log("ManageMeals updateCtxMeal meal:",newMeal);
-        console.log("ManageMeals updateCtxMeal meal2:",newMeal1);
-        setTheMeal(newMeal1);
-        mealsCtx.updateMeal(mealId,newMeal1);
-      }
-      
-    //})
-    
-  }
-
   async function addCtxList(updatedGrocery,id){
     try{
       console.log("ManageMeal addCtxlist")
@@ -145,7 +132,41 @@ function addGroceriesToMeal(newMeal){
       console.error("ManageMeal addCtxList Error:", error);
     }
   }
-  
+
+  async function addCtxListToMeal(updatedGrocery,id,mealId){
+    try{
+      console.log("ManageMeal addCtxlistToMeal")
+      //setNewItemId(responseGrocery.data.name);
+      //console.log("ManageMeals newItemId: ", newItemId);
+      console.log("ManageMeals newItemId3: ", id)
+      const groceryItem={
+        thisId: id,
+        checkedOff: updatedGrocery.checkedOff,
+        mealDesc: updatedGrocery.mealDesc,
+        mealId: updatedGrocery.mealId,
+        description: updatedGrocery.description,
+        qty: updatedGrocery.qty
+      };
+      let currentMeal2
+      const currentMeal = mealsCtx.meals.find((meal) => meal.id === mealId)
+      if(currentMeal){
+        let groceryList=[...currentMeal.groceryItems,groceryItem];
+        currentMeal2 = {
+          id: currentMeal.id,
+          date: currentMeal.date,
+          groceryItems: groceryList
+        };
+        
+        mealsCtx.updateMeal(mealId,currentMeal2);
+        setTheMeal(currentMeal2);
+        axios.put(BACKEND_URL + `/meals3/${mealId}.json`, currentMeal2);
+        console.log("ManageMeal addCtxListToMeal2:",currentMeal2);
+      }
+    }catch(error){
+      console.error("ManageMeal addCtxList Error:", error);
+    }
+  }
+
   function deleteCtxList(groceryItem){
     console.log("ManageMeal delete groceryItem: ",groceryItem)
     const currentMeal = mealsCtx.meals.find((meal) => meal.id === editedMealId)
@@ -186,7 +207,7 @@ function addGroceriesToMeal(newMeal){
         console.log("ManageMeal updatinging.  noGroceries:",noGroceries)
         //newGroceryList.length = 0;//This resets the grocery array.
         setNewGroceryItem([]);
-        await updateMeal(mealData.id, mealData, theMeal, addCtxList, deleteCtxList,updateCtxList,updateCtxMeal,noGroceries);
+        updateMeal(mealData.id, mealData, theMeal, addCtxList, addCtxListToMeal, deleteCtxList,updateCtxList,noGroceries);
         //mealsCtx.updateMeal(mealData.id, mealData);
         //maybe delete then add again instead of updating the meal?
         //also must add meal to ctx and add groceries to ctx.

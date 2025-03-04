@@ -210,6 +210,7 @@ function GroceryItem({ itemData }) {
         date: theMeal.date,
         description: theMeal.description,
         id: theMeal.id,
+        groceryItems: []
       }
     }
     

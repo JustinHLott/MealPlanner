@@ -137,6 +137,7 @@ async function deleteGroceryHandler() {
         date: theMeal.date,
         description: theMeal.description,
         id: theMeal.id,
+        groceryItems:[]
       }
     }
     
