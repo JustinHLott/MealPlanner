@@ -457,6 +457,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
         //keyboardShouldPersistTaps="handled"//I ended up using this on ScrollView a module up.
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item, index }) => (
+          <View>
           <View style={styles.inputContainer}>
             <View style={styles.checkboxContainer}>
               {/* <Pressable onPress={() => handleGroceryCheckbox(index)} style={styles.checkbox}> */}
@@ -489,6 +490,9 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
               color={GlobalStyles.colors.error500} 
               onPress={() => deleteGroceryItem(index,item.mealId,item.thisId?item.thisId:item.id)} />
           </View>
+          {/* <Text style={styles.label}>{item.thisId}</Text> */}
+          </View>
+          
         )}
       />
       {errorMessage?<Text style={styles.errorText}>{errorMessage}</Text>:null}

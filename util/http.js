@@ -2,8 +2,10 @@
 import { deleteList } from './http-list';
 
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
 //import { ListsContext } from '../store/lists-context';
-
+axiosRetry(axios, { retries: 5, retryDelay: (retryCount) => retryCount * 1000 });
+//const axiosInstance = axios.create();
 
 const BACKEND_URL =
   'https://justinhlottcapstone-default-rtdb.firebaseio.com';
@@ -150,7 +152,7 @@ export async function updateMealRaw(mealId, mealData){
   return updatedMeal;
 }
 
- async function updateGroceryItem(item,addCtxList,updateCtxList,mealIds){
+async function updateGroceryItem(item,addCtxList,updateCtxList,mealIds){
   const item2={
     ...item,mealId: mealIds
   }
@@ -171,39 +173,39 @@ export async function updateMealRaw(mealId, mealData){
       //return theResponse;
     }catch(error){
       console.log("http updateGroceryItem error:",error);
-    }    
+    } 
+  //the next lines of code are for newly created grocery items that do exist already but don't have a thisId yet.   
   }else{
     //add new grocery item
-    try{
-      // Save each item to Firebase using Axios
-      const response1 = axios.post(BACKEND_URL + '/grocery.json', item2)
-      .then((response)=>{
+      try{
+        // Save each item to Firebase using Axios
+        response = await axiosRetry.post(BACKEND_URL + '/grocery.json', item2)
+        //.then((response)=>{
         if(response){
-            console.log("http updateGroceryItem new groceryid: ",response.data.name);
-            //const groceryId = response.data.name;
-            //Add the new grocery id to the groceryData
-            //const updatedGrocery = addGroceryId(item,response.data.name);
-            let updatedGrocery = {
-              ...item2, thisId: response.data.name,
-            };
-            //this function is from ManageMeals and it adds the updated grocery list to ctx.
-            addCtxList(updatedGrocery,response.data.name);
-            //update firebase with thisId
-            axios.put(BACKEND_URL + `/grocery/${response.data.name}.json`, updatedGrocery);
-            // //Add groceryData to new array
-            // newGroceryList.push(updatedGrocery);
-            //theResponse = response.data.name;
-            return response.data.name;
-        } 
-      })  
-      // .catch((error)=>{
-      //   console.log("http updateGroceryItem inner error:",error);
-      // })
-    }catch(error){
-      console.log("http updateGroceryItem add error:",error)
+          console.log("http updateGroceryItem new groceryid: ",response.data.name);
+          //const groceryId = response.data.name;
+          //Add the new grocery id to the groceryData
+          //const updatedGrocery = addGroceryId(item,response.data.name);
+          let updatedGrocery = {
+            ...item2, thisId: response.data.name,
+          };
+          //this function is from ManageMeals and it adds the updated grocery list to ctx.
+          addCtxList(updatedGrocery,response.data.name);
+          //update firebase with thisId but don't await
+          axios.put(BACKEND_URL + `/grocery/${response.data.name}.json`, updatedGrocery);
+          // //Add groceryData to new array
+          // newGroceryList.push(updatedGrocery);
+          //theResponse = response.data.name;
+          return response.data.name;
+        }else{
+          console.log("http updateGroceryItem new !groceryid: ",response.data.name);
+          return [];
+        }
+        // })
+      }catch(error){
+        console.error("Fetch failed:",error);
+      }
     }
-    
-  }
   //return theResponse;
 }
 
@@ -333,8 +335,8 @@ function getNewGroceryList(mealIds, mealData, previousMealData, addCtxList, dele
   return newGroceryList;
 }
 
-export async function updateMeal(mealIds, mealData, previousMealData, addCtxList, deleteCtxList, updateCtxList, updateCtxMeal, noGroceries) {
-  let results = await getNewGroceryList(mealIds, mealData, previousMealData, addCtxList, deleteCtxList, updateCtxList, noGroceries)
+export function updateMeal(mealIds, mealData, previousMealData, addCtxList, deleteCtxList, updateCtxList, updateCtxMeal, noGroceries) {
+  const results = getNewGroceryList(mealIds, mealData, previousMealData, addCtxList, deleteCtxList, updateCtxList, noGroceries)
   //.then((results)=>{
      try{
       const newMeal = {

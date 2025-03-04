@@ -23,6 +23,7 @@ function ManageMeal({ route, navigation }) {
   const [newItemId, setNewItemId] = useState();
   const [newGroceryItem,setNewGroceryItem] = useState({});
   const [theMeal,setTheMeal] = useState({});
+  const [newGroceryList1,setNewGroceryList1] = useState([]);
 
   const mealsCtx = useContext(MealsContext);
   const listsCtx = useContext(ListsContext);
@@ -30,7 +31,7 @@ function ManageMeal({ route, navigation }) {
   const editedMealId = route.params?.mealId;
   const isEditing = !!editedMealId;
 
-  let newGroceryList = [];
+  //let newGroceryList = [];
   useEffect(()=>{
     setTheMeal(mealsCtx.meals.find(
       (meal) => meal.id === editedMealId
@@ -88,7 +89,8 @@ function ManageMeal({ route, navigation }) {
 
 function updateCtxList(updatedGrocery,id){
   console.log("ManageMeal updateCtxlist:",updatedGrocery,id);
-  newGroceryList.push(updatedGrocery);
+  //newGroceryList.push(updatedGrocery);
+  setNewGroceryItem([...newGroceryList1,updatedGrocery]);//add item to array
   //runFunctionsInOrder(updatedGrocery)
   // listsCtx.lists.forEach((item,index)=>{
   //   console.log(item, index)
@@ -97,7 +99,7 @@ function updateCtxList(updatedGrocery,id){
 
 function addGroceriesToMeal(newMeal){
   const newMeal2={
-    ...newMeal, groceryItems: newGroceryList
+    ...newMeal, groceryItems: newGroceryList1
   }
   if(newMeal2){
     return newMeal2;
@@ -136,7 +138,8 @@ function addGroceriesToMeal(newMeal){
       // let newCtxGroceryList=listsCtx.lists;
       // newCtxGroceryList.push(groceryItem);
       // listsCtx.setLists(newCtxGroceryList)
-      newGroceryList.push(groceryItem);//this adds the grocery item to the groceryItems for the meal
+      //newGroceryList.push(groceryItem);//this adds the grocery item to the groceryItems for the meal
+      setNewGroceryItem([...newGroceryList1,groceryItem]);
       listsCtx.addList(groceryItem);
     }catch(error){
       console.error("ManageMeal addCtxList Error:", error);
@@ -181,7 +184,8 @@ function addGroceriesToMeal(newMeal){
     try {
       if (isEditing) {
         console.log("ManageMeal updatinging.  noGroceries:",noGroceries)
-        newGroceryList.length = 0;//This resets the grocery array.
+        //newGroceryList.length = 0;//This resets the grocery array.
+        setNewGroceryItem([]);
         await updateMeal(mealData.id, mealData, theMeal, addCtxList, deleteCtxList,updateCtxList,updateCtxMeal,noGroceries);
         //mealsCtx.updateMeal(mealData.id, mealData);
         //maybe delete then add again instead of updating the meal?

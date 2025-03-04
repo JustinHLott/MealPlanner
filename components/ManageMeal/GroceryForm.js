@@ -92,7 +92,7 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
     <View style={styles.form}>
       <Text style={styles.title}>Your Grocery Item</Text>
       <View style={styles.inputsRow}>
-        {/* Date Input */}
+        {/* Meal Desc */}
         <Text style={styles.label}>Meal</Text>
         <View style={styles.inputContainer}>
           <TextInput style={[styles.inputDate,styles.inputAll]}
@@ -103,11 +103,22 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
             value={inputs.mealDesc.value}
           />
         </View>
+        {/* MealId */}
+        <Text style={styles.label}>Meal</Text>
+        <View style={styles.inputContainer}>
+          <TextInput style={[styles.inputDate,styles.inputAll]}
+            placeholder='No meal Id'
+            editable={false}
+            //if it's a valid date, "validateDate" changes it to a text string.
+            //value={inputs.mealId.value}
+            value={inputs.mealId.value}
+          />
+        </View>
         {/* Grocery id */}
         <Text style={styles.label}>Grocery Id</Text>
         <View style={styles.inputContainer}>
           <TextInput style={[styles.inputDate,styles.inputAll]}
-            placeholder='No grocery id'
+            placeholder='No grocery Id'
             editable={false}
             //if it's a valid date, "validateDate" changes it to a text string.
             //value={inputs.mealId.value}
@@ -161,8 +172,8 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12,
     color: GlobalStyles.colors.primary100,
-    marginBottom: 4,
-    marginLeft: 4,
+    marginBottom: 0,
+    marginLeft: 8,
   },
   inputDate:{
     width: '98%',
