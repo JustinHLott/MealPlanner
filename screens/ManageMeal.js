@@ -128,12 +128,7 @@ function ManageMeal({ route, navigation }) {
 
 function updateCtxList(updatedGrocery,id){
   console.log("ManageMeal updateCtxlist:",updatedGrocery,id);
-  //newGroceryList.push(updatedGrocery);
-  //setNewGroceryItem([...newGroceryItem,updatedGrocery]);//add item to array
-  //runFunctionsInOrder(updatedGrocery)
-  // listsCtx.lists.forEach((item,index)=>{
-  //   console.log(item, index)
-  // })
+  listsCtx.updateList(id,updatedGrocery);
 }
 
 // function addGroceriesToMeal(newMeal){
@@ -168,9 +163,9 @@ function updateCtxList(updatedGrocery,id){
     }
   }
 
-  async function addCtxListToMeal(updatedGrocery,id,mealId,mealData){
+  async function updateCtxMeal(updatedGrocery,id,mealId,mealData){
     try{
-      console.log("ManageMeal addCtxlistToMeal")
+      console.log("ManageMeal updateCtxMeal")
       //setNewItemId(responseGrocery.data.name);
       //console.log("ManageMeals newItemId: ", newItemId);
       console.log("ManageMeals newItemId3: ", id)
@@ -182,21 +177,37 @@ function updateCtxList(updatedGrocery,id){
         description: updatedGrocery.description,
         qty: updatedGrocery.qty
       };
+      //get currrent meal from ctx with all the updates so far.
+      const currentMeal = mealsCtx.meals.find((meal) => meal.id === mealId)
+      //loop through grocery items and add all but the current grocery item.
+      const newGroceryList = currentMeal.groceryItems;
+      let newGroceryList2=[];
+      newGroceryList.forEach((item)=>{
+        if(item.thisId!==id && typeof item.id!=="undefined"){
+          console.log("ManageMeal updateCtxMeal found undefined", item)
+          newGroceryList2.push(item);
+        }
+      });
+      console.log("ManageMeal newGroceryList2",newGroceryList2)
+      //this adds the new updated grocery item to the other items on the grocery list.
+      let newGroceryList3=[...newGroceryList2,groceryItem];
+      console.log("ManageMeal newGroceryList3",newGroceryList3)
       let currentMeal2
-      // const currentMeal = mealsCtx.meals.find((meal) => meal.id === mealId)
-      //if(currentMeal){
-        let groceryList=[...mealData.groceryItems,groceryItem];
-        currentMeal2 = {
-          id: mealData.id,
-          date: mealData.date,
-          description: mealData.description,
-          groceryItems: groceryList
-        };
-        
-        mealsCtx.updateMeal(mealId,mealData);
-        setTheMeal(mealData);
-        axios.put(BACKEND_URL + `/meals3/${mealId}.json`, currentMeal2);
-        console.log("ManageMeal addCtxListToMeal2:",currentMeal2);
+      
+      //creates the current meal with the newly updated grocery item.
+      currentMeal2 = {
+        id: mealData.id,
+        date: mealData.date,
+        description: mealData.description,
+        groceryItems: newGroceryList3
+      };
+      //updates the context for meals with the updated meal info
+      mealsCtx.updateMeal(mealId,mealData);
+      //updates state for current sheet
+      setTheMeal(mealData);
+      //updates the meal in firebase
+      axios.put(BACKEND_URL + `/meals3/${mealId}.json`, currentMeal2);
+      console.log("ManageMeal updateCtxMeal2:",currentMeal2);
       //}
     }catch(error){
       console.error("ManageMeal addCtxList Error:", error);
@@ -230,6 +241,7 @@ function updateCtxList(updatedGrocery,id){
 
   function addCtxMeal(updatedMeal,mealId){
     console.log("ManageMeal addCtxMeal: ",updatedMeal)
+    //updates state for current sheet
     setTheMeal(updatedMeal);
     mealsCtx.addMeal({ ...updatedMeal, id: mealId });//This adds the meal to the Context in the app
   }
@@ -244,7 +256,7 @@ function updateCtxList(updatedGrocery,id){
         console.log("ManageMeal updatinging.  noGroceries:",noGroceries)
         //array.length = 0;//This resets the grocery array.
         //setNewGroceryItem([]);
-        updateMeal(mealData.id, mealData, theMeal, addCtxList, addCtxListToMeal, deleteCtxList,updateCtxList,noGroceries);
+        updateMeal(mealData.id, mealData, theMeal, addCtxList, updateCtxMeal, deleteCtxList,updateCtxList,noGroceries);
         //mealsCtx.updateMeal(mealData.id, mealData);
         //maybe delete then add again instead of updating the meal?
         //also must add meal to ctx and add groceries to ctx.

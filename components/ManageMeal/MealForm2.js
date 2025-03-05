@@ -322,34 +322,8 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   }
   //DELETING/////////////////////////////////////////////////////
 
-  async function addCtxList(updatedGrocery,id){
-    try{
-      console.log("MealForm2 addCtxlist")
-      //setNewItemId(responseGrocery.data.name);
-      //console.log("ManageMeals newItemId: ", newItemId)
-      console.log("MealForm2 newItemId2: ", id)
-      const groceryItem={
-        ...updatedGrocery, thisId: id
-      };
-      //const groceryId = responseGrocery.data.name;
-      await updateList(id,groceryItem);
-      listsCtx.addList(groceryItem);
-    }catch(error){
-      console.error("MealForm2 addCtxList Error:", error);
-    }
-  }
+
   
-  //this function is used in http where it cannot work with context.
-  function updateCtxMeal(id,mealData){
-    //update meal in context
-    mealsCtx.updateMeal(id,mealData);
-  }
-
-  function deleteCtxList(groceryItem){
-    console.log("MealForm2 delete groceryItem: ",groceryItem)
-    listsCtx.deleteList(groceryItem);
-  }
-
   function validateDate(startDate){
     const startDate1 = new Date(startDate);
     if(isValidDate(startDate)){
@@ -491,6 +465,14 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
               onChangeText={(text) => handleGroceryChange(index, "description", text)}
               value={item.description?item.description:item.description}
             />
+            <TextInput style={[styles.inputThisId,styles.inputAll]}
+              keyboardType='default'
+              placeholder="Grocery Item Id"
+              maxLength={20}
+              editable={false}
+              //onChangeText={(text) => handleGroceryChange(index, "description", text)}
+              value={item.thisId?item.thisId:item.id}
+            />
             <IconButtonNoText
               icon="trash"
               size={20}
@@ -538,11 +520,15 @@ const styles = {
     flex: 1,
   },
   inputGrocery: {
-    width: '69%',
+    width: '15%',
     //marginRight: 8,
   },
+  inputItemId: {
+    width: '20%',
+    marginRight: 8,
+  },
   inputQty: {
-    width: '15%',
+    width: '10%',
     marginRight: 8,
   },
   inputDate:{

@@ -1,5 +1,5 @@
 //import {useContext} from 'react';
-import { deleteList } from './http-list';
+import { deleteList, updateList } from './http-list';
 
 import axios from 'axios';
 //import axiosRetry from 'axios-retry';
@@ -152,19 +152,19 @@ export async function updateMealRaw(mealId, mealData){
   return updatedMeal;
 }
 
-async function updateGroceryItem(item,addCtxList,updateCtxList,mealIds,addCtxListToMeal,mealData){
+async function updateGroceryItem(item,addCtxList,updateCtxList,mealIds,updateCtxMeal,mealData){
   const item2={
     ...item,mealId: mealIds,mealDesc: mealData.description
   }
-  console.log("http updateGroceryItem add:", item2);
-  //only add new grocery item if it doesn't exist before (no thisId).
+  console.log("http updateGroceryItem update/add:", item2);
   //the next lines of code are for grocery items that do exist already.
   if("thisId" in item ||item.id&&item.id!==""){
     try{
       console.log("http updateGroceryItem update grocery item:",item.thisId?item.thisId:item.id)
-      //update the item with its new information
+      //update the item in constext (in case it changed).
       updateCtxList(item2,item.thisId?item.thisId:item.id);
-
+      //update the grocery item in firebase (in case it changed).
+      updateList(item.thisId?item.thisId:item.id,item2);
       //return the id that it already has.
       return item.thisId?item.thisId:item.id;
       //theResponse = item.thisId?item.thisId:item.id;
@@ -191,7 +191,8 @@ async function updateGroceryItem(item,addCtxList,updateCtxList,mealIds,addCtxLis
             axios.put(BACKEND_URL + `/grocery/${response}.json`, updatedGrocery);
             // //Add groceryData to new array
             // newGroceryList.push(updatedGrocery);
-            addCtxListToMeal(updatedGrocery,response,mealIds,mealData);
+            //updates meal in context, firebase & page state
+            updateCtxMeal(updatedGrocery,response,mealIds,mealData);
             return response;
           }else{
             console.log("http updateGroceryItem new !groceryid: ",response);
@@ -223,7 +224,8 @@ const fetchDataWithRetry = async (item2, maxAttempts, delay) => {
   throw new Error("Max retry attempts reached. Request failed.");
 };
 
-function getNewGroceryList(mealIds, mealData, previousMealData, addCtxList, addCtxListToMeal, deleteCtxList, updateCtxList, noGroceries){
+
+export function updateMeal(mealIds, mealData, previousMealData, addCtxList, updateCtxMeal, deleteCtxList, updateCtxList,  noGroceries) {
   let newGroceryList=[];
   let groceryItem1;
   let groceryItem2;
@@ -237,7 +239,7 @@ function getNewGroceryList(mealIds, mealData, previousMealData, addCtxList, addC
     //add new grocery items
     mealData.groceryItems.forEach((item,index)=>{
       //loop through all of the new grocery items
-      console.log("http updateMeal item:",typeof item.thisId)
+      console.log("http updateMeal item:",typeof item.thisId);
       //console.log("http updateMeal item.id:",item.thisId?item.thisId:item.id)
       
       //if there are no grocery items on the previous meal
@@ -248,7 +250,7 @@ function getNewGroceryList(mealIds, mealData, previousMealData, addCtxList, addC
           //let updatedGroceryid;
 
           //get a newId for the new grocery item
-          const response = updateGroceryItem(item,addCtxList,updateCtxList,mealIds,addCtxListToMeal,mealData)
+          const response = updateGroceryItem(item,addCtxList,updateCtxList,mealIds,updateCtxMeal,mealData)
             //.then(response=>{
               let theId="";
               if(response.length > 20){
@@ -271,7 +273,7 @@ function getNewGroceryList(mealIds, mealData, previousMealData, addCtxList, addC
         }catch(error){
           console.log("http !previousMealData.groceryItems error:",error);
         }
-      }else{//if the previous meal does have grocery items
+      }else{//if the previous meal has grocery items
         //update all matching item Ids to grocery list
         console.log("http previousMealData.groceryItems:",previousMealData.groceryItems);
         //if it has an id or an itemId...
@@ -281,7 +283,7 @@ function getNewGroceryList(mealIds, mealData, previousMealData, addCtxList, addC
             (meal) => meal.thisId?meal.thisId:meal.id === item.thisId?item.thisId:item.id
           )){console.log("http found defined Item:",item);
             try{
-              
+              const response = updateGroceryItem(item,addCtxList,updateCtxList,mealIds,updateCtxMeal,mealData)
               //Add thisId to groceryData (if it already exits it will just write over the top of it).
               groceryItem2 = {
                 ...item,thisId: item.thisId?item.thisId:item.id
@@ -297,11 +299,11 @@ function getNewGroceryList(mealIds, mealData, previousMealData, addCtxList, addC
               newGroceryList.push(groceryItem2);
             }
           };
-        }else{//if itemId isn't undefined
+        }else{//if itemId is not there
           //if new grocery item has no id then add it to new list
           console.log("http found undefined item:",item)
            //get a newId
-            const response = updateGroceryItem(item,addCtxList,updateCtxList,mealIds,addCtxListToMeal,mealData)
+            const response = updateGroceryItem(item,addCtxList,updateCtxList,mealIds,updateCtxMeal,mealData);
             //.then(response=>{
               let theId="";
               if(response.length > 20){
@@ -345,13 +347,9 @@ function getNewGroceryList(mealIds, mealData, previousMealData, addCtxList, addC
     }
     
   }
-  console.log("http getNewGroceryList new List:",newGroceryList);
+  console.log("http updateMeal new List:",newGroceryList);
+  //updateCtxMeal(newGroceryList,"1",mealIds,mealData);
   return newGroceryList;
-}
-
-export function updateMeal(mealIds, mealData, previousMealData, addCtxList, addCtxListToMeal, deleteCtxList, updateCtxList,  noGroceries) {
-  const results = getNewGroceryList(mealIds, mealData, previousMealData, addCtxList, addCtxListToMeal, deleteCtxList, updateCtxList, noGroceries)
-  
 }
 
 export function deleteMeal(id) {
