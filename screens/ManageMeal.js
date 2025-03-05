@@ -5,7 +5,7 @@ import axios from 'axios';
 const BACKEND_URL =
   'https://justinhlottcapstone-default-rtdb.firebaseio.com';
 
-import MealForm from '../components/ManageMeal/MealForm';
+//import MealForm from '../components/ManageMeal/MealForm';
 import MealForm2 from '../components/ManageMeal/MealForm2';
 import ErrorOverlay from '../components/UI/ErrorOverlay';
 import IconButton from '../components/UI/IconButton';
@@ -15,16 +15,17 @@ import { MealsContext } from '../store/meals-context';
 import { ListsContext } from '../store/lists-context';
 import { storeMeal, updateMeal, deleteMeal } from '../util/http';
 import { storeList, deleteList, updateList } from '../util/http-list';
-import MealGroceries from '../components/MealsOutput/MealGroceries';
+//import MealGroceries from '../components/MealsOutput/MealGroceries';
+import { getDateMinusDays } from "../util/date";
 
 let theID ="";
 
 function ManageMeal({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState();
-  const [newGroceryItem,setNewGroceryItem] = useState({});
+  //const [newGroceryItem,setNewGroceryItem] = useState({});
   const [theMeal,setTheMeal] = useState({});
-  const [newGroceryList1,setNewGroceryList1] = useState([]);
+  //const [newGroceryList1,setNewGroceryList1] = useState([]);
 
   const mealsCtx = useContext(MealsContext);
   const listsCtx = useContext(ListsContext);
@@ -34,15 +35,19 @@ function ManageMeal({ route, navigation }) {
 
   //let newGroceryList = [];
   useEffect(()=>{
-    setTheMeal(mealsCtx.meals.find(
+    if(editedMealId){
+      setTheMeal(mealsCtx.meals.find(
       (meal) => meal.id === editedMealId
     ));
+    }
   },[]);
 
   useEffect(()=>{
-    setTheMeal(mealsCtx.meals.find(
+    if(editedMealId){
+      setTheMeal(mealsCtx.meals.find(
       (meal) => meal.id === editedMealId
     ));
+    }
   },[mealsCtx.meals,deleteMealHandler])
   
 
@@ -54,6 +59,25 @@ function ManageMeal({ route, navigation }) {
 
   async function deleteMealHandler() {
     setIsSubmitting(true);
+    //delete the grocery items associated with the meal
+    try {
+      const currentMeal = mealsCtx.meals.find((meal) => meal.id === editedMealId);
+      currentMeal.groceryItems.forEach((item)=>{
+        //console.log("Grocery items delete:",item);
+        //deletes from context
+        deleteFromGroceryCtx(item.thisId);
+        //deletes from firebase
+        deleteList(item.thisId);
+      })
+      if(listsCtx.lists.length === 0){
+        listsCtx.setLists([]);
+      }
+      //navigation.goBack();
+    } catch (error) {
+      setError('Could not delete grocery item - please try again later!');
+      setIsSubmitting(false);
+    }
+    //delete the meal
     try {
       await deleteMeal(editedMealId);
       mealsCtx.deleteMeal(editedMealId);
@@ -64,6 +88,20 @@ function ManageMeal({ route, navigation }) {
     }
   }
 
+  function deleteFromGroceryCtx(thisId){
+    // console.log("MealForm2 before delete",listsCtx.lists)
+    // console.log("MealForm2 thisId",thisId)
+    if(listsCtx.lists.find(
+      (theList) => thisId === theList.id?theList.id:theList.thisId
+    )){
+      const updatedGroceries1 = listsCtx.lists.filter(grocery => grocery.thisId !== thisId);
+      const updatedGroceries = updatedGroceries1.filter(grocery => grocery.id !== thisId);
+      listsCtx.setLists(updatedGroceries);
+    }else{
+      console.log("ManageMeal, no selectedMeal")
+    }
+    // console.log("MealForm2 after delete",updatedGroceries);
+  }
   // function first(updatedGrocery){
   //   setNewItemId(storeList(updatedGrocery));
   //   console.log("ManageMeals newItemId: ", newItemId)
@@ -91,21 +129,21 @@ function ManageMeal({ route, navigation }) {
 function updateCtxList(updatedGrocery,id){
   console.log("ManageMeal updateCtxlist:",updatedGrocery,id);
   //newGroceryList.push(updatedGrocery);
-  setNewGroceryItem([...newGroceryList1,updatedGrocery]);//add item to array
+  //setNewGroceryItem([...newGroceryItem,updatedGrocery]);//add item to array
   //runFunctionsInOrder(updatedGrocery)
   // listsCtx.lists.forEach((item,index)=>{
   //   console.log(item, index)
   // })
 }
 
-function addGroceriesToMeal(newMeal){
-  const newMeal2={
-    ...newMeal, groceryItems: newGroceryList1
-  }
-  if(newMeal2){
-    return newMeal2;
-  }
-}
+// function addGroceriesToMeal(newMeal){
+//   const newMeal2={
+//     ...newMeal, groceryItems: newGroceryItem
+//   }
+//   if(newMeal2){
+//     return newMeal2;
+//   }
+// }
 
   async function addCtxList(updatedGrocery,id){
     try{
@@ -122,18 +160,15 @@ function addGroceriesToMeal(newMeal){
         qty: updatedGrocery.qty
       };
 
-      // let newCtxGroceryList=listsCtx.lists;
-      // newCtxGroceryList.push(groceryItem);
-      // listsCtx.setLists(newCtxGroceryList)
-      //newGroceryList.push(groceryItem);//this adds the grocery item to the groceryItems for the meal
-      setNewGroceryItem([...newGroceryList1,groceryItem]);
+      //this adds the grocery item to the groceryItems for the meal
+      //setNewGroceryItem([...newGroceryItem,groceryItem]);
       listsCtx.addList(groceryItem);
     }catch(error){
       console.error("ManageMeal addCtxList Error:", error);
     }
   }
 
-  async function addCtxListToMeal(updatedGrocery,id,mealId){
+  async function addCtxListToMeal(updatedGrocery,id,mealId,mealData){
     try{
       console.log("ManageMeal addCtxlistToMeal")
       //setNewItemId(responseGrocery.data.name);
@@ -148,20 +183,21 @@ function addGroceriesToMeal(newMeal){
         qty: updatedGrocery.qty
       };
       let currentMeal2
-      const currentMeal = mealsCtx.meals.find((meal) => meal.id === mealId)
-      if(currentMeal){
-        let groceryList=[...currentMeal.groceryItems,groceryItem];
+      // const currentMeal = mealsCtx.meals.find((meal) => meal.id === mealId)
+      //if(currentMeal){
+        let groceryList=[...mealData.groceryItems,groceryItem];
         currentMeal2 = {
-          id: currentMeal.id,
-          date: currentMeal.date,
+          id: mealData.id,
+          date: mealData.date,
+          description: mealData.description,
           groceryItems: groceryList
         };
         
-        mealsCtx.updateMeal(mealId,currentMeal2);
-        setTheMeal(currentMeal2);
+        mealsCtx.updateMeal(mealId,mealData);
+        setTheMeal(mealData);
         axios.put(BACKEND_URL + `/meals3/${mealId}.json`, currentMeal2);
         console.log("ManageMeal addCtxListToMeal2:",currentMeal2);
-      }
+      //}
     }catch(error){
       console.error("ManageMeal addCtxList Error:", error);
     }
@@ -184,6 +220,7 @@ function addGroceriesToMeal(newMeal){
       setTheMeal({
         id: currentMeal.id,
         date: currentMeal.date,
+        description: currentMeal.description,
         groceryItems: updatedGroceries
       })
     }
@@ -205,8 +242,8 @@ function addGroceriesToMeal(newMeal){
     try {
       if (isEditing) {
         console.log("ManageMeal updatinging.  noGroceries:",noGroceries)
-        //newGroceryList.length = 0;//This resets the grocery array.
-        setNewGroceryItem([]);
+        //array.length = 0;//This resets the grocery array.
+        //setNewGroceryItem([]);
         updateMeal(mealData.id, mealData, theMeal, addCtxList, addCtxListToMeal, deleteCtxList,updateCtxList,noGroceries);
         //mealsCtx.updateMeal(mealData.id, mealData);
         //maybe delete then add again instead of updating the meal?
@@ -233,10 +270,15 @@ function addGroceriesToMeal(newMeal){
   
 
   function getLatestDate(){
-    const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
+    let mostRecentMealDate=getDateMinusDays(new Date(),1);
+    if(mealsCtx.meals.length>0){
+      mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest).date;
+    }else{
+      mostRecentMealDate =  new Date();
+    }
     //Add one day to the most recent date
     //const date = new Date();
-    const date = new Date(mostRecentMealDate.date);
+    const date = new Date(mostRecentMealDate);
     date.setDate(date.getDate() + 1);
     return mostRecentMealDate;
   }

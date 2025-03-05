@@ -69,10 +69,10 @@ function RecentMeals() {
       let datePlus7 = getDateMinusDays(firstDay, -7);
       let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
    
-      console.log("RecentMeals 1st:",firstDay,"End:",datePlus7)
+      //console.log("RecentMeals 1st:",firstDay,"End:",datePlus7)
       return theMeals;
     });
-    console.log("RecentMeals Meals this week",thisGroupOfMeals.length)
+    //console.log("RecentMeals Meals this week",thisGroupOfMeals.length)
     if(thisGroupOfMeals.length>0){
       const today = getDateMinusDays(firstDate,7);
       // const today = getSundayOfThisWeek();
@@ -99,7 +99,7 @@ function RecentMeals() {
     //console.log(thisGroupOfMeals)
     if(thisGroupOfMeals.length>0){
       const today = getDateMinusDays(firstDate,-7);
-      console.log("next Sunday: ",today)
+      //console.log("next Sunday: ",today)
       setFirstDate(today);
     }
   }

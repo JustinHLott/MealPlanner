@@ -75,12 +75,15 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
         //return startDate;
       }
     }else if(typeof initialMeal.description==="undefined"){
-      const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
+      let mostRecentMealDate=getDateMinusDays(new Date(),1);
+      if(mealsCtx.meals.length>0){
+        mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest).date;
+      }
       console.log("Mostrecentmealdate");
       console.log(mostRecentMealDate);
       
       //Add one day to the most recent date to get the date for the next new meal
-      let date = new Date(mostRecentMealDate.date);
+      let date = new Date(mostRecentMealDate);
       date = getDateMinusDays(date, -2);
       
       const date2 = date
@@ -372,12 +375,16 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
        
       //  const today = new Date(date);
       //  const startDate2=getDateMinusDays(today,0);
-      const mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest);
+      let mostRecentMealDate=getDateMinusDays(new Date(),1);
+      if(mealsCtx.meals.length>0){
+        mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest).date;
+      }
+   
       // console.log("Mostrecentmealdate");
       // console.log(mostRecentMealDate);
       
       //Add one day to the most recent date to get the date for the next new meal
-      let startDate2 = new Date(mostRecentMealDate.date);
+      let startDate2 = new Date(mostRecentMealDate);
       startDate2 = getDateMinusDays(startDate2, -1);
        //console.log("Invalid date2",startDate2);
        return startDate2.toISOString().slice(0, 10);

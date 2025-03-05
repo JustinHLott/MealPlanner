@@ -152,9 +152,9 @@ export async function updateMealRaw(mealId, mealData){
   return updatedMeal;
 }
 
-async function updateGroceryItem(item,addCtxList,updateCtxList,mealIds,addCtxListToMeal){
+async function updateGroceryItem(item,addCtxList,updateCtxList,mealIds,addCtxListToMeal,mealData){
   const item2={
-    ...item,mealId: mealIds
+    ...item,mealId: mealIds,mealDesc: mealData.description
   }
   console.log("http updateGroceryItem add:", item2);
   //only add new grocery item if it doesn't exist before (no thisId).
@@ -191,7 +191,7 @@ async function updateGroceryItem(item,addCtxList,updateCtxList,mealIds,addCtxLis
             axios.put(BACKEND_URL + `/grocery/${response}.json`, updatedGrocery);
             // //Add groceryData to new array
             // newGroceryList.push(updatedGrocery);
-            addCtxListToMeal(updatedGrocery,response,mealIds)
+            addCtxListToMeal(updatedGrocery,response,mealIds,mealData);
             return response;
           }else{
             console.log("http updateGroceryItem new !groceryid: ",response);
@@ -248,7 +248,7 @@ function getNewGroceryList(mealIds, mealData, previousMealData, addCtxList, addC
           //let updatedGroceryid;
 
           //get a newId for the new grocery item
-          const response = updateGroceryItem(item,addCtxList,updateCtxList,mealIds,addCtxListToMeal)
+          const response = updateGroceryItem(item,addCtxList,updateCtxList,mealIds,addCtxListToMeal,mealData)
             //.then(response=>{
               let theId="";
               if(response.length > 20){
@@ -301,7 +301,7 @@ function getNewGroceryList(mealIds, mealData, previousMealData, addCtxList, addC
           //if new grocery item has no id then add it to new list
           console.log("http found undefined item:",item)
            //get a newId
-            const response = updateGroceryItem(item,addCtxList,updateCtxList,mealIds,addCtxListToMeal)
+            const response = updateGroceryItem(item,addCtxList,updateCtxList,mealIds,addCtxListToMeal,mealData)
             //.then(response=>{
               let theId="";
               if(response.length > 20){

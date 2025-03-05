@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { GlobalStyles } from '../../constants/styles';
@@ -9,6 +9,14 @@ function GroceriesOutput({ groceries, fallbackText }) {
 
   const [theArray, setTheArray] = useState(groceries);
   const listsCtx = useContext(ListsContext);
+
+  useEffect(()=>{
+    setTheArray(groceries);
+  },[])
+
+  useEffect(()=>{
+    setTheArray(listsCtx.lists);
+  },[listsCtx.lists])
 
   function handleSorting(sortType){
     console.log("GroceriesOutput")
@@ -40,7 +48,7 @@ function GroceriesOutput({ groceries, fallbackText }) {
   let content = <Text style={styles.infoText}>{fallbackText}</Text>;
 
   if (groceries.length > 0) {
-    content = <GroceriesList groceries={listsCtx.lists} handleSorting={handleSorting} />;
+    content = <GroceriesList groceries={theArray} handleSorting={handleSorting} />;
   }
 
   return (

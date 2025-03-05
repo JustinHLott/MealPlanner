@@ -104,10 +104,10 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
           />
         </View>
         {/* MealId */}
-        <Text style={styles.label}>Meal</Text>
+        <Text style={styles.label}>Meal ID</Text>
         <View style={styles.inputContainer}>
           <TextInput style={[styles.inputDate,styles.inputAll]}
-            placeholder='No meal Id'
+            placeholder='No meal ID'
             editable={false}
             //if it's a valid date, "validateDate" changes it to a text string.
             //value={inputs.mealId.value}
@@ -118,7 +118,7 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
         <Text style={styles.label}>Grocery Id</Text>
         <View style={styles.inputContainer}>
           <TextInput style={[styles.inputDate,styles.inputAll]}
-            placeholder='No grocery Id'
+            placeholder='No grocery ID'
             editable={false}
             //if it's a valid date, "validateDate" changes it to a text string.
             //value={inputs.mealId.value}
