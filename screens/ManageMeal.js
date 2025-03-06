@@ -13,7 +13,7 @@ import LoadingOverlay from '../components/UI/LoadingOverlay';
 import { GlobalStyles } from '../constants/styles';
 import { MealsContext } from '../store/meals-context';
 import { ListsContext } from '../store/lists-context';
-import { storeMeal, updateMeal, deleteMeal } from '../util/http';
+import { storeMeal, deleteMeal } from '../util/http';//updateMeal
 import { storeList, deleteList, updateList } from '../util/http-list';
 //import MealGroceries from '../components/MealsOutput/MealGroceries';
 import { getDateMinusDays } from "../util/date";
@@ -25,7 +25,7 @@ function ManageMeal({ route, navigation }) {
   const [error, setError] = useState();
   //const [newGroceryItem,setNewGroceryItem] = useState({});
   const [theMeal,setTheMeal] = useState({});
-  //const [newGroceryList1,setNewGroceryList1] = useState([]);
+  const [updatedGroceryList,setUpdatedGroceryList] = useState([]);
 
   const mealsCtx = useContext(MealsContext);
   const listsCtx = useContext(ListsContext);
@@ -163,56 +163,60 @@ function updateCtxList(updatedGrocery,id){
     }
   }
 
-  async function updateCtxMeal(updatedGrocery,id,mealId,mealData){
-    try{
-      console.log("ManageMeal updateCtxMeal")
-      //setNewItemId(responseGrocery.data.name);
-      //console.log("ManageMeals newItemId: ", newItemId);
-      console.log("ManageMeals newItemId3: ", id)
-      const groceryItem={
-        thisId: id,
-        checkedOff: updatedGrocery.checkedOff,
-        mealDesc: updatedGrocery.mealDesc,
-        mealId: updatedGrocery.mealId,
-        description: updatedGrocery.description,
-        qty: updatedGrocery.qty
-      };
-      //get currrent meal from ctx with all the updates so far.
-      const currentMeal = mealsCtx.meals.find((meal) => meal.id === mealId)
-      //loop through grocery items and add all but the current grocery item.
-      const newGroceryList = currentMeal.groceryItems;
-      let newGroceryList2=[];
-      newGroceryList.forEach((item)=>{
-        if(item.thisId!==id && typeof item.id!=="undefined"){
-          console.log("ManageMeal updateCtxMeal found undefined", item)
-          newGroceryList2.push(item);
-        }
-      });
-      console.log("ManageMeal newGroceryList2",newGroceryList2)
-      //this adds the new updated grocery item to the other items on the grocery list.
-      let newGroceryList3=[...newGroceryList2,groceryItem];
-      console.log("ManageMeal newGroceryList3",newGroceryList3)
-      let currentMeal2
+  // async function updateCtxMeal(updatedGrocery,id,mealId,mealData){
+  //   try{
+  //     console.log("ManageMeal updateCtxMeal:",mealsCtx.meals);
+  //     console.log("ManageMeal updateCtxMeal md:",mealData.groceryItems);
+  //     //setNewItemId(responseGrocery.data.name);
+  //     //console.log("ManageMeals newItemId: ", newItemId);
+  //     console.log("ManageMeals newItemId3: ", id)
+  //     const groceryItem={
+  //       thisId: id,
+  //       checkedOff: updatedGrocery.checkedOff,
+  //       mealDesc: updatedGrocery.mealDesc,
+  //       mealId: updatedGrocery.mealId,
+  //       description: updatedGrocery.description,
+  //       qty: updatedGrocery.qty
+  //     };
+  //     //get currrent meal from ctx with all the updates so far.
+  //     //const currentMeal = mealsCtx.meals.find((meal) => meal.id === mealId)
+  //     //loop through grocery items and add all but the current grocery item.
+  //     const newGroceryList = mealData.groceryItems;
+  //     let newGroceryList2 =[]
+  //     listsCtx.lists.forEach((list)=>{
+  //           if(list.thisId !== id){
+  //             newGroceryList2.push(list);
+  //           }else{
+              
+  //           }
+  //         });
+  //     //Add the current grocery item to the new grocery list.
+  //     newGroceryList2.push(groceryItem);
+  //         //"thisId" in item ? item : groceryItem}
+
+  //     console.log("ManageMeal newGroceryList2",newGroceryList2)
+  //     //this adds the new updated grocery item to the other items on the grocery list.
+  //     let currentMeal2
       
-      //creates the current meal with the newly updated grocery item.
-      currentMeal2 = {
-        id: mealData.id,
-        date: mealData.date,
-        description: mealData.description,
-        groceryItems: newGroceryList3
-      };
-      //updates the context for meals with the updated meal info
-      mealsCtx.updateMeal(mealId,mealData);
-      //updates state for current sheet
-      setTheMeal(mealData);
-      //updates the meal in firebase
-      axios.put(BACKEND_URL + `/meals3/${mealId}.json`, currentMeal2);
-      console.log("ManageMeal updateCtxMeal2:",currentMeal2);
-      //}
-    }catch(error){
-      console.error("ManageMeal addCtxList Error:", error);
-    }
-  }
+  //     //creates the current meal with the newly updated grocery item.
+  //     currentMeal2 = {
+  //       id: mealData.id,
+  //       date: mealData.date,
+  //       description: mealData.description,
+  //       groceryItems: newGroceryList2
+  //     };
+  //     //updates the context for meals with the updated meal info
+  //     mealsCtx.updateMeal(mealId,currentMeal2);
+  //     //updates state for current sheet
+  //     setTheMeal(currentMeal2);
+  //     //updates the meal in firebase
+  //     axios.put(BACKEND_URL + `/meals3/${mealId}.json`, currentMeal2);
+  //     console.log("ManageMeal updateCtxMeal2:",currentMeal2);
+  //     //}
+  //   }catch(error){
+  //     console.error("ManageMeal addCtxList Error:", error);
+  //   }
+  // }
 
   function deleteCtxList(groceryItem){
     console.log("ManageMeal delete groceryItem: ",groceryItem)
@@ -256,7 +260,7 @@ function updateCtxList(updatedGrocery,id){
         console.log("ManageMeal updatinging.  noGroceries:",noGroceries)
         //array.length = 0;//This resets the grocery array.
         //setNewGroceryItem([]);
-        updateMeal(mealData.id, mealData, theMeal, addCtxList, updateCtxMeal, deleteCtxList,updateCtxList,noGroceries);
+        updateMeal(mealData.id, mealData, theMeal,noGroceries);
         //mealsCtx.updateMeal(mealData.id, mealData);
         //maybe delete then add again instead of updating the meal?
         //also must add meal to ctx and add groceries to ctx.
@@ -279,6 +283,249 @@ function updateCtxList(updatedGrocery,id){
     }
   }
 
+  //UPDATE/////////////////////////////////////////////////////////
+
+  async function updateGroceryItem(item,addCtxList,mealIds,mealData){
+    const item2={
+      ...item, mealId: mealIds, mealDesc: mealData.description
+    }
+    console.log("http updateGroceryItem update/add:", item2);
+    //the next lines of code are for grocery items that do exist already.
+    if("thisId" in item ||item.id&&item.id!==""){
+      try{
+        console.log("http updateGroceryItem update grocery item:",item.thisId?item.thisId:item.id)
+        //update the item in constext (in case it changed).
+        updateCtxList(item2,item.thisId?item.thisId:item.id);
+        //update the grocery item in firebase (in case it changed).
+        updateList(item.thisId?item.thisId:item.id,item2);
+        //add grocery item to state grocery list
+        //setUpdatedGroceryList([...updatedGroceryList,item2]);
+        // //updates meal in context, firebase & page state
+        // updateCtxMeal(item2,item.thisId?item.thisId:item.id,mealIds,mealData);
+        updateCtxMeal(mealIds,mealData,item2);
+        //return the id that it already has.
+        return item.thisId?item.thisId:item.id;
+        //theResponse = item.thisId?item.thisId:item.id;
+        //return theResponse;
+      }catch(error){
+        console.log("http updateGroceryItem error:",error);
+      } 
+    //the next lines of code are for newly created grocery items that do exist already but don't have a thisId yet.   
+    }else{
+      //add new grocery item
+  
+          // Save each item to Firebase using Axios
+          fetchDataWithRetry(item2, 5, 2000)
+          .then((response)=>{
+            if(response){
+              console.log("http updateGroceryItem new groceryid: ",response);
+              //Add the new grocery id to the groceryData
+              let updatedGrocery = {
+                ...item2, thisId: response,
+              };
+              //this function is from ManageMeals and it adds the updated grocery list to ctx.
+              addCtxList(updatedGrocery,response);
+              //add grocery item to state grocery list
+              //setUpdatedGroceryList([...updatedGroceryList,updatedGrocery]);
+              //update firebase with thisId but don't await
+              axios.put(BACKEND_URL + `/grocery/${response}.json`, updatedGrocery);
+              // //updates meal in context, firebase & page state
+              // updateCtxMeal(updatedGrocery,response,mealIds,mealData);
+              updateCtxMeal(mealIds,mealData,updatedGrocery);
+              return response;
+            }else{
+              console.log("http updateGroceryItem new !groceryid: ",response);
+              return [];
+            }
+          })
+      }
+    //return theResponse;
+  }
+  
+  const fetchDataWithRetry = async (item2, maxAttempts, delay) => {
+    let attempt = 0;
+  
+    while (attempt < maxAttempts) {
+      try {
+        console.log(`Attempt ${attempt + 1}...`);
+        const response = await axios.post(BACKEND_URL + '/grocery.json', item2);
+        console.log("Data received:", response.data);
+        return response.data.name; // Exit loop on success
+      } catch (error) {
+        console.error(`Attempt ${attempt + 1} failed:`, error.message);
+        attempt++;
+        if (attempt < maxAttempts) {
+          await new Promise((resolve) => setTimeout(resolve, delay)); // Wait before retrying
+        }
+      }
+    }
+  
+    throw new Error("Max retry attempts reached. Request failed.");
+  };
+  
+  
+  function updateMeal(mealIds, mealData, previousMealData,  noGroceries) {
+    let newGroceryList=[];
+    let groceryItem1;
+    let groceryItem2;
+    let groceryItem3;
+    console.log("http noGroceries",noGroceries);
+    console.log("http mealData",mealData);
+    console.log("http previousMealData",previousMealData);
+    //if there are grocery items on the new meal
+    if(noGroceries===false){
+      //ADDITIONS///////////////////////////////////////////////////////////////////////////
+      //add new grocery items
+      mealData.groceryItems.forEach((item,index)=>{
+        //loop through all of the new grocery items
+        console.log("http updateMeal item:",typeof item.thisId);
+        //console.log("http updateMeal item.id:",item.thisId?item.thisId:item.id)
+        
+        //if there are no grocery items on the previous meal
+        if(previousMealData.groceryItems.length===0){
+          try{
+            //add all grocery items as new.
+            console.log("http !previousMealData.groceryItems:",previousMealData.groceryItems);
+            //let updatedGroceryid;
+  
+            //get a newId for the new grocery item
+            const response = updateGroceryItem(item,addCtxList,mealIds,mealData)
+              //.then(response=>{
+                let theId=response;
+                console.log("http updateMeal !grocId:",theId)
+                console.log("http updateMeal updatedGroceryid:",response)
+                //Add new thisId to groceryData.
+                groceryItem1 = {
+                  ...item,thisId: theId
+                }
+                groceryItem1 = {
+                  ...groceryItem1,mealId: mealIds
+                }
+                //Add new roceryData to new array
+                newGroceryList.push(groceryItem1);
+              //})
+          }catch(error){
+            console.log("http !previousMealData.groceryItems error:",error);
+          }
+        }else{//if the previous meal has grocery items
+          //update all matching item Ids to grocery list
+          console.log("http previousMealData.groceryItems:",previousMealData.groceryItems);
+          //if it has an id or an itemId...
+          if("thisId" in item ||item.id&&item.id!==""){//if ("thisId" in item)
+            //if the grocery itemId is found on both grocery lists keep it
+            if(previousMealData.groceryItems.find(
+              (meal) => meal.thisId?meal.thisId:meal.id === item.thisId?item.thisId:item.id
+            )){console.log("http found defined Item:",item);
+              try{
+                const response = updateGroceryItem(item,addCtxList,mealIds,mealData)
+                //Add thisId to groceryData (if it already exits it will just write over the top of it).
+                groceryItem2 = {
+                  ...item,thisId: item.thisId?item.thisId:item.id
+                }
+                groceryItem2 = {
+                  ...groceryItem2,mealId: mealIds
+                }
+                //Add updated groceryData to new array
+                newGroceryList.push(groceryItem2);
+              }catch(error){
+                console.log("http previousMealData.groceryItems found:",error)
+              }
+              // finally{
+              //   
+              // }
+            };
+          }else{//if itemId is not there
+            //if new grocery item has no id then add it to new list
+            console.log("http found undefined item:",item)
+             //get a newId
+              const response = updateGroceryItem(item,addCtxList,mealIds,mealData);
+              //.then(response=>{
+                let theId="";
+                if(response.length > 20){
+                  theId=response._j;
+                }else{
+                  theId=response;
+                }
+                console.log("http updateMeal !!grocId:",theId)
+                //Add thisId to groceryData
+                groceryItem3 = {
+                  ...item,thisId: theId
+                }
+                groceryItem3 = {
+                  ...groceryItem3,mealId: mealIds
+                }
+                //Add groceryData to new array
+                newGroceryList.push(groceryItem3);
+              //});
+          }
+        }
+      });
+      //DELETIONS////////////////////////////////////////////////////////////////////////
+      //if there are no grocery items on the previous meal
+      try{
+        if(previousMealData.groceryItems.length > 0){
+          //delete old grocery items (in previous meal but not in new meal).
+          previousMealData.groceryItems.forEach((item,index)=>{
+              if(!mealData.groceryItems.find(
+                (meal) => meal.thisId?meal.thisId:meal.id === item.thisId?item.thisId:item.id
+              )){
+                console.log("http updateMeal deleteId: ", item.thisId?item.thisId:item.id)
+                //delete old grocery item from context
+                deleteCtxList(item);
+                //delete old grocery item from firebase
+                deleteList(item.thisId?item.thisId:item.id);
+              };
+            });
+          }
+      }catch(error){
+        console.log(error);
+      }
+      
+    }
+    
+    console.log("http updateMeal new List:",newGroceryList);
+    //updateCtxMeal(newGroceryList,"1",mealIds,mealData);
+    return newGroceryList;
+  }
+
+  async function updateCtxMeal(mealId,mealData,newGroceryItem){
+    try{
+      console.log("ManageMeal updateCtxMeal:",mealsCtx.meals);
+      console.log("ManageMeal updateCtxMeal md:",mealData.groceryItems);
+      console.log("ManageMeal updatedGroceryList", newGroceryItem)
+
+      let groceryList=[]
+      mealData.groceryItems.forEach((item)=>{
+        if(item.description===newGroceryItem.description){
+          setUpdatedGroceryList(newGroceryItem);
+          groceryList.push(newGroceryItem);
+        }else{
+          groceryList.push(item);
+        }
+      })
+      //this adds the new updated grocery item to the other items on the grocery list.
+      let currentMeal2
+      
+      //creates the current meal with the newly updated grocery item.
+      currentMeal2 = {
+        id: mealData.id,
+        date: mealData.date,
+        description: mealData.description,
+        groceryItems: groceryList
+      };
+      //updates the context for meals with the updated meal info
+      mealsCtx.updateMeal(mealId,currentMeal2);
+      //updates state for current sheet
+      setTheMeal(currentMeal2);
+      //updates the meal in firebase
+      axios.put(BACKEND_URL + `/meals3/${mealId}.json`, currentMeal2);
+      console.log("ManageMeal updateCtxMeal2:",currentMeal2);
+      //}
+    }catch(error){
+      console.error("ManageMeal addCtxList Error:", error);
+    }
+  }
+  //UPDATE/////////////////////////////////////////////////////////
   
 
   function getLatestDate(){
@@ -295,18 +542,6 @@ function updateCtxList(updatedGrocery,id){
     return mostRecentMealDate;
   }
 
-  const  addRows = (rows) => {
-    if (rows) {
-
-      //Use Context here to add the grocery item to the big list.
-        //use the item of the ???not sure which item to use yet.
-      // setData([...data, { id: Date.now().toString(), name, qty:(!qty? 1:qty)}]);
-      // setName("");
-      // setQty("");
-      
-    }
-  };
-
   if (error && !isSubmitting) {
     return <ErrorOverlay message={error} />;
   }
@@ -317,24 +552,12 @@ function updateCtxList(updatedGrocery,id){
 
   return (
     <View style={styles.container}>
-      {/* {console.log("managemeal")}
-      {console.log(selectedMeal)} */}
       <ScrollView
         keyboardShouldPersistTaps="handled"//This makes it so you can click a button while the keyboard is up
       >
-        {/* <MealForm
-          submitButtonLabel={isEditing ? 'Update' : 'Add'}
-          onSubmit={confirmHandler}
-          onCancel={cancelHandler}
-          defaultValues={selectedMeal}
-          defaultDate={getLatestDate()}
-        /> */}
         <MealForm2
-          //id={theID}
           initialMeal={theMeal}
           defaultDate={getLatestDate()}
-          //defaultDate={new Date()}
-          //onCancel={cancelHandler}
           onSubmit={confirmHandler}
           submitButtonLabel={isEditing ? 'Update' : 'Add'}
         />
@@ -349,10 +572,7 @@ function updateCtxList(updatedGrocery,id){
             />
           </View>
         )} 
-      
-        {/* <MealGroceries addRows={addRows}/> */}
       </ScrollView>
-      
     </View>
   );
 }

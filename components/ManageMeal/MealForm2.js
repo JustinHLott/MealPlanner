@@ -465,14 +465,14 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
               onChangeText={(text) => handleGroceryChange(index, "description", text)}
               value={item.description?item.description:item.description}
             />
-            <TextInput style={[styles.inputThisId,styles.inputAll]}
+            {/* <TextInput style={[styles.inputThisId,styles.inputAll]}
               keyboardType='default'
               placeholder="Grocery Item Id"
               maxLength={20}
               editable={false}
               //onChangeText={(text) => handleGroceryChange(index, "description", text)}
               value={item.thisId?item.thisId:item.id}
-            />
+            /> */}
             <IconButtonNoText
               icon="trash"
               size={20}
@@ -520,11 +520,11 @@ const styles = {
     flex: 1,
   },
   inputGrocery: {
-    width: '15%',
+    width: '69%',
     //marginRight: 8,
   },
   inputItemId: {
-    width: '20%',
+    width: '8%',
     marginRight: 8,
   },
   inputQty: {

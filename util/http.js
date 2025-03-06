@@ -165,6 +165,8 @@ async function updateGroceryItem(item,addCtxList,updateCtxList,mealIds,updateCtx
       updateCtxList(item2,item.thisId?item.thisId:item.id);
       //update the grocery item in firebase (in case it changed).
       updateList(item.thisId?item.thisId:item.id,item2);
+      //updates meal in context, firebase & page state
+      updateCtxMeal(item2,item.thisId?item.thisId:item.id,mealIds,mealData);
       //return the id that it already has.
       return item.thisId?item.thisId:item.id;
       //theResponse = item.thisId?item.thisId:item.id;
