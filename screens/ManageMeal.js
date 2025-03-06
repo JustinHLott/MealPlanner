@@ -162,7 +162,8 @@ function updateCtxList(updatedGrocery,id){
       console.error("ManageMeal addCtxList Error:", error);
     }
   }
-
+  
+  ////This is the old updateCtxMeal that works through http.
   // async function updateCtxMeal(updatedGrocery,id,mealId,mealData){
   //   try{
   //     console.log("ManageMeal updateCtxMeal:",mealsCtx.meals);
@@ -382,7 +383,8 @@ function updateCtxList(updatedGrocery,id){
         //console.log("http updateMeal item.id:",item.thisId?item.thisId:item.id)
         
         //if there are no grocery items on the previous meal
-        if(previousMealData.groceryItems.length===0){
+        if(!previousMealData.groceryItems){
+        //if(previousMealData.groceryItems.length===0){
           try{
             //add all grocery items as new.
             console.log("http !previousMealData.groceryItems:",previousMealData.groceryItems);

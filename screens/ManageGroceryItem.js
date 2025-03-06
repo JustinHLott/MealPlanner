@@ -164,8 +164,36 @@ async function deleteGroceryHandler() {
     setIsSubmitting(true);
     try {
       if (isEditing) {
+
         groceriesCtx.updateList(editedGroceryId, groceryData);
         await updateList(editedGroceryId, groceryData);
+        //if the grocery item is part of a meal...
+        if(groceryData.mealId){
+          const currentCtxMeal = mealsCtx.meals.find((meal) => meal.id === groceryData.mealId)
+          //create mealData
+          let newGroceryList = []
+          currentCtxMeal.groceryItems.map((item) => {
+            //This adds back all grocery items but the one with thisId
+            if(item.thisId !== groceryItem.thisId){
+                newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id});
+            }
+          });
+
+          //add the current grocery item
+          newGroceryList.push(groceryData);
+          let updatedMeal;
+
+          updatedMeal={
+            date: new Date(currentCtxMeal.date),
+            description: currentCtxMeal.description,
+            id: groceryData.mealId,
+            groceryItems: newGroceryList,
+          }
+          //update meal in context
+          mealsCtx.updateMeal(groceryData.mealId,updatedMeal);
+          //update meal in firebase
+          updateMealRaw(groceryData.mealId,updatedMeal)
+        }
         
       } else {
         const id = await storeList(groceryData);
@@ -178,6 +206,7 @@ async function deleteGroceryHandler() {
     }
   }
 
+  
   //prepare the overlays if they are needed.
   if (error && !isSubmitting) {
     return <ErrorOverlay message={error} />;

@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { View, TextInput, FlatList, Text, Pressable, Alert, ActivityIndicator } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+//import DatePicker from "react-native-date-picker";
 
 import { GlobalStyles } from '../../constants/styles';
 import Input from './Input';
@@ -27,11 +28,14 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   const [maxDate, setMaxDate] = useState("");
   const [description, setDescription] = useState(initialMeal.description?initialMeal.description:"");
   const [date, setDate] = useState(initialMeal.date?initialMeal.date:"");
+  // const [date2, setDate2] = useState(initialMeal.date?initialMeal.date:new Date());
+  // const [open, setOpen] = useState(false);
   const [pencilColor, setPencilColor] = useState(GlobalStyles.colors.primary100);
   const [errorMessage, setErrorMessage] = useState("filled");
   const [editableOr, setEditableOr] = useState(false);
   const [checked,setChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [additionalGroceryItems, setAdditionalGroceryItems]=useState(false);
   //const [newGroceryList,setNewGroceryList] = useState();
   // const [showPicker, setShowPicker] = useState(false);
   // const [datePickerDate,setDatePickerDate] = useState(initialMeal.date?initialMeal.date:"");
@@ -181,21 +185,40 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       console.log(tf);
       return tf;
     };
-
+    
   // Function to add a new grocery item
   const addGroceryItem = () => {
-    if(meal.groceryItems){
-      setMeal((prevMeal) => ({
-        ...prevMeal,
-        groceryItems: [...prevMeal.groceryItems, { ...defaultGroceryItem }],
-      }));
-    }else{
+    if(meal.groceryItems){//if grocery items already
+      if(submitButtonLabel==="Update"){//if updating, you can only add one grocery item on update.
+        meal.groceryItems.map((theMeal)=>{
+          if(!"thisId" in theMeal){
+            setAdditionalGroceryItems(true)
+          }
+        })
+        console.log("additionalGroceryItems:",additionalGroceryItems)
+        if(additionalGroceryItems===true){
+          Alert.alert("When updating, you may only add one grocery item.")
+        }else{
+          setMeal((prevMeal) => ({
+            ...prevMeal,
+            groceryItems: [...prevMeal.groceryItems, { ...defaultGroceryItem }],
+          }));
+          setAdditionalGroceryItems(true)
+        }
+      }else{//If adding a new meal you can add as many grocery items as you wish
+        setMeal((prevMeal) => ({
+          ...prevMeal,
+          groceryItems: [{ ...defaultGroceryItem }],
+        }));
+      }
+    }
+    else{//if no grocery items
       setMeal((prevMeal) => ({
         ...prevMeal,
         groceryItems: [{ ...defaultGroceryItem }],
       }));
+      setAdditionalGroceryItems(true)
     }
-    
   };
 
   function saveMeal(meal2){
@@ -411,14 +434,19 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
           {/* <IconButtonNoText style={{width: '20%'}}icon="pencil" size={20} color={pencilColor} onPress={() => setShowPicker(true)}/> */}
         </View>
         {/* Show Date Picker if button is pressed */}
-          {/* {showPicker && (
-            <DateTimePicker
-              value={datePickerDate}
-              mode="date"
-              display="default"
-              onChange={onChange}
-            />
-          )} */}
+        {/* <Text style={{color:"white"}}>Selected Date: {date2.toDateString()}</Text>
+        <Button title="Open Date Picker" onPress={() => setOpen(true)}>Open Date Picker</Button>
+        <DatePicker
+          modal
+          open={open}
+          date={date2}
+          mode="date"
+          onConfirm={(selectedDate) => {
+            setOpen(false);
+            setDate2(selectedDate);
+          }}
+          onCancel={() => setOpen(false)}
+        /> */}
       {/* Description Input */}
       <Input
         label="Description"
@@ -528,7 +556,7 @@ const styles = {
     marginRight: 8,
   },
   inputQty: {
-    width: '10%',
+    width: '15%',
     marginRight: 8,
   },
   inputDate:{

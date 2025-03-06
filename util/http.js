@@ -245,7 +245,8 @@ export function updateMeal(mealIds, mealData, previousMealData, addCtxList, upda
       //console.log("http updateMeal item.id:",item.thisId?item.thisId:item.id)
       
       //if there are no grocery items on the previous meal
-      if(previousMealData.groceryItems.length===0){
+      if(!previousMealData.groceryItems){
+      //if(previousMealData.groceryItems.length===0){
         try{
           //add all grocery items as new.
           console.log("http !previousMealData.groceryItems:",previousMealData.groceryItems);
@@ -328,9 +329,11 @@ export function updateMeal(mealIds, mealData, previousMealData, addCtxList, upda
       }
     });
     //DELETIONS////////////////////////////////////////////////////////////////////////
-    //if there are no grocery items on the previous meal
+    //if there are grocery items on the previous meal
     try{
-      if(previousMealData.groceryItems.length > 0){
+      if(previousMealData.groceryItems){
+      //if(previousMealData.groceryItems.length > 0){
+      console.log("http delete")
         //delete old grocery items (in previous meal but not in new meal).
         previousMealData.groceryItems.forEach((item,index)=>{
             if(!mealData.groceryItems.find(
