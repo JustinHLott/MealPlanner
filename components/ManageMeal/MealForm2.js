@@ -9,7 +9,7 @@ import Button from '../UI/Button';
 import IconButtonNoText from "../UI/IconButtonNoText";
 import { MealsContext } from '../../store/meals-context';
 import { ListsContext } from '../../store/lists-context';
-import { isValidDate, getDateMinusDays } from "../../util/date";
+import { isValidDate, getDateMinusDays,getFormattedDate } from "../../util/date";
 import { storeList,deleteList,updateList } from "../../util/http-list";
 import { updateMeal,updateMealRaw } from "../../util/http";
 
@@ -25,7 +25,8 @@ const defaultGroceryItem = { description: "", qty: "", checkedOff: "" };
 export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, submitButtonLabel }) {
   // Merge `initialMeal` with `defaultMeal` to avoid undefined values
   const [meal, setMeal] = useState({ ...defaultMeal, ...initialMeal });
-  const [maxDate, setMaxDate] = useState("");
+  //const [maxDate, setMaxDate] = useState("");
+  //const [dateValid, setDateValid] = useState(true);
   const [description, setDescription] = useState(initialMeal.description?initialMeal.description:"");
   const [date, setDate] = useState(initialMeal.date?initialMeal.date:"");
   // const [date2, setDate2] = useState(initialMeal.date?initialMeal.date:new Date());
@@ -50,7 +51,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       //do nothing
       //console.log("initialMealDescription");
       //console.log(typeof(initialMeal.description.toString));
-      let date = new Date(initialMeal.date);
+      
 
       let updatedMeal3 = {
         date: "",
@@ -59,22 +60,26 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
         id: "",
       };
 
-      if(isValidDate(initialMeal.date)){
-        //console.log("valid date");
-        // console.log(startDate);
-        // console.log(startDate.toISOString().slice(0, 10));
+      // Ensure the string follows the YYYY-MM-DD or M-D-YYYY format
+      const regex = /^(?:\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{4})$/;
+      const date2 = initialMeal.date.toISOString().slice(0, 10);
+      if (!regex.test(date2)) {
+        console.log("useEffect Invalid date:",date2);
+      }else{
+        const today=getDateMinusDays(new Date(initialMeal.date),0);
+        console.log("useEffect Valid date:",today);
         //convert date to text string
-        date = date.toISOString().slice(0, 10);
+        let date1 = today.toISOString().slice(0, 10);
+        console.log("useEffect Valid date1:",date1);
+        setDate(date1);
         updatedMeal3 = {
-          date: date,
+          date: date1,
           description: initialMeal.description,
           groceryItems: initialMeal.groceryItems, // Empty grocery items array
           id: initialMeal.id,
         };
         //And update the meal with the new date
         setMeal(updatedMeal3);
-      }else{
-        console.log("Invalid date");
         // console.log(startDate);
         //return startDate;
       }
@@ -94,7 +99,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
         .toISOString()
         .split("T")[0];
       setDate(date2);
-      setMaxDate(date2);
+      //setMaxDate(date2);
       console.log(date2);
       // Create a new updated meal object
       //const updatedMeal3={mealsCtx.addMeal()}
@@ -128,14 +133,21 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   // Function to update the meal's date or description
   const handleInputChange = (key, value) => {
     if(key==="date"){
-      const newDate = new Date(value);
-      // console.log("newDate")
-      // console.log(newDate)
-      //setDate(newDate);
-      setMeal((prevMeal) => ({
-        ...prevMeal,
-        [key]: newDate,
-      }));
+      // Ensure the string follows the YYYY-MM-DD or M-D-YYYY format
+      const regex = /^(?:\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{4})$/;
+
+      if (!regex.test(value)) {
+        console.log("handle Invalid date:",value);// Not a complete date
+        setDate(value);
+      }else{
+        // const today=getDateMinusDays(new Date(value),0);
+        // const today1= today.toISOString().slice(0, 10);
+        //const value2 = getFormattedDate(value);
+        console.log("handle valid date",value);
+
+        setDate(value);
+        
+      }
     }else{
       setMeal((prevMeal) => ({
         ...prevMeal,
@@ -347,50 +359,41 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
 
 
   
-  function validateDate(startDate){
-    const startDate1 = new Date(startDate);
-    if(isValidDate(startDate)){
-      const today=getDateMinusDays(startDate,1);
-       //console.log("valid date");
-      //  const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-      //  console.log("dayOfWeek",dayOfWeek);
-      //  const diff = today.getDate() - dayOfWeek; // Calculate the difference to Sunday
-      //  console.log("Diff",diff);
-       return new Date(today.setDate(0));
-      //return startDate2//.toISOString().slice(0, 10);
-    }else{
-      //console.log("Invalid date",startDate);
-      if(startDate.length>0){
-        //console.log("startDate length:",startDate.length)
-        //Add one day to the most recent date to get the date for the next new meal
-      let startDate2 = new Date(startDate);
-      startDate2 = getDateMinusDays(startDate2, 0);
-       //console.log("Invalid date2",startDate2);
-       return startDate2.toISOString().slice(0, 10);
-      }else{
-        //const startDate2=getDateMinusDays(startDate,0);
-       
-      //  const today = new Date(date);
-      //  const startDate2=getDateMinusDays(today,0);
-      let mostRecentMealDate=getDateMinusDays(new Date(),1);
-      if(mealsCtx.meals.length>0){
-        mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest).date;
-      }
-   
-      // console.log("Mostrecentmealdate");
-      // console.log(mostRecentMealDate);
-      
-      //Add one day to the most recent date to get the date for the next new meal
-      let startDate2 = new Date(mostRecentMealDate);
-      startDate2 = getDateMinusDays(startDate2, -1);
-       //console.log("Invalid date2",startDate2);
-       return startDate2.toISOString().slice(0, 10);
-      // console.log(startDate);
-      //return startDate;
-      }
-      
-    }
-  }
+  // function validateDate(startDate){
+  //   const startDate1 = new Date(startDate);
+  //   if(isValidDate(startDate)){
+  //     const today=getDateMinusDays(startDate,1);
+  //     console.log("valid date");
+  //     //  const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  //     //  console.log("dayOfWeek",dayOfWeek);
+  //     //  const diff = today.getDate() - dayOfWeek; // Calculate the difference to Sunday
+  //     //  console.log("Diff",diff);
+  //     //setDateValid(true);
+  //      return new Date(today.setDate(0));
+  //     //return startDate2//.toISOString().slice(0, 10);
+  //   }else{
+  //     console.log("Invalid date",startDate);
+  //     // if(startDate.length>0){
+  //     //   //console.log("startDate length:",startDate.length)
+  //     //   //Add one day to the most recent date to get the date for the next new meal
+  //     // let startDate2 = new Date(startDate);
+  //     // startDate2 = getDateMinusDays(startDate2, 0);
+  //     //  //console.log("Invalid date2",startDate2);
+  //     //  return startDate2.toISOString().slice(0, 10);
+  //     // }else{
+  //     //   let mostRecentMealDate=getDateMinusDays(new Date(),1);
+  //     //   if(mealsCtx.meals.length>0){
+  //     //     mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest).date;
+  //     //   }
+  //     //   //Add one day to the most recent date to get the date for the next new meal
+  //     //   let startDate2 = new Date(mostRecentMealDate);
+  //     //   startDate2 = getDateMinusDays(startDate2, -1);
+  //     //   return startDate2.toISOString().slice(0, 10);
+  //     // }
+  //     //setDateValid(false);
+  //     return startDate;
+  //   }
+  // }
 
   function makeDateEditable(){
     if(pencilColor==="green"){
@@ -428,7 +431,14 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
             editable={editableOr}
             onChangeText={(text) => handleInputChange("date", text)}
             //if it's a valid date, "validateDate" changes it to a text string.
-            value={(meal.date? validateDate(meal.date):validateDate(maxDate))}
+            value={date}
+            //value={(validateDate(date))}
+            //value={(meal.date? validateDate(meal.date):validateDate(maxDate))}
+            onKeyPress={({ nativeEvent }) => {
+              if (nativeEvent.key === "Backspace") {
+                setText((prevText) => prevText.slice(0, -1)); // Removes last character
+              }
+            }}
           />
           <IconButtonNoText style={{width: '20%'}}icon="pencil" size={20} color={pencilColor} onPress={() => makeDateEditable()}/>
           {/* <IconButtonNoText style={{width: '20%'}}icon="pencil" size={20} color={pencilColor} onPress={() => setShowPicker(true)}/> */}

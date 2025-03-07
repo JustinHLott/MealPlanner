@@ -1,16 +1,17 @@
 export function getFormattedDate(date) {
-  //console.log("Made it to getFormattedDate");
-
-  let date2 = new Date(getDateMinusDays(date,0));
-
-  if (isValidDate(date2)){
-    //console.log("valid date");
-    //console.log(date2);
-    return date2.toISOString().slice(0, 10);
-  }else{
-    // console.log("no date");
-    // console.log(date2);
+  // Ensure the string follows the YYYY-MM-DD or M-D-YYYY format
+  const regex = /^(?:\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{4})$/;
+  const date1 = date.toISOString().slice(0, 10);
+  console.log("DATE before test:",date1);
+  if (!regex.test(date1)) {
+    console.log("DATE fail test:",new Date().toISOString().slice(0, 10));
     return new Date().toISOString().slice(0, 10);
+  }else{
+    let date3 = new Date(date);
+    console.log("DATE date3 passed:",date3);
+    let date2 = new Date(getDateMinusDays(date3,0));
+    date2 = date2.toISOString().slice(0, 10);
+    return date2
   }
   
 }
