@@ -7,6 +7,7 @@ import { getFormattedDate, getDateMinusDays, isValidDate } from '../../util/date
 function MealItem({ id, description, date, groceries }) {
   //console.log("Made it to MealItem");
   const navigation = useNavigation();
+  //console.log("MealItem date:",date)
 
   function mealPressHandler() {
     navigation.navigate('ManageMeal', {
@@ -17,7 +18,7 @@ function MealItem({ id, description, date, groceries }) {
   //This function creates the day of week name.
   const getDayOfWeek = (dateString) => {
     //if i don't add a day to the date it shows the day of week a day off.
-    let date2 = new Date(dateString)
+    let date2 = new Date(dateString);
 
     if(isValidDate(date2)){
       date2 = new Date(getDateMinusDays(date2,0));

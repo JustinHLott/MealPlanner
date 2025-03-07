@@ -107,10 +107,12 @@ function RecentMeals() {
 
   const mealsSorted = [...mealsCtx.meals,].sort((a, b) => a.date - b.date);
   const recentMeals = mealsSorted.filter((meal) => {
-    let firstDay = new Date(firstDate)
+    let firstDay = new Date(firstDate);
+    //console.log("Recent Meals firstDay:",firstDay);
     let datePlus7 = getDateMinusDays(firstDay, -7);
+    //console.log("Recent Meals dayPlus7:",datePlus7);
     let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
-  
+    //console.log("RecentMeals meals",theMeals)
     return theMeals;
   });
 

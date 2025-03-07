@@ -62,7 +62,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
 
       // Ensure the string follows the YYYY-MM-DD or M-D-YYYY format
       const regex = /^(?:\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{4})$/;
-      const date2 = initialMeal.date.toISOString().slice(0, 10);
+      const date2 = (new Date(initialMeal.date)).toISOString().slice(0, 10);
       if (!regex.test(date2)) {
         console.log("useEffect Invalid date:",date2);
       }else{
@@ -93,7 +93,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       
       //Add one day to the most recent date to get the date for the next new meal
       let date = new Date(mostRecentMealDate);
-      date = getDateMinusDays(date, -2);
+      date = getDateMinusDays(date, -1);
       
       const date2 = date
         .toISOString()
@@ -139,14 +139,17 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       if (!regex.test(value)) {
         console.log("handle Invalid date:",value);// Not a complete date
         setDate(value);
+        
       }else{
-        // const today=getDateMinusDays(new Date(value),0);
+        const originalDate = new Date(value);
+        const utcDate = originalDate.toISOString();
         // const today1= today.toISOString().slice(0, 10);
-        //const value2 = getFormattedDate(value);
         console.log("handle valid date",value);
 
         setDate(value);
-        
+        const newDate = getDateMinusDays(new Date(value),-1)
+        const newMeal={...meal,date:utcDate};
+        setMeal(newMeal);
       }
     }else{
       setMeal((prevMeal) => ({
@@ -237,21 +240,31 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     let noGroceries = false;
     console.log("Makes it to saveMeal in MealForm2",meal2);
     if(!meal2.date||!meal2.description.trim()){
-      Alert.alert("Both description and date are required!")
+      Alert.alert("Both description and date are required!");
     }else{
-      const newDate = new Date(meal2.date);
-      const updatedMeal = {
-        ...meal2,
-        date: newDate,
-      };
-      console.log("MealForm2 updatedMeal: ",updatedMeal);
+      //console.log("MealForm2 saveMeal date:",meal2.date);
+      // const newDate = getDateMinusDays(new Date(meal2.date),-1);
+      // const updatedMeal = {
+      //   ...meal2,
+      //   date: newDate,
+      // };
+      //console.log("MealForm2 updatedMeal: ",meal2);
       if(!meal.groceryItems){
         noGroceries=true;
+        // console.log("MealForm2 noGroceries t: ",noGroceries);
       }else{
-        noGroceries=false;
+        if(meal.groceryItems.length>0){
+          noGroceries=false;
+          // console.log("MealForm2 noGroceries f: ",noGroceries);
+          // console.log("MealForm2 f grocery items: ",meal.groceryItems);
+        }else{
+          noGroceries=true;
+          // console.log("MealForm2 noGroceries f: ",noGroceries);
+          // console.log("MealForm2 f grocery items: ",meal.groceryItems);
+        }
       }
       //this does Add or Update the meal in state to firebase
-      onSubmit(updatedMeal,noGroceries);
+      onSubmit(meal2,noGroceries);
     }
   }
 

@@ -370,16 +370,16 @@ function updateCtxList(updatedGrocery,id){
     let groceryItem1;
     let groceryItem2;
     let groceryItem3;
-    console.log("http noGroceries",noGroceries);
-    console.log("http mealData",mealData);
-    console.log("http previousMealData",previousMealData);
+    console.log("ManageMeal noGroceries",noGroceries);
+    console.log("ManageMeal mealData",mealData);
+    console.log("ManageMeal previousMealData",previousMealData);
     //if there are grocery items on the new meal
     if(noGroceries===false){
       //ADDITIONS///////////////////////////////////////////////////////////////////////////
       //add new grocery items
       mealData.groceryItems.forEach((item,index)=>{
         //loop through all of the new grocery items
-        console.log("http updateMeal item:",typeof item.thisId);
+        console.log("ManageMeal updateMeal item:",typeof item.thisId);
         //console.log("http updateMeal item.id:",item.thisId?item.thisId:item.id)
         
         //if there are no grocery items on the previous meal
@@ -387,15 +387,15 @@ function updateCtxList(updatedGrocery,id){
         //if(previousMealData.groceryItems.length===0){
           try{
             //add all grocery items as new.
-            console.log("http !previousMealData.groceryItems:",previousMealData.groceryItems);
+            console.log("ManageMeal !previousMealData.groceryItems:",previousMealData.groceryItems);
             //let updatedGroceryid;
   
             //get a newId for the new grocery item
             const response = updateGroceryItem(item,addCtxList,mealIds,mealData)
               //.then(response=>{
                 let theId=response;
-                console.log("http updateMeal !grocId:",theId)
-                console.log("http updateMeal updatedGroceryid:",response)
+                console.log("ManageMeal updateMeal !grocId:",theId)
+                console.log("ManageMeal updateMeal updatedGroceryid:",response)
                 //Add new thisId to groceryData.
                 groceryItem1 = {
                   ...item,thisId: theId
@@ -407,17 +407,17 @@ function updateCtxList(updatedGrocery,id){
                 newGroceryList.push(groceryItem1);
               //})
           }catch(error){
-            console.log("http !previousMealData.groceryItems error:",error);
+            console.log("ManageMeal !previousMealData.groceryItems error:",error);
           }
         }else{//if the previous meal has grocery items
           //update all matching item Ids to grocery list
-          console.log("http previousMealData.groceryItems:",previousMealData.groceryItems);
+          console.log("ManageMeal previousMealData.groceryItems:",previousMealData.groceryItems);
           //if it has an id or an itemId...
           if("thisId" in item ||item.id&&item.id!==""){//if ("thisId" in item)
             //if the grocery itemId is found on both grocery lists keep it
             if(previousMealData.groceryItems.find(
               (meal) => meal.thisId?meal.thisId:meal.id === item.thisId?item.thisId:item.id
-            )){console.log("http found defined Item:",item);
+            )){console.log("ManageMeal found defined Item:",item);
               try{
                 const response = updateGroceryItem(item,addCtxList,mealIds,mealData)
                 //Add thisId to groceryData (if it already exits it will just write over the top of it).
@@ -430,7 +430,7 @@ function updateCtxList(updatedGrocery,id){
                 //Add updated groceryData to new array
                 newGroceryList.push(groceryItem2);
               }catch(error){
-                console.log("http previousMealData.groceryItems found:",error)
+                console.log("ManageMeal previousMealData.groceryItems found:",error)
               }
               // finally{
               //   
@@ -438,7 +438,7 @@ function updateCtxList(updatedGrocery,id){
             };
           }else{//if itemId is not there
             //if new grocery item has no id then add it to new list
-            console.log("http found undefined item:",item)
+            console.log("ManageMeal found undefined item:",item)
              //get a newId
               const response = updateGroceryItem(item,addCtxList,mealIds,mealData);
               //.then(response=>{
@@ -448,7 +448,7 @@ function updateCtxList(updatedGrocery,id){
                 }else{
                   theId=response;
                 }
-                console.log("http updateMeal !!grocId:",theId)
+                console.log("ManageMeal updateMeal !!grocId:",theId)
                 //Add thisId to groceryData
                 groceryItem3 = {
                   ...item,thisId: theId
@@ -471,7 +471,7 @@ function updateCtxList(updatedGrocery,id){
               if(!mealData.groceryItems.find(
                 (meal) => meal.thisId?meal.thisId:meal.id === item.thisId?item.thisId:item.id
               )){
-                console.log("http updateMeal deleteId: ", item.thisId?item.thisId:item.id)
+                console.log("ManageMeal updateMeal deleteId: ", item.thisId?item.thisId:item.id)
                 //delete old grocery item from context
                 deleteCtxList(item);
                 //delete old grocery item from firebase
@@ -483,21 +483,25 @@ function updateCtxList(updatedGrocery,id){
         console.log(error);
       }
       
+    }else{
+      console.log("ManageMeal made it to no groceries")
+      updateCtxMeal(mealIds,mealData,"noGroceryItem");
     }
     
-    console.log("http updateMeal new List:",newGroceryList);
+    console.log("ManageMeal updateMeal new List:",newGroceryList);
     //updateCtxMeal(newGroceryList,"1",mealIds,mealData);
     return newGroceryList;
   }
 
   async function updateCtxMeal(mealId,mealData,newGroceryItem){
     try{
-      console.log("ManageMeal updateCtxMeal:",mealsCtx.meals);
-      console.log("ManageMeal updateCtxMeal md:",mealData.groceryItems);
-      console.log("ManageMeal updatedGroceryList", newGroceryItem)
+      console.log("ManageMeal updateCtxMeal:",mealData);
+      // console.log("ManageMeal updateCtxMeal md:",mealData.groceryItems);
+      // console.log("ManageMeal updatedGroceryList", newGroceryItem)
 
       let groceryList=[]
-      mealData.groceryItems.forEach((item)=>{
+      if(newGroceryItem !== "noGroceryItem"){
+        mealData.groceryItems.forEach((item)=>{
         if(item.description===newGroceryItem.description){
           setUpdatedGroceryList(newGroceryItem);
           groceryList.push(newGroceryItem);
@@ -505,13 +509,18 @@ function updateCtxList(updatedGrocery,id){
           groceryList.push(item);
         }
       })
+      }
+      
       //this adds the new updated grocery item to the other items on the grocery list.
       let currentMeal2
       
+      //Add one day to the date so that it sits one day ahead in firebase.
+      const newDate = getDateMinusDays(mealData.date,-1);
       //creates the current meal with the newly updated grocery item.
+      console.log("ManageMeals updateCtxMeal date:",newDate);
       currentMeal2 = {
         id: mealData.id,
-        date: mealData.date,
+        date: newDate,
         description: mealData.description,
         groceryItems: groceryList
       };
@@ -521,7 +530,7 @@ function updateCtxList(updatedGrocery,id){
       setTheMeal(currentMeal2);
       //updates the meal in firebase
       axios.put(BACKEND_URL + `/meals3/${mealId}.json`, currentMeal2);
-      console.log("ManageMeal updateCtxMeal2:",currentMeal2);
+      console.log("ManageMeal updateCtxMeal firebase:",currentMeal2);
       //}
     }catch(error){
       console.error("ManageMeal addCtxList Error:", error);
