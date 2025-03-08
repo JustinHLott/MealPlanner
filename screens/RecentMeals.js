@@ -1,5 +1,6 @@
-import { useContext, useEffect, useState } from 'react';
-import {StyleSheet, View, Alert} from 'react-native'
+import { useContext, useEffect, useState, useCallback } from 'react';
+import {StyleSheet, View, Alert} from 'react-native';
+import { useIsFocused, useFocusEffect } from "@react-navigation/native";
 
 import MealsOutput from '../components/MealsOutput/MealsOutput';
 import ErrorOverlay from '../components/UI/ErrorOverlay';
@@ -16,8 +17,11 @@ function RecentMeals() {
   const [isFetching, setIsFetching] = useState(true);
   const [error, setError] = useState();
   const [firstDate, setFirstDate] = useState(getSundayOfThisWeek());
+  const [recentMeals, setRecentMeals] = useState([]);
+  const [firstTime, setFirstTime] = useState(true);
 
   const mealsCtx = useContext(MealsContext);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     async function getMeals() {
@@ -25,6 +29,17 @@ function RecentMeals() {
       try {
         const meals = await fetchMeals();
         mealsCtx.setMeals(meals);
+        // const mealsSorted = [...meals,].sort((a, b) => a.date - b.date);
+        // const recentMeals = mealsSorted.filter((meal) => {
+        //   let firstDay = new Date(firstDate);
+        //   //console.log("Recent Meals firstDay:",firstDay);
+        //   let datePlus7 = getDateMinusDays(firstDay, -7);
+        //   //console.log("Recent Meals dayPlus7:",datePlus7);
+        //   let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
+        //   //console.log("RecentMeals meals",theMeals)
+        //   return theMeals;
+        // });
+        //setMeals(meals);
         //mealsCtx.setDates(meals);
         // console.log("At setDates")
         // console.log(mealsCtx.dates)
@@ -42,9 +57,9 @@ function RecentMeals() {
     return <ErrorOverlay message={error} />;
   }
 
-  if (isFetching) {
-    return <LoadingOverlay />;
-  }
+  // if (isFetching) {
+  //   return <LoadingOverlay />;
+  // }
 
   if(!firstDate){
     //setFirstDate(new Date());
@@ -62,11 +77,13 @@ function RecentMeals() {
     return new Date(today.setDate(diff));
   };
 
+  //PREVIOUS,CURRENT,NEXT////////////////////////////////////////////////////////
   function previous(){
+    setFirstTime(true);
     const mealsSorted = [...mealsCtx.meals,].sort((a, b) => a.date - b.date);
     const thisGroupOfMeals = mealsSorted.filter((meal) => {
       let firstDay = getDateMinusDays(firstDate, 7);
-      let datePlus7 = getDateMinusDays(firstDay, -7);
+      let datePlus7 = getDateMinusDays(firstDay, -6);
       let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
    
       //console.log("RecentMeals 1st:",firstDay,"End:",datePlus7)
@@ -81,6 +98,7 @@ function RecentMeals() {
   }
 
   function currentWeek(){
+    setFirstTime(true);
     //console.log(mealsCtx.dates)
     //const today = getDateMinusDays(new Date(),1);
     const today = getSundayOfThisWeek();
@@ -88,6 +106,7 @@ function RecentMeals() {
     setFirstDate(today);
   }
   function next(){
+    setFirstTime(true);
     const mealsSorted = [...mealsCtx.meals,].sort((a, b) => a.date - b.date);
     const thisGroupOfMeals = mealsSorted.filter((meal) => {
       let firstDay = getDateMinusDays(firstDate, -7);
@@ -103,18 +122,54 @@ function RecentMeals() {
       setFirstDate(today);
     }
   }
+  //PREVIOUS,CURRENT,NEXT////////////////////////////////////////////////////////
+
+  // const mealsSorted = [...mealsCtx.meals,].sort((a, b) => a.date - b.date);
+  // const recentMeals = mealsSorted.filter((meal) => {
+  //   let firstDay = new Date(firstDate);
+  //   console.log("Recent Meals firstDay:",firstDay);
+  //   let datePlus7 = getDateMinusDays(firstDay, -7);
+  //   //console.log("Recent Meals dayPlus7:",datePlus7);
+  //   let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
+  //   //console.log("RecentMeals meals",theMeals)
+  //   return theMeals;
+  // });
+
+  if(firstTime===true){
+    console.log("RecentMeals firstTime")
+    setFirstTime(false);
+    getMeals();
+  }
 
 
-  const mealsSorted = [...mealsCtx.meals,].sort((a, b) => a.date - b.date);
-  const recentMeals = mealsSorted.filter((meal) => {
-    let firstDay = new Date(firstDate);
-    //console.log("Recent Meals firstDay:",firstDay);
-    let datePlus7 = getDateMinusDays(firstDay, -7);
-    //console.log("Recent Meals dayPlus7:",datePlus7);
-    let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
-    //console.log("RecentMeals meals",theMeals)
-    return theMeals;
-  });
+  async function getMeals(){
+    console.log("RecentMeals isFocused")
+      const meals = await fetchMeals();
+      mealsCtx.setMeals(meals);
+      const mealsSorted = [...meals,].sort((a, b) => a.date - b.date);
+      const recentMeals = mealsSorted.filter((meal) => {
+        let firstDay = new Date(firstDate);
+        //console.log("Recent Meals firstDay:",firstDay);
+        let datePlus7 = getDateMinusDays(firstDay, -6);
+        //console.log("Recent Meals dayPlus7:",datePlus7);
+        let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
+        //console.log("RecentMeals meals",theMeals)
+        return theMeals;
+      });
+      setRecentMeals(recentMeals);
+      
+    }
+    
+
+
+  useFocusEffect(
+    useCallback(() => {
+      setFirstTime(true);
+      // setIsFetching(true);
+      // getMeals(); // Fetch meals every time screen is focused
+      // setIsFetching(false);
+    }, [])
+  );
 
   return (
     <View style={styles.container}>

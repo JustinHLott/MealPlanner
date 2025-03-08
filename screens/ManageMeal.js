@@ -13,7 +13,7 @@ import LoadingOverlay from '../components/UI/LoadingOverlay';
 import { GlobalStyles } from '../constants/styles';
 import { MealsContext } from '../store/meals-context';
 import { ListsContext } from '../store/lists-context';
-import { storeMeal, deleteMeal } from '../util/http';//updateMeal
+import { storeMeal, deleteMeal, updateMealRaw } from '../util/http';//updateMeal
 import { storeList, deleteList, updateList } from '../util/http-list';
 //import MealGroceries from '../components/MealsOutput/MealGroceries';
 import { getDateMinusDays } from "../util/date";
@@ -286,7 +286,7 @@ function updateCtxList(updatedGrocery,id){
 
   //UPDATE/////////////////////////////////////////////////////////
 
-  async function updateGroceryItem(item,addCtxList,mealIds,mealData){
+  async function updateGroceryItem(item,mealIds,mealData){
     const item2={
       ...item, mealId: mealIds, mealDesc: mealData.description
     }
@@ -412,14 +412,14 @@ function updateCtxList(updatedGrocery,id){
         }else{//if the previous meal has grocery items
           //update all matching item Ids to grocery list
           console.log("ManageMeal previousMealData.groceryItems:",previousMealData.groceryItems);
-          //if it has an id or an itemId...
+          //if it has a thisId or an id...
           if("thisId" in item ||item.id&&item.id!==""){//if ("thisId" in item)
             //if the grocery itemId is found on both grocery lists keep it
             if(previousMealData.groceryItems.find(
               (meal) => meal.thisId?meal.thisId:meal.id === item.thisId?item.thisId:item.id
             )){console.log("ManageMeal found defined Item:",item);
               try{
-                const response = updateGroceryItem(item,addCtxList,mealIds,mealData)
+                const response = updateGroceryItem(item,mealIds,mealData)
                 //Add thisId to groceryData (if it already exits it will just write over the top of it).
                 groceryItem2 = {
                   ...item,thisId: item.thisId?item.thisId:item.id
@@ -432,15 +432,12 @@ function updateCtxList(updatedGrocery,id){
               }catch(error){
                 console.log("ManageMeal previousMealData.groceryItems found:",error)
               }
-              // finally{
-              //   
-              // }
             };
           }else{//if itemId is not there
             //if new grocery item has no id then add it to new list
             console.log("ManageMeal found undefined item:",item)
              //get a newId
-              const response = updateGroceryItem(item,addCtxList,mealIds,mealData);
+              const response = updateGroceryItem(item,mealIds,mealData);
               //.then(response=>{
                 let theId="";
                 if(response.length > 20){
@@ -482,7 +479,7 @@ function updateCtxList(updatedGrocery,id){
       }catch(error){
         console.log(error);
       }
-      
+    //if there is no grocery list...
     }else{
       console.log("ManageMeal made it to no groceries")
       updateCtxMeal(mealIds,mealData,"noGroceryItem");
@@ -502,21 +499,22 @@ function updateCtxList(updatedGrocery,id){
       let groceryList=[]
       if(newGroceryItem !== "noGroceryItem"){
         mealData.groceryItems.forEach((item)=>{
-        if(item.description===newGroceryItem.description){
-          setUpdatedGroceryList(newGroceryItem);
-          groceryList.push(newGroceryItem);
-        }else{
-          groceryList.push(item);
-        }
-      })
+          //if this is the new grocery item add it instead of the the version with no thisId.
+          if(item.description===newGroceryItem.description){
+            //setUpdatedGroceryList(newGroceryItem);
+            groceryList.push(newGroceryItem);
+          //otherwise add all the updated grocery items to the grocery list
+          }else{
+            groceryList.push(item);
+          }
+        })
       }
       
-      //this adds the new updated grocery item to the other items on the grocery list.
+      //this creates an updated meal with the updated grocery list.
       let currentMeal2
       
       //Add one day to the date so that it sits one day ahead in firebase.
       const newDate = getDateMinusDays(mealData.date,-1);
-      //creates the current meal with the newly updated grocery item.
       console.log("ManageMeals updateCtxMeal date:",newDate);
       currentMeal2 = {
         id: mealData.id,
@@ -529,7 +527,8 @@ function updateCtxList(updatedGrocery,id){
       //updates state for current sheet
       setTheMeal(currentMeal2);
       //updates the meal in firebase
-      axios.put(BACKEND_URL + `/meals3/${mealId}.json`, currentMeal2);
+      await updateMealRaw(mealId,currentMeal2);
+      // axios.put(BACKEND_URL + `/meals3/${mealId}.json`, currentMeal2);
       console.log("ManageMeal updateCtxMeal firebase:",currentMeal2);
       //}
     }catch(error){

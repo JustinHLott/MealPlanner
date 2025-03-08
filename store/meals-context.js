@@ -16,7 +16,9 @@ function mealsReducer(state, action) {
     case 'ADD':
       return { ...state, meals: [action.payload, ...state.meals] };
     case 'SET':
-      return { ...state, meals: action.payload.reverse() };
+      return { ...state, meals: [...action.payload,].sort((a, b) => a.date - b.date) };
+      //return { ...state, meals: action.payload.reverse() };
+      //const mealsSorted = [...action.payload,].sort((a, b) => a.date - b.date)
     case 'UPDATE':
       const updatableMealIndex = state.meals.findIndex(
         (meal) => meal.id === action.payload.id

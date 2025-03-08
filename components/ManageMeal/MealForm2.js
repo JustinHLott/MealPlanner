@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, TextInput, FlatList, Text, Pressable, Alert, ActivityIndicator } from "react-native";
+import { View, TextInput, FlatList, Text, Pressable, Alert, ActivityIndicator, Modal } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 //import DatePicker from "react-native-date-picker";
 
@@ -25,23 +25,18 @@ const defaultGroceryItem = { description: "", qty: "", checkedOff: "" };
 export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, submitButtonLabel }) {
   // Merge `initialMeal` with `defaultMeal` to avoid undefined values
   const [meal, setMeal] = useState({ ...defaultMeal, ...initialMeal });
-  //const [maxDate, setMaxDate] = useState("");
-  //const [dateValid, setDateValid] = useState(true);
   const [description, setDescription] = useState(initialMeal.description?initialMeal.description:"");
   const [date, setDate] = useState(initialMeal.date?initialMeal.date:"");
-  // const [date2, setDate2] = useState(initialMeal.date?initialMeal.date:new Date());
-  // const [open, setOpen] = useState(false);
   const [pencilColor, setPencilColor] = useState(GlobalStyles.colors.primary100);
   const [errorMessage, setErrorMessage] = useState("filled");
   const [editableOr, setEditableOr] = useState(false);
   const [checked,setChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [additionalGroceryItems, setAdditionalGroceryItems]=useState(false);
-  //const [newGroceryList,setNewGroceryList] = useState();
-  // const [showPicker, setShowPicker] = useState(false);
-  // const [datePickerDate,setDatePickerDate] = useState(initialMeal.date?initialMeal.date:"");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [groceryDescription, setGroceryDescription] = useState('');
+  const [qty, setQty] = useState('');
 
-  //const [firstDate, setFirstDate] = useState(getDateMinusDays(new Date(),1));
   const mealsCtx = useContext(MealsContext);
   const listsCtx = useContext(ListsContext);
 
@@ -202,7 +197,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     };
     
   // Function to add a new grocery item
-  const addGroceryItem = () => {
+  const addGroceryItem = (theGroceryItem) => {
     if(meal.groceryItems){//if grocery items already
       if(submitButtonLabel==="Update"){//if updating, you can only add one grocery item on update.
         meal.groceryItems.map((theMeal)=>{
@@ -210,29 +205,36 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
             setAdditionalGroceryItems(true)
           }
         })
-        console.log("additionalGroceryItems:",additionalGroceryItems)
+        console.log("additionalGroceryItems update:",theGroceryItem)
         if(additionalGroceryItems===true){
           Alert.alert("When updating, you may only add one grocery item.")
         }else{
           setMeal((prevMeal) => ({
             ...prevMeal,
-            groceryItems: [...prevMeal.groceryItems, { ...defaultGroceryItem }],
+            groceryItems: [...prevMeal.groceryItems, { ...theGroceryItem }],
           }));
           setAdditionalGroceryItems(true)
         }
       }else{//If adding a new meal you can add as many grocery items as you wish
+        console.log("additionalGroceryItems:",theGroceryItem)
+        console.log("MealForm2 before:",meal)
         setMeal((prevMeal) => ({
           ...prevMeal,
-          groceryItems: [{ ...defaultGroceryItem }],
+          groceryItems: [{ ...theGroceryItem }],
         }));
+        console.log("MealForm2 after:",meal)
       }
     }
     else{//if no grocery items
+      console.log("additionalGroceryItems 1st:",theGroceryItem)
       setMeal((prevMeal) => ({
         ...prevMeal,
-        groceryItems: [{ ...defaultGroceryItem }],
+        groceryItems: [{ ...theGroceryItem }],
+        //groceryItems: [{ ...defaultGroceryItem }],
       }));
-      setAdditionalGroceryItems(true)
+      if(submitButtonLabel==="Update"){//if updating, you can only add one grocery item on update.
+        setAdditionalGroceryItems(true)
+      }
     }
   };
 
@@ -432,6 +434,19 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     );
   }
 
+  const handleAddMeal = (groceryItem) => {
+    if(additionalGroceryItems===true){
+      Alert.alert("When updating, you may only add one grocery item.")
+    }else{
+      console.log('New Grocery Item:', qty, groceryDescription);
+      //addGroceryItem(groceryItem);//defaultGroceryItem
+      addGroceryItem(defaultGroceryItem);
+      setGroceryDescription('');
+      setQty('');
+      setModalVisible(false); // Close modal after adding meal
+    }
+  };
+
   return (
     <View style={{ padding: 20, flex: 1 }}>
       {/* Date Input */}
@@ -536,10 +551,42 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
         )}
       />
       {errorMessage?<Text style={styles.errorText}>{errorMessage}</Text>:null}
-      
+      <View style={styles.container}>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text>Enter Grocery Item</Text>
+              <TextInput
+                style={styles.input2}
+                placeholder="Qty"
+                keyboardType='numeric'
+                maxLength={3}
+                value={qty}
+                onChangeText={setQty}
+              />
+              <TextInput
+                style={styles.input2}
+                placeholder="Description"
+                value={groceryDescription}
+                onChangeText={setGroceryDescription}
+              />
+              <View style={styles.buttons}>
+                <Button onPress={()=>handleAddMeal({checkedOff:"", qty: qty, description: groceryDescription})}>Add</Button>
+                <Button style={{marginLeft:8}} onPress={() => setModalVisible(false)}>Cancel</Button>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </View>
       <View style={styles.buttons}>
+      <Button onPress={() => setModalVisible(true)}>Add</Button>
         {/* Add Grocery Item Button */}
-        <Button onPress={addGroceryItem}>Add Grocery Item</Button>
+        <Button onPress={()=>addGroceryItem(defaultGroceryItem)}>Add Grocery Item</Button>
         {/* Save/Update Button */}
         <Button style={{marginLeft:8}} onPress={() => saveMeal(meal)}>{submitButtonLabel}</Button>
       </View>
@@ -555,6 +602,10 @@ const styles = {
     marginBottom: 4,
     marginLeft: 4,
   },
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
+  modalContent: { width: 300, padding: 20, backgroundColor: 'white', borderRadius: 10 },
+  input2: { borderBottomWidth: 1, marginBottom: 10, padding: 5 },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
