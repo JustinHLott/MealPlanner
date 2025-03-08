@@ -36,12 +36,16 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   const [modalVisible, setModalVisible] = useState(false);
   const [groceryDescription, setGroceryDescription] = useState('');
   const [qty, setQty] = useState('');
+  const [isAddGroceryVisible, setIsAddGroceryVisible] = useState(false);
 
   const mealsCtx = useContext(MealsContext);
   const listsCtx = useContext(ListsContext);
 
   //This only runs once when the screen starts up.
   useEffect(() => {
+    if(submitButtonLabel==="Update"){
+      setIsAddGroceryVisible(true)
+    }
     if(typeof initialMeal.description!=="undefined"){
       //do nothing
       //console.log("initialMealDescription");
@@ -198,6 +202,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     
   // Function to add a new grocery item
   const addGroceryItem = (theGroceryItem) => {
+    //let theGroceryItem;
     if(meal.groceryItems){//if grocery items already
       if(submitButtonLabel==="Update"){//if updating, you can only add one grocery item on update.
         meal.groceryItems.map((theMeal)=>{
@@ -211,16 +216,16 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
         }else{
           setMeal((prevMeal) => ({
             ...prevMeal,
-            groceryItems: [...prevMeal.groceryItems, { ...theGroceryItem }],
+            groceryItems: [...prevMeal.groceryItems, { ...theGroceryItem  }],
           }));
           setAdditionalGroceryItems(true)
         }
       }else{//If adding a new meal you can add as many grocery items as you wish
-        console.log("additionalGroceryItems:",theGroceryItem)
+        console.log("additionalGroceryItems unlimited!:",theGroceryItem)
         console.log("MealForm2 before:",meal)
         setMeal((prevMeal) => ({
           ...prevMeal,
-          groceryItems: [{ ...theGroceryItem }],
+          groceryItems: [...prevMeal.groceryItems, { ...theGroceryItem  }],
         }));
         console.log("MealForm2 after:",meal)
       }
@@ -229,7 +234,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       console.log("additionalGroceryItems 1st:",theGroceryItem)
       setMeal((prevMeal) => ({
         ...prevMeal,
-        groceryItems: [{ ...theGroceryItem }],
+        groceryItems: [{ ...theGroceryItem  }],
         //groceryItems: [{ ...defaultGroceryItem }],
       }));
       if(submitButtonLabel==="Update"){//if updating, you can only add one grocery item on update.
@@ -288,6 +293,8 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   //DELETING/////////////////////////////////////////////////////
   // Function to delete grocery item
   async function deleteGroceryItem(index,mealId,thisId){
+    const updatedGroceryItems = [...meal.groceryItems];
+    updatedGroceryItems[index];
     //console.log("MealForm2 deleteGroceryItem",mealId);
     setIsLoading(true);
     try{
@@ -434,17 +441,21 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     );
   }
 
-  const handleAddMeal = (groceryItem) => {
+  function add1GroceryItem(){
+    console.log("additionalGroceryItems",additionalGroceryItems)
     if(additionalGroceryItems===true){
       Alert.alert("When updating, you may only add one grocery item.")
     }else{
-      console.log('New Grocery Item:', qty, groceryDescription);
-      //addGroceryItem(groceryItem);//defaultGroceryItem
-      addGroceryItem(defaultGroceryItem);
-      setGroceryDescription('');
-      setQty('');
-      setModalVisible(false); // Close modal after adding meal
+      setModalVisible(true);
     }
+  }
+  const handleAddMeal = (groceryItem) => {
+    console.log('New Grocery Item:', qty, groceryDescription);
+    //addGroceryItem(groceryItem);//defaultGroceryItem
+    addGroceryItem(groceryItem);
+    setGroceryDescription('');
+    setQty('');
+    setModalVisible(false); // Close modal after adding meal
   };
 
   return (
@@ -584,9 +595,9 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
         </Modal>
       </View>
       <View style={styles.buttons}>
-      <Button onPress={() => setModalVisible(true)}>Add</Button>
+        {isAddGroceryVisible && (<Button onPress={() => add1GroceryItem()}>Add Grocery Item</Button>)}
         {/* Add Grocery Item Button */}
-        <Button onPress={()=>addGroceryItem(defaultGroceryItem)}>Add Grocery Item</Button>
+        {!isAddGroceryVisible && (<Button onPress={()=>addGroceryItem(defaultGroceryItem)}>New Grocery Item</Button>)}
         {/* Save/Update Button */}
         <Button style={{marginLeft:8}} onPress={() => saveMeal(meal)}>{submitButtonLabel}</Button>
       </View>
