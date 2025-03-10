@@ -19,6 +19,13 @@ const BACKEND_URL =
 //   return updatedGrocery
 // }
 
+//stores user info to firebase online.
+export async function storeUser(userData) {
+  const response = await axios.post(BACKEND_URL + '/users.json', userData);
+  const id = response.data.name;
+  return id;
+}
+
 export async function storeMeal(mealData,addCtxList,addCtxMeal) {
   //console.log("http storeMeal mealData before:",mealData);
   const response = await axios.post(BACKEND_URL + '/meals3.json', mealData);
