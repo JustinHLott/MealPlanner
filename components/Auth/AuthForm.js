@@ -51,7 +51,7 @@ function AuthForm({ isLogin, onSubmit, credentialsInvalid }) {
         <Image source={require('../../assets/images/paul-rogers-FlYgsQGoxhA-unsplash.jpg')} style={styles.image}/>
         <Text style={styles.textPhoto}>Photo at Unsplash by{' '} 
           <Pressable onPress={() => Linking.openURL('https://unsplash.com/@progers?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash')} style={{marginTop:7}}>
-            <Text style={{ color: 'yellow', textDecorationLine: 'underline', fontSize: 12}}>
+            <Text style={{ color: 'yellow', textDecorationLine: 'underline', fontSize: 9}}>
               Paul Rogers
             </Text>
           </Pressable>
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   textPhoto: {
     color: GlobalStyles.colors.primary50,
     //fontFamily: 'atma',
-    fontSize:12,
+    fontSize:9,
     paddingHorizontal: 4,
     paddingTop: 12,
     paddingBottom: 5,

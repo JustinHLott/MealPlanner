@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { GlobalStyles } from '../../constants/styles';
 import MealsList from './MealsList';
+import Footer from '../Footer';
 //import { MealsContext } from '../../store/meals-context';
 
 function MealsOutput({ meals, fallbackText }) {
@@ -24,6 +25,7 @@ function MealsOutput({ meals, fallbackText }) {
   return (
     <View style={styles.container}>
       {content}
+      <Footer/>
     </View>
   );
 }

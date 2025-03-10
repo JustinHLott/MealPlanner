@@ -47,14 +47,21 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
 
   //This runs once when the page first loads
   useEffect(()=>{
-    if(defaultValues.mealId){
-      const meal = mealsCtx.meals.find(
+    console.log("GroceryForm useEffect defaultValues:",defaultValues);
+    const kjl = typeof defaultValues;
+    console.log("the type:",kjl);
+    if(typeof defaultValues==="string"||typeof defaultValues==="undefined"){
+      console.log("GroceryForm no meal");
+    }else{
+      if(mealsCtx.mealDesc==="NO MEAL"){
+        const meal = mealsCtx.meals.find(
         (meal) => meal.id === defaultValues.mealId
       );
       console.log("GroceryForm useEffect meal",meal);
       setDate(getFormattedDate(meal.date));
-    }else{
-      console.log("GroceryForm no meal");
+      }else{
+        setDate("NO DATE");
+      }
     }
   },[])
   
@@ -140,6 +147,7 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
             editable={false}
             //if it's a valid date, "validateDate" changes it to a text string.
             //value={inputs.mealId.value}
+            
             value={inputs.mealId.value}
           />
         </View>

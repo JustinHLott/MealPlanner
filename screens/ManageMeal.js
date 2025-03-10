@@ -17,6 +17,7 @@ import { storeMeal, deleteMeal, updateMealRaw } from '../util/http';//updateMeal
 import { storeList, deleteList, updateList } from '../util/http-list';
 //import MealGroceries from '../components/MealsOutput/MealGroceries';
 import { getDateMinusDays } from "../util/date";
+import Footer from '../components/Footer';
 
 let theID ="";
 
@@ -581,7 +582,8 @@ function updateCtxList(updatedGrocery,id){
               onPress={deleteMealHandler}
             />
           </View>
-        )} 
+        )}
+        <Footer/>
       </ScrollView>
     </View>
   );

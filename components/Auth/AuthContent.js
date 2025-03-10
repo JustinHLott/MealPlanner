@@ -5,6 +5,7 @@ import { ScrollView } from 'react-native-virtualized-view'
 
 import AuthForm from './AuthForm';
 import { GlobalStyles } from '../../constants/styles';
+import Footer from '../Footer';
 
 //This goes in the login screen or the sign in screen depending on which option was chosen.
 function AuthContent({ isLogin, onAuthenticate }) {
@@ -74,6 +75,7 @@ function AuthContent({ isLogin, onAuthenticate }) {
               </View>
             </Pressable>
           </View>
+          <Footer/>
         </ScrollView>
       
     </View>
@@ -118,5 +120,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     color: GlobalStyles.colors.primary50,
+  },
+  textCopyright: {
+    color: GlobalStyles.colors.primary50,
+    //fontFamily: 'atma',
+    fontSize:9,
+    paddingHorizontal: 4,
+    paddingTop: 24,
+    paddingBottom: 0,
+    color: GlobalStyles.colors.primary50,
+    textAlign: 'right',
   },
 });

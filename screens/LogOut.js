@@ -4,6 +4,7 @@ import { View, Text, StyleSheet,Pressable, Image, Linking } from 'react-native';
 import { AuthContext } from '../store/auth-context';
 import { GlobalStyles } from '../constants/styles';
 import { Ionicons } from '@expo/vector-icons';
+import Footer from '../components/Footer';
   
 //This is the screen attached to the logout bottomTab
 const LogOut = () => {
@@ -48,6 +49,7 @@ const LogOut = () => {
               />
               <Text style={styles.buttonText}>Log Out</Text>
           </Pressable>
+          <Footer/>
         </View>
     </View>
   );

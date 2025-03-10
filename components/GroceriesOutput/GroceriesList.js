@@ -60,7 +60,7 @@ function GroceriesList({ groceries, handleSorting }) {
   }
 
   return (
-    <View>
+    <View style = {styles.container}>
       <View style={styles.buttonContainer}>
         <Button onPress={()=>handleSorting("item")} style={{marginLeft:30}}>Sort by Item</Button>
         <Button onPress={()=>handleSorting("meal")} style={{marginLeft:20}}>Sort by Meal</Button>
@@ -79,6 +79,9 @@ function GroceriesList({ groceries, handleSorting }) {
 export default GroceriesList;
 
 const styles = StyleSheet.create({
+  container:{
+    flex: 1,
+  },
   buttonContainer:{
     flexDirection:'row',
     alignItems: 'center',

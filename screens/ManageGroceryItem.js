@@ -11,6 +11,7 @@ import { ListsContext } from '../store/lists-context';
 import { MealsContext } from '../store/meals-context';
 import { storeList, updateList, deleteList } from '../util/http-list';
 import { updateMealRaw } from '../util/http';
+import Footer from '../components/Footer';
 
 function ManageGroceryItem({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,7 +29,7 @@ function ManageGroceryItem({ route, navigation }) {
   
   useLayoutEffect(() => {
     if(!groceryItem){
-      groceryItem = "No grocery item"
+      setGroceryItem("No grocery item");
     }else{
       if(!groceryItem.qty){
         setGroceryItem(groceriesCtx.lists.find(
@@ -58,21 +59,21 @@ function ManageGroceryItem({ route, navigation }) {
 
   //DELETING/////////////////////////////////////////////////////
   function deleteFromGroceryCtx(thisId){
-    console.log("ManageGroceryItem before delete",groceriesCtx.lists)
+    //console.log("ManageGroceryItem before delete",groceriesCtx.lists)
     // console.log("MealForm2 thisId",thisId)
     const updatedGroceries1 = groceriesCtx.lists.filter(grocery => grocery.thisId !== thisId);
     const updatedGroceries = updatedGroceries1.filter(grocery => grocery.id !== thisId);
     groceriesCtx.setLists(updatedGroceries);
-    console.log("ManageGroceryItem after delete",updatedGroceries);
+    //console.log("ManageGroceryItem after delete",updatedGroceries);
   }
   //DELETING/////////////////////////////////////////////////////
 
 async function deleteGroceryHandler() {
   setIsSubmitting(true);
   try {
-    console.log("ManageGroceryItem deleteGroceryHandler")
+    //console.log("ManageGroceryItem deleteGroceryHandler")
     if(editedGroceryId){
-      console.log("ManageGroceryItem id: ",editedGroceryId)
+      //console.log("ManageGroceryItem id: ",editedGroceryId)
       //delete grocery item from firebase http
       await deleteList(editedGroceryId);
 
@@ -84,7 +85,7 @@ async function deleteGroceryHandler() {
       // const selectedList2 = groceriesCtx.lists.find(
       //   (list) => list.id?list.id:list.thisId === editedGroceryId
       // );
-      console.log("ManageGroceryItem groceryItem: ",groceryItem);
+      //console.log("ManageGroceryItem groceryItem: ",groceryItem);
       //update mealsCtx
       if(groceryItem.mealId){
 
@@ -93,11 +94,12 @@ async function deleteGroceryHandler() {
         );
 
         if(meal3){
-          console.log("ManageGroceryItem selectedMeal",meal3)
+          //console.log("ManageGroceryItem selectedMeal",meal3)
           await createMealWithoutGroceryItem(meal3,editedGroceryId);
           navigation.goBack();
         }else{
           console.log("ManageGroceryItem no id");
+          navigation.goBack();
         }
       }else{
         console.log("ManageGroceryItem no mealId");
@@ -197,10 +199,20 @@ async function deleteGroceryHandler() {
           //update meal in firebase
           updateMealRaw(groceryData.mealId,updatedMeal)
         }
-      } else {
-        groceriesCtx.addList({ ...groceryData, id: id });
-        setGroceryItem(groceryData);
+      } else {//create new grocery item with no meal associated.
+        
+        
         const id = await storeList(groceryData);
+        const newGrocery = { 
+          description: groceryData.description, 
+          qty: groceryData.qty, 
+          checkedOff: "",
+          mealDesc: "NO MEAL",
+          mealId: 1,
+          thisId: id, id:id}
+        setGroceryItem(newGrocery);
+        groceriesCtx.addList({ ...newGrocery, id: id });
+        updateList(id, newGrocery);
       }
       navigation.goBack();
     } catch (error) {
@@ -241,8 +253,8 @@ async function deleteGroceryHandler() {
             />
           </View>
         )}
+        <Footer/>
       </ScrollView>
-      
     </View>
   );
 }

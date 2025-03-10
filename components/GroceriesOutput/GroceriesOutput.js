@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { GlobalStyles } from '../../constants/styles';
 import GroceriesList from './GroceriesList';
 import { ListsContext } from '../../store/lists-context';
+import Footer from '../Footer';
 
 function GroceriesOutput({ groceries, fallbackText }) {
 
@@ -54,6 +55,7 @@ function GroceriesOutput({ groceries, fallbackText }) {
   return (
     <View style={styles.container}>
       {content}
+      <Footer/>
     </View>
   );
 }
@@ -67,11 +69,5 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: 0,
     backgroundColor: GlobalStyles.colors.primary700,
-  },
-  infoText: {
-    color: 'white',
-    fontSize: 16,
-    textAlign: 'center',
-    marginTop: 32,
   },
 });

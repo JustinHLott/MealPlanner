@@ -4,12 +4,13 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import * as SplashScreen from 'expo-splash-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import LoginScreen from './screens/auth/LoginScreen';
 import SignupScreen from './screens/auth/SignupScreen';
+import Settings from './screens/auth/Settings';
 import AuthContextProvider, { AuthContext } from './store/auth-context';
 import LogOut from './screens/LogOut';
 import ManageMeal from './screens/ManageMeal';
@@ -35,26 +36,36 @@ function MealsOverviewBottomTabs() {
         tabBarActiveTintColor: GlobalStyles.colors.accent500,
         headerRight: ({ tintColor }) => (
           <>
-          <IconButton
-            icon="add"
-            size={24}
-            color={tintColor}
-            onPress={() => {
-              navigation.navigate('ManageMeal');
-            }}
-            forLongPress={()=>{Alert.alert("Function of Button","Button adds meal")}}
-            iconText="Add meal"
-          />
-          <IconButton
-            icon="bag-add-outline"
-            size={24}
-            color={tintColor}
-            onPress={() => {
-              navigation.navigate('ManageGroceryItem');
-            }}
-            forLongPress={()=>{Alert.alert("Function of Button","Button adds to grocery list")}}
-            iconText="Grocery"
-          />
+            <IconButton
+              icon="add"
+              size={24}
+              color={tintColor}
+              onPress={() => {
+                navigation.navigate('ManageMeal');
+              }}
+              forLongPress={()=>{Alert.alert("Function of Button","Button adds meal")}}
+              iconText="Add meal"
+            />
+            <IconButton
+              icon="bag-add-outline"
+              size={24}
+              color={tintColor}
+              onPress={() => {
+                navigation.navigate('ManageGroceryItem');
+              }}
+              forLongPress={()=>{Alert.alert("Function of Button","Button adds to grocery list")}}
+              iconText="Grocery"
+            />
+            <IconButton
+              icon=""
+              size={24}
+              color={tintColor}
+              onPress={() => {
+                navigation.navigate('Settings');
+              }}
+              forLongPress={()=>{Alert.alert("Function of Button","Button opens settings for app.")}}
+              awesome="cog"
+            />
           </>
           
         ),
@@ -131,7 +142,7 @@ export default function App() {
         <Stack.Navigator
           screenOptions={{
             headerStyle: { backgroundColor: GlobalStyles.colors.primary500 },
-            headerTintColor: {backgroundColor: GlobalStyles.colors.primary50},
+            headerTintColor: GlobalStyles.colors.primary50,
           }}
         >
           <Stack.Screen
@@ -149,6 +160,13 @@ export default function App() {
           <Stack.Screen
             name="ManageGroceryItem"
             component={ManageGroceryItem}
+            options={{
+              presentation: 'modal',
+            }}
+          />
+          <Stack.Screen
+            name="Settings"
+            component={Settings}
             options={{
               presentation: 'modal',
             }}
