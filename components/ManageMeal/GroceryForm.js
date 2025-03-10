@@ -1,14 +1,17 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput,Alert } from 'react-native';
 
+import { MealsContext } from '../../store/meals-context';
 import Input from './Input';
 import Button from '../UI/Button';
 //import { getFormattedDate } from '../../util/date';
 import { GlobalStyles } from '../../constants/styles';
+import { isValidDate, getDateMinusDays,getFormattedDate } from "../../util/date";
 
 //defaultMealDesc={selectedMeal.description}
 function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaultMealDesc }) {
   console.log("defaultValues in GroceryForm", defaultValues);
+  const [date, setDate] = useState()
   const [inputs, setInputs] = useState({
     qty: {
       value: defaultValues ? defaultValues.qty : 0,
@@ -40,6 +43,21 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
     },
   });
 
+  const mealsCtx = useContext(MealsContext);
+
+  //This runs once when the page first loads
+  useEffect(()=>{
+    if(defaultValues.mealId){
+      const meal = mealsCtx.meals.find(
+        (meal) => meal.id === defaultValues.mealId
+      );
+      console.log("GroceryForm useEffect meal",meal);
+      setDate(getFormattedDate(meal.date));
+    }else{
+      console.log("GroceryForm no meal");
+    }
+  },[])
+  
   
 
   function inputChangedHandler(inputIdentifier, enteredValue) {
@@ -103,6 +121,17 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
             value={inputs.mealDesc.value}
           />
         </View>
+        {/* Date */}
+        <Text style={styles.label}>Date</Text>
+        <View style={styles.inputContainer}>
+          <TextInput style={[styles.inputDate,styles.inputAll]}
+            placeholder='No Date'
+            editable={false}
+            //if it's a valid date, "validateDate" changes it to a text string.
+            //value={inputs.mealId.value}
+            value={date}
+          />
+        </View>
         {/* MealId */}
         <Text style={styles.label}>Meal ID</Text>
         <View style={styles.inputContainer}>
@@ -132,7 +161,7 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
           textInputConfig={{
             keyboardType: 'decimal-pad',
             placeholder: '0',
-            maxLength: 2,
+            maxLength: 3,
             onChangeText: inputChangedHandler.bind(this, 'qty'),
             value: inputs.qty.value,
           }}

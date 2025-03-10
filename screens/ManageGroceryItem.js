@@ -1,5 +1,6 @@
 import { useContext, useLayoutEffect, useState, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { ScrollView } from 'react-native-virtualized-view'
 
 import GroceryForm from '../components/ManageMeal/GroceryForm';
 import ErrorOverlay from '../components/UI/ErrorOverlay';
@@ -14,6 +15,8 @@ import { updateMealRaw } from '../util/http';
 function ManageGroceryItem({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState();
+  const [groceryItem, setGroceryItem] = useState(route.params?.item);
+
 
   const groceriesCtx = useContext(ListsContext);
   const mealsCtx = useContext(MealsContext);
@@ -21,16 +24,16 @@ function ManageGroceryItem({ route, navigation }) {
 
   const editedGroceryId = route.params?.groceryId;
   let meal = route.params?.meal;
-  let groceryItem = route.params?.item;
+  //let groceryItem = route.params?.item;
   
   useLayoutEffect(() => {
     if(!groceryItem){
       groceryItem = "No grocery item"
     }else{
       if(!groceryItem.qty){
-        groceryItem = groceriesCtx.lists.find(
+        setGroceryItem(groceriesCtx.lists.find(
           (list) => list.id?list.id:list.thisId === editedGroceryId
-        );
+        ));
       }
     }
     if(!meal){
@@ -164,7 +167,7 @@ async function deleteGroceryHandler() {
     setIsSubmitting(true);
     try {
       if (isEditing) {
-
+        setGroceryItem(groceryData);
         groceriesCtx.updateList(editedGroceryId, groceryData);
         await updateList(editedGroceryId, groceryData);
         //if the grocery item is part of a meal...
@@ -194,10 +197,10 @@ async function deleteGroceryHandler() {
           //update meal in firebase
           updateMealRaw(groceryData.mealId,updatedMeal)
         }
-        
       } else {
-        const id = await storeList(groceryData);
         groceriesCtx.addList({ ...groceryData, id: id });
+        setGroceryItem(groceryData);
+        const id = await storeList(groceryData);
       }
       navigation.goBack();
     } catch (error) {
@@ -218,23 +221,28 @@ async function deleteGroceryHandler() {
 
   return (
     <View style={styles.container}>
-      <GroceryForm
-        submitButtonLabel={isEditing ? 'Update' : 'Add'}
-        onSubmit={confirmHandler}
-        onCancel={cancelHandler}
-        defaultValues={groceryItem}
-        defaultMealDesc={meal?meal:""}
-      />
-      {isEditing && (
-        <View style={styles.deleteContainer}>
-          <IconButton
-            icon="trash"
-            color={GlobalStyles.colors.error500}
-            size={36}
-            onPress={deleteGroceryHandler}
-          />
-        </View>
-      )}
+      <ScrollView
+        keyboardShouldPersistTaps="handled"//This makes it so you can click a button while the keyboard is up
+      >
+        <GroceryForm
+          submitButtonLabel={isEditing ? 'Update' : 'Add'}
+          onSubmit={confirmHandler}
+          onCancel={cancelHandler}
+          defaultValues={groceryItem}
+          defaultMealDesc={meal?meal:""}
+        />
+        {isEditing && (
+          <View style={styles.deleteContainer}>
+            <IconButton
+              icon="trash"
+              color={GlobalStyles.colors.error500}
+              size={36}
+              onPress={deleteGroceryHandler}
+            />
+          </View>
+        )}
+      </ScrollView>
+      
     </View>
   );
 }

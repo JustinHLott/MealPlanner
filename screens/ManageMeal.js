@@ -154,7 +154,7 @@ function updateCtxList(updatedGrocery,id){
         description: updatedGrocery.description,
         qty: updatedGrocery.qty
       };
-
+      console.log("ManageMeals groceryItem: ", groceryItem)
       //this adds the grocery item to the groceryItems for the meal
       //setNewGroceryItem([...newGroceryItem,groceryItem]);
       listsCtx.addList(groceryItem);
@@ -391,7 +391,7 @@ function updateCtxList(updatedGrocery,id){
             //let updatedGroceryid;
   
             //get a newId for the new grocery item
-            const response = updateGroceryItem(item,addCtxList,mealIds,mealData)
+            const response = updateGroceryItem(item,mealIds,mealData)
               //.then(response=>{
                 let theId=response;
                 console.log("ManageMeal updateMeal !grocId:",theId)
@@ -569,7 +569,7 @@ function updateCtxList(updatedGrocery,id){
           initialMeal={theMeal}
           defaultDate={getLatestDate()}
           onSubmit={confirmHandler}
-          submitButtonLabel={isEditing ? 'Update' : 'Add'}
+          submitButtonLabel={isEditing ? 'Update' : 'Save Meal'}
         />
         {/*This delete the meal*/}
          {isEditing && (

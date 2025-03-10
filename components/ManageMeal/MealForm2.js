@@ -37,6 +37,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   const [groceryDescription, setGroceryDescription] = useState('');
   const [qty, setQty] = useState('');
   const [isAddGroceryVisible, setIsAddGroceryVisible] = useState(false);
+  const [isNewGroceryVisible, setIsNewGroceryVisible] = useState(false);
 
   const mealsCtx = useContext(MealsContext);
   const listsCtx = useContext(ListsContext);
@@ -44,7 +45,11 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   //This only runs once when the screen starts up.
   useEffect(() => {
     if(submitButtonLabel==="Update"){
-      setIsAddGroceryVisible(true)
+      setIsAddGroceryVisible(true);
+      setIsNewGroceryVisible(false);
+    }else{
+      setIsAddGroceryVisible(false);
+      setIsNewGroceryVisible(true);
     }
     if(typeof initialMeal.description!=="undefined"){
       //do nothing
@@ -63,13 +68,13 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       const regex = /^(?:\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{4})$/;
       const date2 = (new Date(initialMeal.date)).toISOString().slice(0, 10);
       if (!regex.test(date2)) {
-        console.log("useEffect Invalid date:",date2);
+        //console.log("useEffect Invalid date:",date2);
       }else{
         const today=getDateMinusDays(new Date(initialMeal.date),0);
-        console.log("useEffect Valid date:",today);
+        //console.log("useEffect Valid date:",today);
         //convert date to text string
         let date1 = today.toISOString().slice(0, 10);
-        console.log("useEffect Valid date1:",date1);
+        //console.log("useEffect Valid date1:",date1);
         setDate(date1);
         updatedMeal3 = {
           date: date1,
@@ -87,8 +92,8 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       if(mealsCtx.meals.length>0){
         mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest).date;
       }
-      console.log("Mostrecentmealdate");
-      console.log(mostRecentMealDate);
+      // console.log("Mostrecentmealdate");
+      // console.log(mostRecentMealDate);
       
       //Add one day to the most recent date to get the date for the next new meal
       let date = new Date(mostRecentMealDate);
@@ -99,7 +104,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
         .split("T")[0];
       setDate(date2);
       //setMaxDate(date2);
-      console.log(date2);
+      //console.log(date2);
       // Create a new updated meal object
       //const updatedMeal3={mealsCtx.addMeal()}
       const updatedMeal2 = {
@@ -109,7 +114,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       };
       //And update the meal with the new date
       setMeal(updatedMeal2);
-      console.log(meal);
+      //console.log(meal);
     }
   }, []);
 
@@ -447,6 +452,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       Alert.alert("When updating, you may only add one grocery item.")
     }else{
       setModalVisible(true);
+      setIsAddGroceryVisible(false);
     }
   }
   const handleAddMeal = (groceryItem) => {
@@ -572,32 +578,39 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text>Enter Grocery Item</Text>
-              <TextInput
-                style={styles.input2}
-                placeholder="Qty"
-                keyboardType='numeric'
-                maxLength={3}
-                value={qty}
-                onChangeText={setQty}
-              />
-              <TextInput
-                style={styles.input2}
-                placeholder="Description"
-                value={groceryDescription}
-                onChangeText={setGroceryDescription}
-              />
               <View style={styles.buttons}>
-                <Button onPress={()=>handleAddMeal({checkedOff:"", qty: qty, description: groceryDescription})}>Add</Button>
-                <Button style={{marginLeft:8}} onPress={() => setModalVisible(false)}>Cancel</Button>
+                <TextInput  style={[styles.inputQty2,styles.inputAll2]}
+                  //style={styles.input2}
+                  placeholder="Qty"
+                  keyboardType='numeric'
+                  maxLength={3}
+                  value={qty}
+                  onChangeText={setQty}
+                />
+                <TextInput
+                  style={styles.input2}
+                  placeholder="Description"
+                  value={groceryDescription}
+                  onChangeText={setGroceryDescription}
+                />
+              </View>
+              
+              <View style={styles.buttons}>
+                <Button 
+                  onPress={()=>handleAddMeal({checkedOff:"", qty: qty, description: groceryDescription})}
+                  style={{marginTop:8}}
+                  >Add</Button>
+                <Button style={{marginLeft:8,marginTop:8}} onPress={() => setModalVisible(false)}>Cancel</Button>
               </View>
             </View>
           </View>
         </Modal>
       </View>
       <View style={styles.buttons}>
+        {/* Add Grocery Item Button only shows when updating meal */}
         {isAddGroceryVisible && (<Button onPress={() => add1GroceryItem()}>Add Grocery Item</Button>)}
-        {/* Add Grocery Item Button */}
-        {!isAddGroceryVisible && (<Button onPress={()=>addGroceryItem(defaultGroceryItem)}>New Grocery Item</Button>)}
+        {/* New Grocery Item Button only shows when adding new meal */}
+        {isNewGroceryVisible && (<Button onPress={()=>addGroceryItem(defaultGroceryItem)}>New Grocery Item</Button>)}
         {/* Save/Update Button */}
         <Button style={{marginLeft:8}} onPress={() => saveMeal(meal)}>{submitButtonLabel}</Button>
       </View>
@@ -613,10 +626,23 @@ const styles = {
     marginBottom: 4,
     marginLeft: 4,
   },
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center',backgroundColor: GlobalStyles.colors.primary100, },
   modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalContent: { width: 300, padding: 20, backgroundColor: 'white', borderRadius: 10 },
-  input2: { borderBottomWidth: 1, marginBottom: 10, padding: 5 },
+  modalContent: { width: 300, padding: 20, backgroundColor: GlobalStyles.colors.primary50, borderRadius: 10 },
+  input2: { width: "85%",borderBottomWidth: 1, marginBottom: 4, padding: 5 },
+  inputQty2: { width: '15%', height: 35, marginRight: 8,
+  },
+  inputAll2: {
+    //backgroundColor: GlobalStyles.colors.primary100,
+    color: GlobalStyles.colors.primary700,
+    padding: 6,
+    paddingTop: 8,
+    borderRadius: 6,
+    fontSize: 14,
+    marginTop: 4,
+    marginBottom: 6,
+    borderWidth: 2,
+  },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -644,6 +670,7 @@ const styles = {
     width: '15%',
     marginRight: 8,
   },
+  
   inputDate:{
     width: '60%',
     marginLeft: 4,
