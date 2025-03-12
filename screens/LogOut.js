@@ -23,18 +23,13 @@ const LogOut = () => {
       </View>
       <View style={styles.containerBottom}>
         <Image source={require('../assets/images/justus-menke-62XLglIrTJc-unsplash.jpg')} style={styles.image}/>
-        <Text style={styles.text}>Photo at Unsplash by{' '} 
+        <Text style={styles.textPhoto}>Photo at Unsplash by{' '} 
           <Pressable onPress={() => Linking.openURL('https://unsplash.com/@justusmenke?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash')} style={{marginTop:12}}>
-            <Text style={{ color: 'yellow', textDecorationLine: 'underline', fontSize: 20}}>
+            <Text style={{ color: 'yellow', textDecorationLine: 'underline', fontSize: 9}}>
             Justus Menke
             </Text>
           </Pressable>
         </Text>
-          
-          
-          
-          {/* https://unsplash.com/@justusmenke?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Justus Menke</a> on <a href="https://unsplash.com/photos/brown-and-black-chocolate-cake-62XLglIrTJc?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a></Text> */}
-      
         <Text style={styles.text}>Press the Log Out button below to log out of the application.</Text>
         <Pressable
               style={({ pressed }) => [styles.button, pressed && styles.pressed]}
@@ -89,6 +84,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 5,
+  },
+  textPhoto: {
+    color: GlobalStyles.colors.primary50,
+    fontSize:9,
+    paddingHorizontal: 24,
+    paddingTop: 4,
+    paddingBottom: 4,
   },
   button: {
     marginTop: 30,

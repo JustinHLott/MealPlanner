@@ -6,11 +6,12 @@ import { ScrollView } from 'react-native-virtualized-view'
 import AuthForm from './AuthForm';
 import { GlobalStyles } from '../../constants/styles';
 import Footer from '../Footer';
+import { useEmail } from '../../store/email-context';
 
 //This goes in the login screen or the sign in screen depending on which option was chosen.
 function AuthContent({ isLogin, onAuthenticate }) {
   const navigation = useNavigation();
-
+  const { emailAddress, setEmailAddress } = useEmail();
   const [credentialsInvalid, setCredentialsInvalid] = useState({
     email: false,
     password: false,
@@ -32,8 +33,8 @@ function AuthContent({ isLogin, onAuthenticate }) {
     email = email.trim();
     password = password.trim();
 
-    const emailIsValid = email.includes('@');
-    const passwordIsValid = password.length > 6;
+    const emailIsValid = email.includes('@','.');
+    const passwordIsValid = password.length > 5;
     const emailsAreEqual = email === confirmEmail;
     const passwordsAreEqual = password === confirmPassword;
 
@@ -51,6 +52,8 @@ function AuthContent({ isLogin, onAuthenticate }) {
       });
       return;
     }
+    setEmailAddress(email);
+    console.log("email:",emailAddress);
     onAuthenticate({ email, password });
   }
 

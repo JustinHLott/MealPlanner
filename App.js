@@ -22,6 +22,7 @@ import { GlobalStyles } from './constants/styles';
 import IconButton from './components/UI/IconButton';
 import MealsContextProvider from './store/meals-context';
 import ListsContextProvider from './store/lists-context';
+import { EmailProvider } from './store/email-context'; // Import the context
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -221,14 +222,15 @@ export default function App() {
   return (
     <>
       <StatusBar style="light" />
-      <AuthContextProvider>
-        <MealsContextProvider>
-          <ListsContextProvider>
-            <Root/>
-          </ListsContextProvider>
-        </MealsContextProvider> 
-      </AuthContextProvider>
-      
+      <EmailProvider>
+        <AuthContextProvider>
+          <MealsContextProvider>
+            <ListsContextProvider>
+              <Root/>
+            </ListsContextProvider>
+          </MealsContextProvider> 
+        </AuthContextProvider>
+      </EmailProvider>
     </>
   );
 }

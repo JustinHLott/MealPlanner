@@ -4,10 +4,13 @@ import AuthContent from '../../components/Auth/AuthContent';
 import { AuthContext } from '../../store/auth-context';
 import { createUser } from '../../util/auth';
 import { GlobalStyles } from '../../constants/styles';
+import { storeGroup, updateGroup } from './Settings';
+import { useEmail } from '../../store/email-context';
 
 //screen to sign up for the first time
 function SignupScreen({navigation}) {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const { emailAddress, setEmailAddress } = useEmail();
 
   const authCtx = useContext(AuthContext);
 
@@ -17,6 +20,7 @@ function SignupScreen({navigation}) {
       
       const token = await createUser(email, password);
       console.log('create');
+      createNewGroup(email);
       authCtx.authenticate(token);
     } catch (error) {
       Alert.alert(
@@ -25,6 +29,24 @@ function SignupScreen({navigation}) {
       );
       setIsAuthenticating(false);
     }
+  }
+
+  async function createNewGroup(email){
+    console.log("SignupScreen createNewGroup");
+    try{
+      setEmailAddress(email);
+      const newGroup = {
+          group: email,
+          email: email,
+      }
+      const id = await storeGroup(newGroup);
+      const newGroup2={...newGroup,id: id, groupId: id};
+      console.log("SignupScreen createNewGroup:",newGroup2);
+      updateGroup(id, newGroup2);
+    }catch(error){
+      console.log("SignupScreen createGroup error:",error);
+    }
+    
   }
 
   if (isAuthenticating) {
