@@ -7,6 +7,7 @@ import Footer from "../../components/Footer";
 import { GlobalStyles } from '../../constants/styles';
 import Button from '../../components/UI/Button';
 import { useEmail } from '../../store/email-context';
+import storeValue, { getValue} from '../../util/useAsyncStorage';
 
 const BACKEND_URL = 'https://justinhlottcapstone-default-rtdb.firebaseio.com';
 
@@ -34,7 +35,7 @@ export const fetchGroupsByEmail = async (email) => {
       const groups = Object.keys(data)
         .map((key) => ({ id: key, ...data[key] }))
         .filter((group) => group.email === email);
-  
+        //console.log("Settings fetch groups1:",groups);
       return groups;
     } catch (error) {
       console.error('Error fetching groups:', error);
@@ -46,6 +47,7 @@ const RadioButtonWithDelete = ({ label, selected, onPress, onDelete, deleteYN })
     <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
       {/* Radio Button */}
       <Pressable
+        //onPress={() => setSelectedOption(label)}
         onPress={onPress}
         style={{
           flexDirection: 'row',
@@ -86,7 +88,10 @@ export default function Settings(){
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [creatingNewGroup, setCreatingNewGroup] = useState(false);
     const [newGroupName, setNewGroupName] = useState(null);
+    const [selectedOption, setSelectedOption] = useState("personal");
     const { emailAddress, setEmailAddress } = useEmail();
+    const [ groupOrGroups, setGroupOrGroups ] = useState(true);
+    //const { accountType, setAccountType } = useEmail();
     const [accounts, setAccounts] = useState([
         { id: 'personal', label: 'Personal Account' },
         { id: 'shared', label: 'Shared Account' },
@@ -98,30 +103,73 @@ export default function Settings(){
 
     const [group, setGroup] = useState(null);
 
+    //const retrievedValue=getValue("accountTypeChosen");
+    // if(retrievedValue==="personal"){
+    //     retrievedValue=getValue("accountTypeChosen");
+    //     setSelectedOption(retrievedValue);
+    // }
+
     useEffect(()=>{
-        fetchGroup();
+        fetchGroup();//pulls all of the groups associated with the login email
+        //retrievedValue=getValue("accountTypeChosen");
+        //setSelectedOption(getValue("accountTypeChosen"));
+        //setSelectedOption(retrievedValue);
     },[]);
 
-    async function fetchGroup(){
+    // // Set default selection based on retrievedValue
+    // useEffect(() => {
+    //     if(selectedOption){
+    //         setSelectedOption(retrievedValue);
+    //     }
+        
+    // }, [retrievedValue]);
+
+    async function fetchGroup(){//pulls all of the groups associated with the login email
         const theGroups = await fetchGroupsByEmail(emailAddress);
-        //set groups as all groups with my email.
-        setGroups(theGroups);
+
+        setGroupOrGroups(true);
         //filter out all but personal group (group === email)
         setGroup(theGroups.filter((item) => item.group === emailAddress));
+        
+        //console.log("Settings fetched group:",group);
     }
 
-    function chooseAccount(id){
+    async function fetchGroups(){//pulls all of the groups associated with the login email
+        try{
+            const theGroups = await fetchGroupsByEmail(emailAddress);
+
+            const allGroups = Object.keys(theGroups)
+            .map((key) => ({ id: key, ...theGroups[key] }))
+            .filter((group) => group.email === emailAddress);
+            //console.log("Settings fetch groups1:",allGroups);
+            setGroupOrGroups(false);
+            //set groups as all groups with my email.
+            setGroups(allGroups);
+            
+        }catch(error){
+            console.log("Settings fetchGroups error:",error)
+        }
+        
+    }
+
+    function chooseAccount(id){//this runs when you select one of option buttons; shared or personal.
         if(id==="shared"){
-            fetchGroup();
+            fetchGroups();//this pulls your groups meals
+            storeValue("accountTypeChosen","shared")
+        }else{
+            fetchGroup();//this pulls your personal meals
+            storeValue("accountTypeChosen","personal")
         }
         setSelectedAccount(id);
+        setSelectedOption(id);
     }
 
-    function createNewGroup(){
+    function createNewGroup(){//this runs after pressing 'create new group' button.
         setCreatingNewGroup(true);
+        //storeValue("accountTypeChosen","personal")
     }
 
-    async function showNewGroup(){
+    async function showNewGroup(){//this runs after pressing 'create new group' button because cretingNewGroup===true.
         
         return(
             <View style={{flexDirection: 'row'}}>
@@ -147,6 +195,7 @@ export default function Settings(){
         const newGroup2={...newGroup,id: id, groupId: id};
         console.log("Settings newGroup2",newGroup2);
         updateGroup(id, newGroup2);
+        setCreatingNewGroup(false);
     }
 
     // Function to delete a group option
@@ -160,7 +209,7 @@ export default function Settings(){
         <View>
             <Text style={[styles.textHeader,{marginTop: 20, marginBottom: 10 }]}>Select Group:</Text>
             <FlatList
-                data={groups}
+                data={groupOrGroups?group:groups}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                 <RadioButtonWithDelete
@@ -193,7 +242,8 @@ export default function Settings(){
                         renderItem={({ item }) => (
                         <RadioButtonWithDelete
                             label={item.label}
-                            selected={selectedAccount === item.id}
+                            //selected={selectedAccount === item.optionChosen}
+                            selected={item.id === selectedOption}
                             onPress={() => chooseAccount(item.id)}
                             //onDelete={() => deleteGroup(item.id)}
                             deleteYN={false}

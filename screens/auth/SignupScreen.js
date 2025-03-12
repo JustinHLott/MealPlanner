@@ -6,6 +6,7 @@ import { createUser } from '../../util/auth';
 import { GlobalStyles } from '../../constants/styles';
 import { storeGroup, updateGroup } from './Settings';
 import { useEmail } from '../../store/email-context';
+import {storeValue} from '../../util/useAsyncStorage';
 
 //screen to sign up for the first time
 function SignupScreen({navigation}) {
@@ -43,6 +44,7 @@ function SignupScreen({navigation}) {
       const newGroup2={...newGroup,id: id, groupId: id};
       console.log("SignupScreen createNewGroup:",newGroup2);
       updateGroup(id, newGroup2);
+      storeValue("accountTypeChosen","personal")
     }catch(error){
       console.log("SignupScreen createGroup error:",error);
     }
