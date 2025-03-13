@@ -7,6 +7,7 @@ import LoadingOverlay from '../components/UI/LoadingOverlay';
 import { ListsContext } from '../store/lists-context';
 import { getDateMinusDays } from '../util/date';
 import { fetchLists } from '../util/http-list';
+import { getValue} from '../util/useAsyncStorage';
 
 function GroceryList() {
   //console.log("makes it to grocerylist")
@@ -17,42 +18,70 @@ function GroceryList() {
   const listsCtx = useContext(ListsContext);
 
   useEffect(() => {
+    setIsFetching(true);
     async function getList() {
-      setIsFetching(true);
+      
       try {
         console.log("Makes it to useEffect");
         const items = await fetchLists();
         console.log("Grocery items list in GroceryList: ")
-        //console.log(items)
+
+        const groupUsing = pullGroupChosen()
+        .then((result)=>{
+          //console.log("RecenetMeals groupChosen:",result);
+          let allItems = [];
+
+          items.map((item)=>{
+            //console.log("RecentMeals mapped group:",meal)
+            if(item.group === result){
+              allItems.push(item);
+            }
+          })
+          // console.log("RecentMeals allItems:",allItems);
+          // console.log("RecentMeals typeOf:",typeof allItems)
+          if(typeof allItems ==='object'){
+          
+            listsCtx.setLists(allItems);
+            //console.log("RecentMeals meals:",mealsCtx.meals);
+          }
+        })
         listsCtx.setLists(items);
         setRecentLists(items);
       } catch (error) {
         console.log(error);
         setError('Could not fetch lists!');
       }
-      setIsFetching(false);
+      
     }
 
     getList();
+    setIsFetching(false);
   }, []);
+
+  async function pullGroupChosen(){
+    const accountTypeChosen = await getValue("groupChosen");
+    return accountTypeChosen;
+  };
 
   useEffect(() => {
     setRecentLists(listsCtx.lists)
   }, [listsCtx.lists]);
 
-    // Trigger update every time the screen is focused
-    useFocusEffect(
-      
-      useCallback(() => {
-        //console.log("useFocusEffect")
-        fetchGroceryList();
-      }, [listsCtx.lists]) // Dependencies ensure it runs when meals change
-    );
+  // Trigger update every time the screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      //console.log("useFocusEffect")
+      setIsFetching(true);
+      fetchGroceryList();
+      setIsFetching(false);
 
-    function fetchGroceryList(){
-      setRecentLists(listsCtx.lists)
-      //console.log(recentLists);
-    }
+    }, [listsCtx.lists]) // Dependencies ensure it runs when meals change
+  );
+
+  function fetchGroceryList(){
+    setRecentLists(listsCtx.lists)
+    //console.log(recentLists);
+  }
 
   if (error && !isFetching) {
     return <ErrorOverlay message={error} />;

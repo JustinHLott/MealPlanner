@@ -78,9 +78,9 @@ function AuthContent({ isLogin, onAuthenticate }) {
               </View>
             </Pressable>
           </View>
-          <Footer/>
+          
         </ScrollView>
-      
+
     </View>
   );
 }

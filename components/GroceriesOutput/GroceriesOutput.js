@@ -46,7 +46,7 @@ function GroceriesOutput({ groceries, fallbackText }) {
   }
 
 
-  let content = <Text style={styles.infoText}>{fallbackText}</Text>;
+  let content = <Text style={{color: GlobalStyles.colors.primary50}}>{fallbackText}</Text>;
 
   if (groceries.length > 0) {
     content = <GroceriesList groceries={theArray} handleSorting={handleSorting} />;
@@ -54,7 +54,10 @@ function GroceriesOutput({ groceries, fallbackText }) {
 
   return (
     <View style={styles.container}>
-      {content}
+      <View style={{flex:1}}>
+        {content}
+      </View>
+      
       <Footer/>
     </View>
   );

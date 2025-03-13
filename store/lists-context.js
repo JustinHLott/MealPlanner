@@ -3,10 +3,10 @@ import { createContext, useReducer, useState } from 'react';
 export const ListsContext = createContext({
   lists: [],
   qtys: [],
-  addList: ({ item,description, qty, checkedOff, id, mealId,thisId, mealDesc }) => {},
+  addList: ({ item,description, qty, checkedOff, id, mealId,thisId, mealDesc, group }) => {},
   setLists: (lists) => {},
   deleteList: (id) => {},
-  updateList: (id, { item,description, qty, checkedOff, mealId,thisId, mealDesc }) => {},
+  updateList: (id, { item,description, qty, checkedOff, mealId,thisId, mealDesc, group }) => {},
   setQty: (qtys) => {}, // Function to set multiple qtys
   addQty: (qty) => {}, // Function to add a single qty
   pullMeal: (id)=>{},

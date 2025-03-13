@@ -69,7 +69,7 @@ export async function storeMeal(mealData,addCtxList,addCtxMeal) {
         }
       }
         //update meal with new grocery list
-        //console.log("mealData http: ",mealData)
+        console.log("mealData http: ",mealData)
         const updatedMeal1 = {...mealData, groceryItems: newGroceryList,};
         
         
@@ -111,6 +111,7 @@ export async function fetchMeals() {
       id: key,
       date: newDate,
       description: response.data[key].description,
+      group: response.data[key].group,
       groceryItems: addGroceries(response.data[key].groceryItems)
     };
 

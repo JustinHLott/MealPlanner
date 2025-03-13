@@ -30,6 +30,7 @@ export async function fetchLists() {
       mealId: response.data[key].mealId,
       mealDesc: response.data[key].mealDesc,
       checkedOff: response.data[key].checkedOff,
+      group: response.data[key].group,
     };
     listsUnsorted.push(listObj);
     //console.log(listsUnsorted);

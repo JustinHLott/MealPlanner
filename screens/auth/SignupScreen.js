@@ -7,6 +7,7 @@ import { GlobalStyles } from '../../constants/styles';
 import { storeGroup, updateGroup } from './Settings';
 import { useEmail } from '../../store/email-context';
 import {storeValue} from '../../util/useAsyncStorage';
+import Footer from '../../components/Footer';
 
 //screen to sign up for the first time
 function SignupScreen({navigation}) {
@@ -57,21 +58,44 @@ function SignupScreen({navigation}) {
       <View style={styles.rootContainer}>
         <Text style={styles.message}>"Creating User..."</Text>
         <ActivityIndicator size="large" />
+        <Footer/>
       </View>
     );
   }
 
-  return <AuthContent onAuthenticate={signupHandler} />;
+  return (
+    <View style={styles.topContainer}>
+      <View style={styles.container2}>
+        <AuthContent isLogin={false} onAuthenticate={signupHandler} />
+      </View>
+      <View style={styles.footerView}>
+        <Footer/>
+      </View>
+    </View>
+  );
 }
 
 export default SignupScreen;
 
 const styles = StyleSheet.create({
+  topContainer: {
+    flex: 1,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    //paddingHorizontal: 20,
+  },
+  container2:{
+    flex: 1,
+  },
   rootContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
+  },
+  footerView:{
+    marginRight:32,
+    marginBottom:5
   },
   message: {
     fontSize: 16,

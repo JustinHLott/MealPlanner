@@ -11,6 +11,7 @@ import { getDateMinusDays } from '../util/date';
 import { fetchMeals } from '../util/http';
 import IconButtonNoText from '../components/UI/IconButtonNoText';
 import Button from '../components/UI/Button';
+import { getValue} from '../util/useAsyncStorage';
 
 function RecentMeals() {
   //console.log("Makes it to RecentMeals");
@@ -28,21 +29,27 @@ function RecentMeals() {
       setIsFetching(true);
       try {
         const meals = await fetchMeals();
-        mealsCtx.setMeals(meals);
-        // const mealsSorted = [...meals,].sort((a, b) => a.date - b.date);
-        // const recentMeals = mealsSorted.filter((meal) => {
-        //   let firstDay = new Date(firstDate);
-        //   //console.log("Recent Meals firstDay:",firstDay);
-        //   let datePlus7 = getDateMinusDays(firstDay, -7);
-        //   //console.log("Recent Meals dayPlus7:",datePlus7);
-        //   let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
-        //   //console.log("RecentMeals meals",theMeals)
-        //   return theMeals;
-        // });
-        //setMeals(meals);
-        //mealsCtx.setDates(meals);
-        // console.log("At setDates")
-        // console.log(mealsCtx.dates)
+
+        const groupUsing = pullGroupChosen()
+        .then((result)=>{
+          //console.log("RecenetMeals groupChosen:",result);
+          //if(result instanceof Promise){
+          let allGroups = [];
+
+          meals.map((meal)=>{
+            //console.log("RecentMeals mapped group:",meal)
+            if(meal.group === result){
+              allGroups.push(meal);
+            }
+          })
+          // console.log("RecentMeals allGroups:",allGroups);
+          // console.log("RecentMeals typeOf:",typeof allGroups)
+          if(typeof allGroups ==='object'){
+          
+            mealsCtx.setMeals([...allGroups,].sort((a, b) => b.date - a.date));
+            //console.log("RecentMeals meals:",mealsCtx.meals);
+          }
+        })
       } catch (error) {
         console.log(error)
         setError('Could not fetch meals!');
@@ -53,13 +60,10 @@ function RecentMeals() {
     getMeals();
   }, []);
 
-  if (error && !isFetching) {
-    return <ErrorOverlay message={error} />;
-  }
-
-  // if (isFetching) {
-  //   return <LoadingOverlay />;
-  // }
+  async function pullGroupChosen(){
+    const accountTypeChosen = await getValue("groupChosen");
+    return accountTypeChosen;
+  };
 
   if(!firstDate){
     //setFirstDate(new Date());
@@ -124,16 +128,6 @@ function RecentMeals() {
   }
   //PREVIOUS,CURRENT,NEXT////////////////////////////////////////////////////////
 
-  // const mealsSorted = [...mealsCtx.meals,].sort((a, b) => a.date - b.date);
-  // const recentMeals = mealsSorted.filter((meal) => {
-  //   let firstDay = new Date(firstDate);
-  //   console.log("Recent Meals firstDay:",firstDay);
-  //   let datePlus7 = getDateMinusDays(firstDay, -7);
-  //   //console.log("Recent Meals dayPlus7:",datePlus7);
-  //   let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
-  //   //console.log("RecentMeals meals",theMeals)
-  //   return theMeals;
-  // });
 
   if(firstTime===true){
     console.log("RecentMeals firstTime")
@@ -143,22 +137,40 @@ function RecentMeals() {
 
 
   async function getMeals(){
-    console.log("RecentMeals isFocused")
-      const meals = await fetchMeals();
-      mealsCtx.setMeals(meals);
-      const mealsSorted = [...meals,].sort((a, b) => a.date - b.date);
-      const recentMeals = mealsSorted.filter((meal) => {
-        let firstDay = new Date(firstDate);
-        //console.log("Recent Meals firstDay:",firstDay);
-        let datePlus7 = getDateMinusDays(firstDay, -6);
-        //console.log("Recent Meals dayPlus7:",datePlus7);
-        let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
-        //console.log("RecentMeals meals",theMeals)
-        return theMeals;
-      });
-      setRecentMeals(recentMeals);
+    //console.log("RecentMeals isFocused")
+    const meals = await fetchMeals();
+    const groupUsing = pullGroupChosen()
+    .then((result)=>{
+      //console.log("RecenetMeals groupChosen:",result);
+      //if(result instanceof Promise){
+      let allGroups = [];
+
+      meals.map((meal)=>{
+        //console.log("RecentMeals mapped group:",meal)
+        if(meal.group === result){
+          allGroups.push(meal);
+        }
+      })
+      // console.log("RecentMeals allGroups:",allGroups);
+      // console.log("RecentMeals typeOf:",typeof allGroups)
+      if(typeof allGroups ==='object'){
       
-    }
+        mealsCtx.setMeals(allGroups);
+        const mealsSorted = [...allGroups,].sort((a, b) => a.date - b.date);
+        //console.log("RecentMeals meals:",mealsCtx.meals);
+        const recentMeals1 = mealsSorted.filter((meal) => {
+          let firstDay = new Date(firstDate);
+          //console.log("Recent Meals firstDay:",firstDay);
+          let datePlus7 = getDateMinusDays(firstDay, -6);
+          //console.log("Recent Meals dayPlus7:",datePlus7);
+          let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
+          //console.log("RecentMeals meals",theMeals)
+          return theMeals;
+        });
+        setRecentMeals(recentMeals1);
+      }
+    })
+  }
     
 
 
@@ -171,6 +183,14 @@ function RecentMeals() {
     }, [])
   );
 
+  if (error && !isFetching) {
+    return <ErrorOverlay message={error} />;
+  }
+
+  if (isFetching) {
+    return <LoadingOverlay />;
+  }
+  
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>

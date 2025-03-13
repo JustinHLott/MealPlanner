@@ -238,6 +238,7 @@ function updateCtxList(updatedGrocery,id){
         id: currentMeal.id,
         date: currentMeal.date,
         description: currentMeal.description,
+        group: currentMeal.group,
         groceryItems: updatedGroceries
       })
     }
@@ -521,6 +522,7 @@ function updateCtxList(updatedGrocery,id){
         id: mealData.id,
         date: newDate,
         description: mealData.description,
+        group: mealData.group,
         groceryItems: groceryList
       };
       //updates the context for meals with the updated meal info

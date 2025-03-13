@@ -83,7 +83,7 @@ const RadioButtonWithDelete = ({ label, selected, onPress, onDelete, deleteYN })
     </View>
   );
 
-export default function Settings(){
+export default function Settings({ route, navigation }){
     const [selectedAccount, setSelectedAccount] = useState(null);
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [creatingNewGroup, setCreatingNewGroup] = useState(false);
@@ -91,7 +91,7 @@ export default function Settings(){
     const [selectedOption, setSelectedOption] = useState("personal");
     const { emailAddress, setEmailAddress } = useEmail();
     const [ groupOrGroups, setGroupOrGroups ] = useState(true);
-    //const { accountType, setAccountType } = useEmail();
+    const { groupUsing, setGroupUsing} = useEmail();
     const [accounts, setAccounts] = useState([
         { id: 'personal', label: 'Personal Account' },
         { id: 'shared', label: 'Shared Account' },
@@ -112,10 +112,15 @@ export default function Settings(){
     useEffect(()=>{
         fetchGroup();//pulls all of the groups associated with the login email
         //retrievedValue=getValue("accountTypeChosen");
+        setSelectedOption(pullAcountTypeChosen());
         //setSelectedOption(getValue("accountTypeChosen"));
         //setSelectedOption(retrievedValue);
     },[]);
 
+    async function pullAcountTypeChosen(){
+        const accountTypeChosen = await getValue("accountTypeChosen");
+        return accountTypeChosen;
+    }
     // // Set default selection based on retrievedValue
     // useEffect(() => {
     //     if(selectedOption){
@@ -127,10 +132,11 @@ export default function Settings(){
     async function fetchGroup(){//pulls all of the groups associated with the login email
         const theGroups = await fetchGroupsByEmail(emailAddress);
 
+        //when true only the personal group is shown.
         setGroupOrGroups(true);
         //filter out all but personal group (group === email)
         setGroup(theGroups.filter((item) => item.group === emailAddress));
-        
+        await storeValue("groupChosen",emailAddress);
         //console.log("Settings fetched group:",group);
     }
 
@@ -138,10 +144,11 @@ export default function Settings(){
         try{
             const theGroups = await fetchGroupsByEmail(emailAddress);
 
+            //filters groups to only see those that have your email & excludes your personal group.
             const allGroups = Object.keys(theGroups)
             .map((key) => ({ id: key, ...theGroups[key] }))
-            .filter((group) => group.email === emailAddress);
-            //console.log("Settings fetch groups1:",allGroups);
+            .filter((group) => group.email === emailAddress && group.group !== group.email);
+            //when false, all groups are shown.
             setGroupOrGroups(false);
             //set groups as all groups with my email.
             setGroups(allGroups);
@@ -154,10 +161,10 @@ export default function Settings(){
 
     function chooseAccount(id){//this runs when you select one of option buttons; shared or personal.
         if(id==="shared"){
-            fetchGroups();//this pulls your groups meals
+            fetchGroups();//this is used to filter for your groups meals
             storeValue("accountTypeChosen","shared")
         }else{
-            fetchGroup();//this pulls your personal meals
+            fetchGroup();//this is used to filter for your personal meals
             storeValue("accountTypeChosen","personal")
         }
         setSelectedAccount(id);
@@ -202,7 +209,22 @@ export default function Settings(){
     const deleteGroup = (id) => {
         setGroups((prev) => prev.filter((item) => item.id !== id));
         if (selectedGroup === id) setSelectedGroup(null); // Reset if deleted option was selected
+        //also delete group from firebase
+
+
+
     };
+
+    //select the group that will be used.
+    async function selectGroup(id){
+        //set group in state
+        setSelectedGroup(id);
+        //set group in email context
+        setGroupUsing(id)
+        console.log("Settings group using:",groupUsing);
+        await storeValue("groupChosen",id)
+        
+    }
 
     function  groupSelection(){
     return(
@@ -215,7 +237,7 @@ export default function Settings(){
                 <RadioButtonWithDelete
                     label={item.group}
                     selected={selectedGroup === item.id}
-                    onPress={() => setSelectedGroup(item.id)}
+                    onPress={() => selectGroup(item.id)}
                     onDelete={() => deleteGroup(item.id)}
                 />
                 )}
@@ -263,7 +285,10 @@ export default function Settings(){
                 {creatingNewGroup? showNewGroup():noSelection()}
             </View>
             <View style={styles.footer}>
-                <Button style={{justifyContent:"center",alignItems:'center',flexDirection: 'row'}}>Save Settings</Button>
+                <Button 
+                    style={{justifyContent:"center",alignItems:'center',flexDirection: 'row'}}
+                    onPress={()=>navigation.goBack()}
+                    >Save Settings</Button>
                 <Footer/>
             </View>
             

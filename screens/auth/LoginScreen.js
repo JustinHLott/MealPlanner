@@ -4,6 +4,7 @@ import AuthContent from '../../components/Auth/AuthContent';
 import { AuthContext } from '../../store/auth-context';
 import { login } from '../../util/auth';
 import { GlobalStyles } from '../../constants/styles';
+import Footer from '../../components/Footer';
 
 
 //screen for loggin in
@@ -31,21 +32,44 @@ function LoginScreen() {
       <View style={styles.rootContainer}>
         <Text style={styles.message}>"Logging you in..."</Text>
         <ActivityIndicator size="large" />
+        <Footer/>
       </View>
     )
   }
 
-  return <AuthContent isLogin onAuthenticate={loginHandler} />;
+  return (
+    <View style={styles.topContainer}>
+      <View style={styles.container2}>
+        <AuthContent isLogin onAuthenticate={loginHandler} />
+      </View>
+      <View style={styles.footerView}>
+        <Footer/>
+      </View>
+    </View>
+  );
 }
 
 export default LoginScreen;
 
 const styles = StyleSheet.create({
+  topContainer: {
+    flex: 1,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    //paddingHorizontal: 20,
+  },
+  container2:{
+    flex: 1,
+  },
   rootContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
+  },
+  footerView:{
+    marginRight:32,
+    marginBottom:5
   },
   message: {
     fontSize: 16,

@@ -1,6 +1,7 @@
-import { useContext, useLayoutEffect, useState, useEffect } from 'react';
+import { useContext, useLayoutEffect, useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ScrollView } from 'react-native-virtualized-view'
+import { ScrollView } from 'react-native-virtualized-view';//makes page scroll when keyboard is up so you can see under it.
+import { useFocusEffect } from "@react-navigation/native";
 
 import GroceryForm from '../components/ManageMeal/GroceryForm';
 import ErrorOverlay from '../components/UI/ErrorOverlay';
@@ -12,21 +13,45 @@ import { MealsContext } from '../store/meals-context';
 import { storeList, updateList, deleteList } from '../util/http-list';
 import { updateMealRaw } from '../util/http';
 import Footer from '../components/Footer';
+import { getValue} from '../util/useAsyncStorage';
 
 function ManageGroceryItem({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState();
   const [groceryItem, setGroceryItem] = useState(route.params?.item);
-
+  const [firstTime, setFirstTime] = useState(false);
+  const [group, setGroup] = useState(null);
 
   const groceriesCtx = useContext(ListsContext);
-  const mealsCtx = useContext(MealsContext);
-  
+  const mealsCtx = useContext(MealsContext);  
 
   const editedGroceryId = route.params?.groceryId;
   let meal = route.params?.meal;
   //let groceryItem = route.params?.item;
   
+  useFocusEffect(
+      useCallback(() => {
+        setFirstTime(true);
+      }, [])
+    );
+
+  if(firstTime){
+    const groupUsing = pullGroupChosen()
+    .then((result)=>{
+      try{
+        setGroup(result);
+        setFirstTime(false);
+      }catch(error){
+        console.log("ManageGroceryItem useFocusEffect error:",error)
+      }
+    })
+  };
+
+  async function pullGroupChosen(){
+    const accountTypeChosen = await getValue("groupChosen");
+    return accountTypeChosen;
+  };
+
   useLayoutEffect(() => {
     if(!groceryItem){
       setGroceryItem("No grocery item");
@@ -123,7 +148,7 @@ async function deleteGroceryHandler() {
     theMeal.groceryItems.map((item) => {
       //This adds back all grocery items but the one with thisId
       if(item.thisId !== thisId){
-        newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId });
+        newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId,group: item.group });
       }
     });
 
@@ -134,6 +159,7 @@ async function deleteGroceryHandler() {
         date: theMeal.date,
         description: theMeal.description,
         id: theMeal.id,
+        group: group,
         groceryItems: newGroceryList,
       }
     }else{
@@ -142,6 +168,7 @@ async function deleteGroceryHandler() {
         date: theMeal.date,
         description: theMeal.description,
         id: theMeal.id,
+        group: group,
         groceryItems:[]
       }
     }
@@ -173,14 +200,14 @@ async function deleteGroceryHandler() {
         groceriesCtx.updateList(editedGroceryId, groceryData);
         await updateList(editedGroceryId, groceryData);
         //if the grocery item is part of a meal...
-        if(groceryData.mealId){
+        if(groceryData.mealDesc!=="NO MEAL"){
           const currentCtxMeal = mealsCtx.meals.find((meal) => meal.id === groceryData.mealId)
           //create mealData
           let newGroceryList = []
           currentCtxMeal.groceryItems.map((item) => {
             //This adds back all grocery items but the one with thisId
             if(item.thisId !== groceryItem.thisId){
-                newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id});
+                newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id,group:item.group});
             }
           });
 
@@ -192,16 +219,18 @@ async function deleteGroceryHandler() {
             date: new Date(currentCtxMeal.date),
             description: currentCtxMeal.description,
             id: groceryData.mealId,
+            group: group,
             groceryItems: newGroceryList,
           }
           //update meal in context
           mealsCtx.updateMeal(groceryData.mealId,updatedMeal);
           //update meal in firebase
           updateMealRaw(groceryData.mealId,updatedMeal)
+          navigation.goBack();
         }
       } else {//create new grocery item with no meal associated.
         
-        
+        console.log("ManageGroceryItem saving before:",groceryData);
         const id = await storeList(groceryData);
         const newGrocery = { 
           description: groceryData.description, 
@@ -209,7 +238,9 @@ async function deleteGroceryHandler() {
           checkedOff: "",
           mealDesc: "NO MEAL",
           mealId: 1,
-          thisId: id, id:id}
+          thisId: id, id:id,
+          group: group}
+          console.log("ManageGroceryItem saving after:",newGrocery);
         setGroceryItem(newGrocery);
         groceriesCtx.addList({ ...newGrocery, id: id });
         updateList(id, newGrocery);
@@ -217,6 +248,7 @@ async function deleteGroceryHandler() {
       navigation.goBack();
     } catch (error) {
       setError('Could not save data - please try again later!');
+      console.log('Could not save data - please try again later!',error);
       setIsSubmitting(false);
     }
   }
@@ -241,7 +273,8 @@ async function deleteGroceryHandler() {
           onSubmit={confirmHandler}
           onCancel={cancelHandler}
           defaultValues={groceryItem}
-          defaultMealDesc={meal?meal:""}
+          //defaultMealDesc={meal?meal:""}
+          group={group}
         />
         {isEditing && (
           <View style={styles.deleteContainer}>

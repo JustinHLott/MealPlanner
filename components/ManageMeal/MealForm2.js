@@ -12,11 +12,13 @@ import { ListsContext } from '../../store/lists-context';
 import { isValidDate, getDateMinusDays,getFormattedDate } from "../../util/date";
 import { storeList,deleteList,updateList } from "../../util/http-list";
 import { updateMeal,updateMealRaw } from "../../util/http";
+import { getValue } from "../../util/useAsyncStorage";
 
 const defaultMeal = {
   date: "",
   description: "",
   groceryItems: [], // Start as an empty array
+  group:"",
 };
 
 //defaultGroceryItem needs to keep description and qty as is.
@@ -38,6 +40,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   const [qty, setQty] = useState('');
   const [isAddGroceryVisible, setIsAddGroceryVisible] = useState(false);
   const [isNewGroceryVisible, setIsNewGroceryVisible] = useState(false);
+  const [group, setGroup] = useState(null);
 
   const mealsCtx = useContext(MealsContext);
   const listsCtx = useContext(ListsContext);
@@ -60,6 +63,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       let updatedMeal3 = {
         date: "",
         description: "",
+        group: "",
         groceryItems: [], // Empty grocery items array
         id: "",
       };
@@ -79,6 +83,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
         updatedMeal3 = {
           date: date1,
           description: initialMeal.description,
+          group: initialMeal.group,
           groceryItems: initialMeal.groceryItems, // Empty grocery items array
           id: initialMeal.id,
         };
@@ -92,32 +97,44 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       if(mealsCtx.meals.length>0){
         mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest).date;
       }
-      // console.log("Mostrecentmealdate");
-      // console.log(mostRecentMealDate);
+      //pull the group id that will be associated to the meal.
+      getGroup()
+      .then((result)=>{
+        //if(result instanceof Promise){
+          setGroup(result);
+
+          //Add one day to the most recent date to get the date for the next new meal
+          let date = new Date(mostRecentMealDate);
+          date = getDateMinusDays(date, -1);
+          
+          const date2 = date
+            .toISOString()
+            .split("T")[0];
+          setDate(date2);
+          //setMaxDate(date2);
+          console.log("MealForm2 group",result);
+          // Create a new updated meal object
+          //const updatedMeal3={mealsCtx.addMeal()}
+          const updatedMeal2 = {
+            date: date2,
+            description: "",
+            groceryItems: [], // Empty grocery items array
+            group: result,
+          };
+          //And update the meal with the new date
+          setMeal(updatedMeal2);
+          //console.log(meal);
+
+       // }
+      })
       
-      //Add one day to the most recent date to get the date for the next new meal
-      let date = new Date(mostRecentMealDate);
-      date = getDateMinusDays(date, -1);
       
-      const date2 = date
-        .toISOString()
-        .split("T")[0];
-      setDate(date2);
-      //setMaxDate(date2);
-      //console.log(date2);
-      // Create a new updated meal object
-      //const updatedMeal3={mealsCtx.addMeal()}
-      const updatedMeal2 = {
-        date: date2,
-        description: "",
-        groceryItems: [], // Empty grocery items array
-      };
-      //And update the meal with the new date
-      setMeal(updatedMeal2);
-      //console.log(meal);
     }
   }, []);
 
+  async function getGroup(){
+    return await getValue("groupChosen");
+  }
   // useEffect(() => {
   //   if (!description.trim()) {
   //     setErrorMessage("Both description and date are required!");
@@ -255,11 +272,6 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       Alert.alert("Both description and date are required!");
     }else{
       //console.log("MealForm2 saveMeal date:",meal2.date);
-      // const newDate = getDateMinusDays(new Date(meal2.date),-1);
-      // const updatedMeal = {
-      //   ...meal2,
-      //   date: newDate,
-      // };
       //console.log("MealForm2 updatedMeal: ",meal2);
       if(!meal.groceryItems){
         noGroceries=true;
@@ -513,7 +525,14 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
             value:meal.description
           }}
         />
-
+      <Input
+        label="Group"
+        textInputConfig={{
+            multiline: false,
+            editable: false,
+            value: group?group:meal.group,
+          }}
+        />
       
       {/* Grocery Items */}
       <FlatList

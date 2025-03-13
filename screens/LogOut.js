@@ -24,7 +24,7 @@ const LogOut = () => {
       <View style={styles.containerBottom}>
         <Image source={require('../assets/images/justus-menke-62XLglIrTJc-unsplash.jpg')} style={styles.image}/>
         <Text style={styles.textPhoto}>Photo at Unsplash by{' '} 
-          <Pressable onPress={() => Linking.openURL('https://unsplash.com/@justusmenke?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash')} style={{marginTop:12}}>
+          <Pressable onPress={() => Linking.openURL('https://unsplash.com/@justusmenke?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash')} style={{marginTop:5}}>
             <Text style={{ color: 'yellow', textDecorationLine: 'underline', fontSize: 9}}>
             Justus Menke
             </Text>
@@ -32,20 +32,21 @@ const LogOut = () => {
         </Text>
         <Text style={styles.text}>Press the Log Out button below to log out of the application.</Text>
         <Pressable
-              style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-              onPress={()=>logOut()}
-              >
-              <Ionicons
-                  style={styles.icon}
-                  name="log-out"
-                  size={18}
-                  color={GlobalStyles.colors.primary50}
-                  backgroundColor={GlobalStyles.colors.primary800}
-              />
-              <Text style={styles.buttonText}>Log Out</Text>
-          </Pressable>
-          <Footer/>
-        </View>
+          style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+          onPress={()=>logOut()}
+          >
+          <Ionicons
+              style={styles.icon}
+              name="log-out"
+              size={18}
+              color={GlobalStyles.colors.primary50}
+              backgroundColor={GlobalStyles.colors.primary800}
+          />
+          <Text style={styles.buttonText}>Log Out</Text>
+        </Pressable>
+        
+      </View>
+      <Footer/>
     </View>
   );
 };
@@ -56,6 +57,7 @@ const styles = StyleSheet.create({
     //justifyContent: 'center',
     //alignItems: 'center',
     backgroundColor: GlobalStyles.colors.primary800,
+    paddingHorizontal: 20
   },
   containerTop:{
     backgroundColor: GlobalStyles.colors.primary800,

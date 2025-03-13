@@ -9,7 +9,7 @@ import { GlobalStyles } from '../../constants/styles';
 import { isValidDate, getDateMinusDays,getFormattedDate } from "../../util/date";
 
 //defaultMealDesc={selectedMeal.description}
-function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, defaultMealDesc }) {
+function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, group }) {
   console.log("defaultValues in GroceryForm", defaultValues);
   const [date, setDate] = useState()
   const [inputs, setInputs] = useState({
@@ -41,6 +41,10 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
       value: defaultValues ? defaultValues.mealDesc : '',
       isValid: true,
     },
+    group:{
+      value: defaultValues? defaultValues.group : '',
+      isValid: true,
+    }
   });
 
   const mealsCtx = useContext(MealsContext);
@@ -87,6 +91,7 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
       id: inputs.id.value,
       thisId: inputs.thisId.value,
       checkedOff: inputs.checkedOff.value,
+      group: group,
     };
 
     const qtyIsValid = groceryData.qty.toString() !== '';
@@ -101,11 +106,12 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, def
             value: curInputs.description.value,
             isValid: descriptionIsValid,
           },
+          group: group
         };
       });
       return;
     }
-
+    console.log("GroceryForm submit:", groceryData);
     onSubmit(groceryData);
   }
 
