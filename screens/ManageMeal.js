@@ -290,7 +290,7 @@ function updateCtxList(updatedGrocery,id){
 
   async function updateGroceryItem(item,mealIds,mealData){
     const item2={
-      ...item, mealId: mealIds, mealDesc: mealData.description
+      ...item, mealId: mealIds, mealDesc: mealData.description, group: mealData.group
     }
     console.log("http updateGroceryItem update/add:", item2);
     //the next lines of code are for grocery items that do exist already.
@@ -405,6 +405,9 @@ function updateCtxList(updatedGrocery,id){
                 groceryItem1 = {
                   ...groceryItem1,mealId: mealIds
                 }
+                groceryItem1 = {
+                  ...groceryItem1,group: mealData.group
+                }
                 //Add new roceryData to new array
                 newGroceryList.push(groceryItem1);
               //})
@@ -428,6 +431,9 @@ function updateCtxList(updatedGrocery,id){
                 }
                 groceryItem2 = {
                   ...groceryItem2,mealId: mealIds
+                }
+                groceryItem2 = {
+                  ...groceryItem2,group: mealData.group
                 }
                 //Add updated groceryData to new array
                 newGroceryList.push(groceryItem2);
@@ -454,6 +460,9 @@ function updateCtxList(updatedGrocery,id){
                 }
                 groceryItem3 = {
                   ...groceryItem3,mealId: mealIds
+                }
+                groceryItem3 = {
+                  ...groceryItem3,group: mealData.group
                 }
                 //Add groceryData to new array
                 newGroceryList.push(groceryItem3);
@@ -585,8 +594,9 @@ function updateCtxList(updatedGrocery,id){
             />
           </View>
         )}
-        <Footer/>
+        
       </ScrollView>
+      <Footer/>
     </View>
   );
 }

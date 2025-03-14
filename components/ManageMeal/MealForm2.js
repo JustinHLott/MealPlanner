@@ -22,7 +22,7 @@ const defaultMeal = {
 };
 
 //defaultGroceryItem needs to keep description and qty as is.
-const defaultGroceryItem = { description: "", qty: "", checkedOff: "" };
+const defaultGroceryItem = { description: "", qty: "", checkedOff: "", group: "" };
 
 export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, submitButtonLabel }) {
   // Merge `initialMeal` with `defaultMeal` to avoid undefined values
@@ -56,9 +56,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     }
     if(typeof initialMeal.description!=="undefined"){
       //do nothing
-      //console.log("initialMealDescription");
-      //console.log(typeof(initialMeal.description.toString));
-      
+      console.log("MealForm2 useEffect defined:",initialMeal);
 
       let updatedMeal3 = {
         date: "",
@@ -80,19 +78,27 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
         let date1 = today.toISOString().slice(0, 10);
         //console.log("useEffect Valid date1:",date1);
         setDate(date1);
-        updatedMeal3 = {
-          date: date1,
-          description: initialMeal.description,
-          group: initialMeal.group,
-          groceryItems: initialMeal.groceryItems, // Empty grocery items array
-          id: initialMeal.id,
-        };
-        //And update the meal with the new date
-        setMeal(updatedMeal3);
-        // console.log(startDate);
-        //return startDate;
+
+        //pull the group id that will be associated to the meal.
+        getGroup()
+        .then((result)=>{
+          //if(result instanceof Promise){
+          setGroup(result);
+          updatedMeal3 = {
+            date: date1,
+            description: initialMeal.description,
+            group: result,
+            groceryItems: {...initialMeal.groceryItems,group: group}, // Empty grocery items array with group
+            id: initialMeal.id,
+          };
+          //And update the meal with the new date
+          setMeal(updatedMeal3);
+           console.log("MealForm2 new meal:",updatedMeal3);
+          //return startDate;
+        });
       }
     }else if(typeof initialMeal.description==="undefined"){
+      console.log("MealForm2 useEffect unDefined:",initialMeal);
       let mostRecentMealDate=getDateMinusDays(new Date(),1);
       if(mealsCtx.meals.length>0){
         mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest).date;
@@ -123,7 +129,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
           };
           //And update the meal with the new date
           setMeal(updatedMeal2);
-          //console.log(meal);
+          console.log("MealForm2 newMeal:",updatedMeal2);
 
        // }
       })
@@ -187,12 +193,13 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     updatedGroceryItems[index][key] = value;
     //console.log("groceryitem before: ",updatedGroceryItems[index])
     updatedGroceryItems[index]["mealDesc"] = meal.description;
+    updatedGroceryItems[index]["group"] = group;
     //console.log("groceryitem after: ",updatedGroceryItems[index])
     setMeal((prevMeal) => ({
       ...prevMeal,
       groceryItems: updatedGroceryItems,
     }));
-    //console.log("new meal: ",meal.groceryItems)
+    console.log("new meal: ",meal.groceryItems)
   };
 
     // Function to update grocery item checkbox
@@ -273,11 +280,11 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     }else{
       //console.log("MealForm2 saveMeal date:",meal2.date);
       //console.log("MealForm2 updatedMeal: ",meal2);
-      if(!meal.groceryItems){
+      if(!meal2.groceryItems){
         noGroceries=true;
         // console.log("MealForm2 noGroceries t: ",noGroceries);
       }else{
-        if(meal.groceryItems.length>0){
+        if(meal2.groceryItems.length>0){
           noGroceries=false;
           // console.log("MealForm2 noGroceries f: ",noGroceries);
           // console.log("MealForm2 f grocery items: ",meal.groceryItems);
@@ -352,7 +359,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     theMeal.groceryItems.map((item) => {
       //This adds back all grocery items but the one with thisId
       if(item.thisId !== thisId){
-        newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId });
+        newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId,group: group });
       }
     });
 
@@ -396,44 +403,6 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   }
   //DELETING/////////////////////////////////////////////////////
 
-
-  
-  // function validateDate(startDate){
-  //   const startDate1 = new Date(startDate);
-  //   if(isValidDate(startDate)){
-  //     const today=getDateMinusDays(startDate,1);
-  //     console.log("valid date");
-  //     //  const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-  //     //  console.log("dayOfWeek",dayOfWeek);
-  //     //  const diff = today.getDate() - dayOfWeek; // Calculate the difference to Sunday
-  //     //  console.log("Diff",diff);
-  //     //setDateValid(true);
-  //      return new Date(today.setDate(0));
-  //     //return startDate2//.toISOString().slice(0, 10);
-  //   }else{
-  //     console.log("Invalid date",startDate);
-  //     // if(startDate.length>0){
-  //     //   //console.log("startDate length:",startDate.length)
-  //     //   //Add one day to the most recent date to get the date for the next new meal
-  //     // let startDate2 = new Date(startDate);
-  //     // startDate2 = getDateMinusDays(startDate2, 0);
-  //     //  //console.log("Invalid date2",startDate2);
-  //     //  return startDate2.toISOString().slice(0, 10);
-  //     // }else{
-  //     //   let mostRecentMealDate=getDateMinusDays(new Date(),1);
-  //     //   if(mealsCtx.meals.length>0){
-  //     //     mostRecentMealDate = mealsCtx.meals.reduce((meal, latest) => new Date(meal.date) > new Date(latest.date) ? meal : latest).date;
-  //     //   }
-  //     //   //Add one day to the most recent date to get the date for the next new meal
-  //     //   let startDate2 = new Date(mostRecentMealDate);
-  //     //   startDate2 = getDateMinusDays(startDate2, -1);
-  //     //   return startDate2.toISOString().slice(0, 10);
-  //     // }
-  //     //setDateValid(false);
-  //     return startDate;
-  //   }
-  // }
-
   function makeDateEditable(){
     if(pencilColor==="green"){
       setEditableOr(false);
@@ -444,6 +413,25 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     }
     
   }
+
+  function add1GroceryItem(){
+    console.log("additionalGroceryItems",additionalGroceryItems)
+    if(additionalGroceryItems===true){
+      Alert.alert("When updating, you may only add one grocery item.")
+    }else{
+      setModalVisible(true);
+      setIsAddGroceryVisible(false);
+    }
+  }
+
+  const handleAddMeal = (groceryItem) => {
+    console.log('New Grocery Item:', groceryItem);
+    //addGroceryItem(groceryItem);//defaultGroceryItem
+    addGroceryItem(groceryItem);
+    setGroceryDescription('');
+    setQty('');
+    setModalVisible(false); // Close modal after adding meal
+  };
 
   if (isLoading) {
     return (
@@ -457,24 +445,6 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       </View>
     );
   }
-
-  function add1GroceryItem(){
-    console.log("additionalGroceryItems",additionalGroceryItems)
-    if(additionalGroceryItems===true){
-      Alert.alert("When updating, you may only add one grocery item.")
-    }else{
-      setModalVisible(true);
-      setIsAddGroceryVisible(false);
-    }
-  }
-  const handleAddMeal = (groceryItem) => {
-    console.log('New Grocery Item:', qty, groceryDescription);
-    //addGroceryItem(groceryItem);//defaultGroceryItem
-    addGroceryItem(groceryItem);
-    setGroceryDescription('');
-    setQty('');
-    setModalVisible(false); // Close modal after adding meal
-  };
 
   return (
     <View style={{ padding: 20, flex: 1 }}>
@@ -525,14 +495,14 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
             value:meal.description
           }}
         />
-      <Input
+      {/* <Input
         label="Group"
         textInputConfig={{
             multiline: false,
             editable: false,
             value: group?group:meal.group,
           }}
-        />
+        /> */}
       
       {/* Grocery Items */}
       <FlatList
@@ -558,23 +528,23 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
               placeholder="Qty"
               maxLength={3}
               onChangeText={(text) => handleGroceryChange(index, "qty", text)}
-              value={item.qty?item.qty:item.qty}
+              value={item.qty?item.qty:qty}
             />
             <TextInput style={[styles.inputGrocery,styles.inputAll]}
               keyboardType='default'
               placeholder="Enter Grocery Item"
               maxLength={50}
               onChangeText={(text) => handleGroceryChange(index, "description", text)}
-              value={item.description?item.description:item.description}
+              value={item.description}
             />
-            {/* <TextInput style={[styles.inputThisId,styles.inputAll]}
+            <TextInput style={{width:0,height: 35}}
               keyboardType='default'
               placeholder="Grocery Item Id"
               maxLength={20}
               editable={false}
-              //onChangeText={(text) => handleGroceryChange(index, "description", text)}
-              value={item.thisId?item.thisId:item.id}
-            /> */}
+              onChangeText={(text) => handleGroceryChange(index, "group", text)}
+              value={group}
+            />
             <IconButtonNoText
               icon="trash"
               size={20}
@@ -604,21 +574,21 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
                   keyboardType='numeric'
                   maxLength={3}
                   value={qty}
-                  onChangeText={setQty}
+                  onChangeText={(text)=>setQty(text)}
                 />
                 <TextInput
                   style={styles.input2}
                   placeholder="Description"
                   value={groceryDescription}
-                  onChangeText={setGroceryDescription}
+                  onChangeText={(text)=>setGroceryDescription(text)}
                 />
               </View>
               
               <View style={styles.buttons}>
                 <Button 
-                  onPress={()=>handleAddMeal({checkedOff:"", qty: qty, description: groceryDescription})}
+                  onPress={()=>handleAddMeal({checkedOff:"", qty: qty, description: groceryDescription, group: group})}
                   style={{marginTop:8}}
-                  >Add</Button>
+                  >Back to {submitButtonLabel}</Button>
                 <Button style={{marginLeft:8,marginTop:8}} onPress={() => setModalVisible(false)}>Cancel</Button>
               </View>
             </View>

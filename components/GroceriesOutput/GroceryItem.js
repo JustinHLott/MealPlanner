@@ -280,7 +280,7 @@ function GroceryItem({ itemData }) {
         <Text style={[styles.textBase, styles.description]}>
           {itemData.item.description}
         </Text>
-        <Text style={[styles.textBase, styles.description]}>
+        <Text style={[styles.textBase, styles.mealDesc]}>
           {itemData.item.mealDesc?itemData.item.mealDesc:selectedMeal}
           {/* {itemData.item.mealDesc?itemData.item.mealDesc:selectedMeal} */}
         </Text>
@@ -332,9 +332,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     //marginBottom: 4,
     fontWeight: 'bold',
-    width:'40%',
+    width:'50%',
   },
-
+  mealDesc: {
+    fontSize: 12,
+    //marginBottom: 4,
+    //fontWeight: 'bold',
+    color: GlobalStyles.colors.primary100,
+    width:'35%',
+  },
   amountContainer: {
     paddingHorizontal: 12,
     paddingVertical: 0
