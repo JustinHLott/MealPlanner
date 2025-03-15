@@ -14,7 +14,7 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, gro
   const [date, setDate] = useState()
   const [inputs, setInputs] = useState({
     qty: {
-      value: defaultValues ? defaultValues.qty : 0,
+      value: defaultValues ? defaultValues.qty : 1,
       isValid: true,
     },
     description: {
@@ -95,7 +95,10 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, gro
     };
 
     const qtyIsValid = groceryData.qty.toString() !== '';
-    const descriptionIsValid = groceryData.description.trim().length > 0;
+    let descriptionIsValid=false
+    if(groceryData.description){
+      descriptionIsValid = groceryData.description.trim().length > 0;
+    }
 
     if ( !descriptionIsValid) {
       // Alert.alert('Invalid input', 'Please check your input values');
@@ -103,7 +106,7 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, gro
         return {
           qty: { value: curInputs.qty.value, isValid: qtyIsValid },
           description: {
-            value: curInputs.description.value,
+            value: "",
             isValid: descriptionIsValid,
           },
           group: group

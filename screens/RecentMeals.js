@@ -20,6 +20,7 @@ function RecentMeals() {
   const [firstDate, setFirstDate] = useState(getSundayOfThisWeek());
   const [recentMeals, setRecentMeals] = useState([]);
   const [firstTime, setFirstTime] = useState(true);
+  const [theFallbackText,setTheFallbackText] = useState("No meals registered");
 
   const mealsCtx = useContext(MealsContext);
   const isFocused = useIsFocused();
@@ -164,6 +165,7 @@ function RecentMeals() {
           let datePlus7 = getDateMinusDays(firstDay, -6);
           //console.log("Recent Meals dayPlus7:",datePlus7);
           let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
+          setTheFallbackText('No meals registered for dates ' + firstDay.toISOString().slice(0, 10) + ' to ' + datePlus7.toISOString().slice(0, 10));
           //console.log("RecentMeals meals",theMeals)
           return theMeals;
         });
@@ -201,7 +203,7 @@ function RecentMeals() {
             onPress={previous}
             forLongPress={()=>{Alert.alert("Function of Button","View previous week's meals")}}
           />
-          <Button onPress={currentWeek}>Current Week</Button>
+          <Button onPress={currentWeek}>Click for Current Week</Button>
           <IconButtonNoText
             icon="arrow-forward-circle-outline"
             color="white"
@@ -212,7 +214,7 @@ function RecentMeals() {
       </View>
       <MealsOutput
         meals={recentMeals}
-        fallbackText="No meals registered for the last 7 days..."
+        fallbackText={theFallbackText}
       />
     </View>
     

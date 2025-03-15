@@ -82,19 +82,32 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
         //pull the group id that will be associated to the meal.
         getGroup()
         .then((result)=>{
-          //if(result instanceof Promise){
-          setGroup(result);
-          updatedMeal3 = {
-            date: date1,
-            description: initialMeal.description,
-            group: result,
-            groceryItems: {...initialMeal.groceryItems,group: group}, // Empty grocery items array with group
-            id: initialMeal.id,
-          };
-          //And update the meal with the new date
-          setMeal(updatedMeal3);
-           console.log("MealForm2 new meal:",updatedMeal3);
-          //return startDate;
+          if(initialMeal.groceryItems){
+            setGroup(result);
+            updatedMeal3 = {
+              date: date1,
+              description: initialMeal.description,
+              group: result,
+              //groceryItems: {...initialMeal.groceryItems,group: group}, // Empty grocery items array with group
+              groceryItems: initialMeal.groceryItems, // Empty grocery items array with group
+              id: initialMeal.id,
+            };
+            //And update the meal with the new date
+            setMeal(updatedMeal3);
+            console.log("MealForm2 new meal noGroup:",updatedMeal3);
+          }else{
+            setGroup(result);
+            updatedMeal3 = {
+              date: date1,
+              description: initialMeal.description,
+              group: result,
+              //groceryItems: initialMeal.groceryItems, // Empty grocery items array with group
+              id: initialMeal.id,
+            };
+            //And update the meal with the new date
+            setMeal(updatedMeal3);
+            console.log("MealForm2 new meal withGroup:",updatedMeal3);
+          }
         });
       }
     }else if(typeof initialMeal.description==="undefined"){
@@ -233,12 +246,20 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   const addGroceryItem = (theGroceryItem) => {
     //let theGroceryItem;
     if(meal.groceryItems){//if grocery items already
-      if(submitButtonLabel==="Update"){//if updating, you can only add one grocery item on update.
-        meal.groceryItems.map((theMeal)=>{
+      console.log("MealForm2 add meal.groceryItems:",meal.groceryItems);
+      if(submitButtonLabel==="Update"){//if updating, you can only add one grocery item on update
+        const theGroceryList = meal.groceryItems;
+        console.log("MealForm2 add groceryList:", theGroceryList)
+        theGroceryList.map((theMeal)=>{
           if(!"thisId" in theMeal){
-            setAdditionalGroceryItems(true)
+            setAdditionalGroceryItems(true);
           }
         })
+        // theGroceryList.forEach((theMeal)=>{
+        //   if(!"thisId" in theMeal){
+        //     setAdditionalGroceryItems(true);
+        //   }
+        // })
         console.log("additionalGroceryItems update:",theGroceryItem)
         if(additionalGroceryItems===true){
           Alert.alert("When updating, you may only add one grocery item.")
@@ -319,21 +340,21 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   async function deleteGroceryItem(index,mealId,thisId){
     const updatedGroceryItems = [...meal.groceryItems];
     updatedGroceryItems[index];
-    //console.log("MealForm2 deleteGroceryItem",mealId);
+    console.log("MealForm2 deleteGroceryItem index",index,"thisId",thisId,"meal:",meal);
     setIsLoading(true);
     try{
-      //remove grocery item from mealsCtx
-      deleteFromGroceryCtx(thisId)
+      if(thisId){//If the grocery item has already been created and saved in the past...
+        //remove grocery item from mealsCtx
+        deleteFromGroceryCtx(thisId)
 
-      //remove grocery item from firebase
-      await deleteList(thisId);
-      
-      //console.log("MealForm2 @ updateCTX")
+        //remove grocery item from firebase
+        await deleteList(thisId);
+      }
 
       if(mealsCtx.meals.find(
         (theMeal) => meal.id === theMeal.id
       )){
-        //console.log("MealForm2 selectedMeal",selectedMeal)
+        //console.log("MealForm2 selectedMeal",meal)
         createMealWithoutGroceryItem(meal,thisId)
       }else{
         console.log("MealForm2 no selectedMeal")
@@ -430,7 +451,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     addGroceryItem(groceryItem);
     setGroceryDescription('');
     setQty('');
-    setModalVisible(false); // Close modal after adding meal
+    setModalVisible(false); // Close modal after adding meal.
   };
 
   if (isLoading) {

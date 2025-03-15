@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, Pressable, FlatList, TextInput } from 'react-native';
+import {View, Text, StyleSheet, Pressable, FlatList, TextInput, Alert } from 'react-native';
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import RadioGroup from 'react-native-radio-buttons-group';
 import axios from 'axios';
@@ -46,7 +46,7 @@ export const fetchGroupsByEmail = async (email) => {
     }
   };
 
-const RadioButtonWithDelete = ({ label, selected, itemId, accountOrGroup, onPress, onDelete, deleteYN }) => {
+const RadioButtonWithDelete = React.memo(({ label, selected, itemId, accountOrGroup, onPress, onDelete, deleteYN }) => {
     console.log("settings label:",label);
     // console.log("settings selected:",selected)
     console.log("settings itemId:",itemId);
@@ -98,7 +98,7 @@ const RadioButtonWithDelete = ({ label, selected, itemId, accountOrGroup, onPres
       
     </View>
     )
-};
+});
 
 export default function Settings({ route, navigation }){
     const [firstTime, setFirstTime] = useState(true);
@@ -106,29 +106,23 @@ export default function Settings({ route, navigation }){
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [selectedGroupName,setSelectedGroupName] = useState(null);
     const [creatingNewGroup, setCreatingNewGroup] = useState(false);
+    const [addNewEmail, setAddNewEmail] = useState(false);
+    const [newEmail, setNewEmail] = useState(null);
     const [newGroupName, setNewGroupName] = useState(null);
     const [selectedOption, setSelectedOption] = useState("personal");
     const { emailAddress, setEmailAddress } = useEmail();
     const [ groupOrGroups, setGroupOrGroups ] = useState(true);
     const { groupUsing, setGroupUsing} = useEmail();
     const [group, setGroup] = useState(null);
+    const [groups, setGroups] = useState(null);
     const [accounts, setAccounts] = useState([
         { id: 'personal', label: 'Personal Account' },
         { id: 'shared', label: 'Shared Account' },
     ]);
-    const [groups, setGroups] = useState([
-        { id: 'his', label: 'his group' },
-        { id: 'her', label: 'her group' },
-    ]);
+    
 
     
     const listsCtx = useContext(ListsContext);
-
-    //const retrievedValue=getValue("accountTypeChosen");
-    // if(retrievedValue==="personal"){
-    //     retrievedValue=getValue("accountTypeChosen");
-    //     setSelectedOption(retrievedValue);
-    // }
 
     useFocusEffect(
         useCallback(() => {
@@ -139,10 +133,9 @@ export default function Settings({ route, navigation }){
     if(firstTime===true){
         console.log("Settings firstTime")
         setFirstTime(false);
-        // pullGroupChosen();
-        // pullAcountTypeChosen()
         const accntType = pullAcountTypeChosen();
         setSelectedAccount(accntType);
+        setGroup(pullGroupChosen());
         console.log("settings firsttime account:",selectedAccount?selectedAccount.value:null);
         setSelectedGroupName(getValue("groupName"));
     }
@@ -150,6 +143,7 @@ export default function Settings({ route, navigation }){
     useEffect(()=>{
         //fetchGroup();//pulls all of the groups associated with the login email
         //retrievedValue=getValue("accountTypeChosen");
+        console.log("settings useEffect")
         setSelectedOption(pullAcountTypeChosen());
         
         setGroup(pullGroupChosen());
@@ -164,13 +158,6 @@ export default function Settings({ route, navigation }){
         const chosenGroup = await getValue("groupChosen");
         return chosenGroup;
     }
-    // // Set default selection based on retrievedValue
-    // useEffect(() => {
-    //     if(selectedOption){
-    //         setSelectedOption(retrievedValue);
-    //     }
-        
-    // }, [retrievedValue]);
 
     async function fetchGroup(){//pulls the group associated with the login email
         const theGroups = await fetchGroupsByEmail(emailAddress);
@@ -186,7 +173,7 @@ export default function Settings({ route, navigation }){
     async function fetchGroups(){//pulls all of the groups associated with the login email
         try{
             const theGroups = await fetchGroupsByEmail(emailAddress);
-
+            //console.log("Settings theGroups",theGroups);
             //filters groups to only see those that have your email & excludes your personal group.
             const allGroups = Object.keys(theGroups)
             .map((key) => ({ id: key, ...theGroups[key] }))
@@ -194,22 +181,23 @@ export default function Settings({ route, navigation }){
             //when false, all groups are shown.
             setGroupOrGroups(false);
             //set groups as all groups with my email.
-            setGroups(allGroups);
-            
+            setGroups(allGroups)
         }catch(error){
             console.log("Settings fetchGroups error:",error)
+        }finally{
+            console.log("Settings groups:",groups)
         }
         
     }
 
     async function chooseAccount(id,label){//this runs when you select one of option buttons; shared or personal.
-        
+        //this function uses data that is hardcoded at the top of this screen as "accounts."
         if(id==="shared"){
             fetchGroups();//this is used to filter for your groups meals
             await storeValue("accountTypeChosen","shared")
         }else{
             fetchGroup();//this is used to filter for your personal meals
-            await storeValue("accountTypeChosen","personal")
+            await storeValue("accountTypeChosen","personal");
             await storeValue("groupName",label);
             await storeValue("groupChosen",emailAddress);
             setGroup(emailAddress);
@@ -217,23 +205,72 @@ export default function Settings({ route, navigation }){
         }
         setSelectedAccount(id);
         setSelectedOption(id);
+    }
+
+    const handleTextChange = useCallback((input,form) => {
+        if(form==="email"){
+            setNewEmail(input);
+            console.log("Settings email input:",input)
+        }else if(form==="group"){
+            setNewGroupName(input);
+        }
         
+      }, []);
+
+    function addNewEmailToggle(){//this runs after pressing 'create new group' button.
+        if(addNewEmail){
+            setAddNewEmail(false);
+        }else{
+            setAddNewEmail(true);
+        }
+    }
+
+    async function showNewEmail(){//this runs after pressing 'add new email' button because addNewEmail===true.
+        return(
+            <View style={{flexDirection: 'row'}}>
+                <TextInput
+                    style={styles.inputBox}
+                    placeholder="New Email Address"
+                    value={newEmail}
+                    onChangeText={(text)=>handleTextChange(text,"email")}
+                />
+                <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',marginLeft: 20}}
+                    onPress={addNewEmail2}>Add New Email</Button>
+            </View>
+        )
+    }
+
+    async function addNewEmail2(){
+        //console.log("Settings email:",emailAddress);
+        const newEmailGroup = {
+            group: selectedGroupName,
+            groupId: group,
+            email: newEmail,
+        }
+        const id = await storeGroup(newEmailGroup);
+        //groupId needs to be the shared id for the group.
+        const newEmail2={...newEmailGroup,id: id};
+        console.log("Settings newGroup2",newEmail2);
+        updateGroup(id, newEmail2);
+        setAddNewEmail(false);
     }
 
     function createNewGroup(){//this runs after pressing 'create new group' button.
-        setCreatingNewGroup(true);
-        //storeValue("accountTypeChosen","personal")
+        if(creatingNewGroup){
+            setCreatingNewGroup(false);
+        }else{
+            setCreatingNewGroup(true);
+        }
     }
 
     async function showNewGroup(){//this runs after pressing 'create new group' button because cretingNewGroup===true.
-        
         return(
             <View style={{flexDirection: 'row'}}>
                 <TextInput
                     style={styles.inputBox}
                     placeholder="New Group Name"
                     value={newGroupName}
-                    onChangeText={(text)=>setNewGroupName(text)}
+                    onChangeText={(text)=>handleTextChange(text,"group")}
                 />
                 <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',marginLeft: 20}}
                     onPress={createNewGroup2}>Create New Group</Button>
@@ -248,15 +285,17 @@ export default function Settings({ route, navigation }){
             email: emailAddress,
         }
         const id = await storeGroup(newGroup);
-        const newGroup2={...newGroup,id: id, groupId: id};
+        const newGroup2={...newGroup,id: id, groupId: id}
         console.log("Settings newGroup2",newGroup2);
         updateGroup(id, newGroup2);
         setCreatingNewGroup(false);
+        //reset the
+        setNewGroupName('');
     }
 
     // Function to delete a group option
     const deleteGroup = (id) => {
-        setGroups((prev) => prev.filter((item) => item.id !== id));
+        setGroups((prev) => prev.filter((item) => item.groupId !== id));
         if (selectedGroup === id) setSelectedGroup(null); // Reset if deleted option was selected
         //also delete group from firebase
 
@@ -265,15 +304,16 @@ export default function Settings({ route, navigation }){
     };
 
     //select the group that will be used.
-    async function selectGroup(id,name){
+    async function selectGroup(id,name,groupId){
         //set group in state
-        setGroup(id);
-        setSelectedGroup(id);
+        setGroup(groupId);
+        setSelectedGroup(groupId);
         setSelectedGroupName(name);
         //set group in email context
-        setGroupUsing(id)
-        console.log("Settings group using:",groupUsing)
-        await storeValue("groupChosen",id);
+        setGroupUsing(id);
+        console.log("Settings group using:",groupUsing);
+        await storeValue("groupChosen",groupId);
+        console.log("Settings groupId:",groupId);
         await storeValue("groupName",name);
     }
 
@@ -317,33 +357,55 @@ export default function Settings({ route, navigation }){
     }
 
     function  groupSelection(){
-    return(
-        <View>
-            <Text style={[styles.textHeader,{marginTop: 20, marginBottom: 10 }]}>Select Group:</Text>
-            <FlatList
-                data={groupOrGroups?group:groups}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                <RadioButtonWithDelete
-                    label={item.group}
-                    selected={group === item.group}
-                    itemId={item.id}
-                    accountOrGroup={group}
-                    onPress={() => selectGroup(item.id,item.group)}
-                    onDelete={() => deleteGroup(item.id)}
+        return(
+            <View>
+                <Text style={[styles.textHeader,{marginTop: 20, marginBottom: 10 }]}>Select Group:</Text>
+                <FlatList
+                    data={groupOrGroups?group:groups}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                    <RadioButtonWithDelete
+                        label={item.group}
+                        selected={group === item.groupId}
+                        itemId={item.id}
+                        accountOrGroup={group}
+                        onPress={() => selectGroup(item.id,item.group,item.groupId)}
+                        onDelete={() => deleteGroup(item.id)}
+                    />
+                    )}
                 />
-                )}
-            />
-        </View>
-      
-    )
-  };
+            </View>
+        )
+    };
+
+    // function  groupSelection2(){
+    //     return(
+    //         <View>
+    //             <View>
+    //                 <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',margin: 20}}
+    //                     onPress={addNewEmailToggle}>Add New Email</Button>
+    //                     {addNewEmail? showNewEmail():noSelection()}
+    //             </View>
+    //             <View>
+    //                 <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',margin: 20}}
+    //                     onPress={createNewGroup}>Create New Group</Button>
+    //                     {creatingNewGroup? showNewGroup():noSelection()}
+    //             </View>
+    //         </View>
+        
+    //     )
+    // };
 
 
   function noSelection(){
     return(<View></View>)
   };
-
+  function doNothing(){
+    Alert.alert("You must first select a specific shared account.")
+  };
+  function doNothingGroups(){
+    Alert.alert("You must first select the shared account option button.")
+  };
     return(
         <View style={styles.topView}>
             <View style={styles.topView}>
@@ -372,16 +434,42 @@ export default function Settings({ route, navigation }){
                         )}
                     />
                     {selectedAccount==="shared"? groupSelection():noSelection()}
-                    {/* Display Selected Values */}
-                    {/* <Text style={[styles.text,{ marginTop: 20 }]}>Selected Account: {selectedAccount || "None"}</Text>
-                    <Text style={styles.text}>Selected Group: {selectedGroup || "None"}</Text> */}
-                    
+                    {/* {selectedAccount==="shared"? groupSelection2():noSelection()} */}
+                    <View>
+                        <View>
+                            {/* <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',margin: 20}}
+                                onPress={addNewEmailToggle}>Add New Email</Button> */}
+                                {/* {addNewEmail? showNewEmail():noSelection()} */}
+                                <View style={{flexDirection: 'row'}}>
+                                    <TextInput
+                                        style={styles.inputBox}
+                                        placeholder="New Email Address"
+                                        value={newEmail}
+                                        onChangeText={(text)=>handleTextChange(text,"email")}
+                                    />
+                                    <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',marginLeft: 20}}
+                                        onPress={selectedAccount==="shared"?addNewEmail2:doNothing}>Add New Email
+                                    </Button>
+                                </View>
+                        </View>
+                        <View>
+                            {/* <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',margin: 20}}
+                                onPress={createNewGroup}>Create New Group</Button> */}
+                                {/* {creatingNewGroup? showNewGroup():noSelection()} */}
+                                <View style={{flexDirection: 'row'}}>
+                                    <TextInput
+                                        style={styles.inputBox}
+                                        placeholder="New Group Name"
+                                        value={newGroupName}
+                                        onChangeText={(text)=>handleTextChange(text,"group")}
+                                    />
+                                    <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',marginLeft: 20}}
+                                        onPress={selectedAccount==="shared"?createNewGroup2:doNothingGroups}>Create New Group
+                                    </Button>
+                                </View>
+                        </View>
+                    </View>
                 </View>
-            </View>
-            <View>
-            <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',margin: 20}}
-                onPress={createNewGroup}>Create New Group</Button>
-                {creatingNewGroup? showNewGroup():noSelection()}
             </View>
             <View style={styles.footer}>
                 <Button 
