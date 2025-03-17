@@ -50,16 +50,8 @@ function ManageGroceryItem({ route, navigation }) {
   };
 
   async function pullGroupChosen(){
-    const accountTypeChosen = await getValue({emailAddress}+"groupChosen");
-    return removePrefix(accountTypeChosen,emailAddress);
-  };
-
-  function removePrefix(text="", prefix=""){
-    if (typeof text === 'string'&&typeof prefix === 'string'){
-        return text.startsWith(prefix) ? text.slice(prefix.length) : text;
-    }else{
-        return text;
-    }
+    const accountTypeChosen = await getValue(emailAddress+"groupChosen");
+    return accountTypeChosen;
   };
 
   useLayoutEffect(() => {

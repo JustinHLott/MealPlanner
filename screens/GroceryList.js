@@ -66,17 +66,17 @@ function GroceryList() {
   );
 
   async function pullGroupChosen(){
-    const accountTypeChosen = await getValue({emailAddress}+"groupChosen");
-    return removePrefix(accountTypeChosen,emailAddress);
+    const accountTypeChosen = await getValue(emailAddress+"groupChosen");
+    return accountTypeChosen;
   };
 
-  function removePrefix(text="", prefix=""){
-    if (typeof text === 'string'&&typeof prefix === 'string'){
-        return text.startsWith(prefix) ? text.slice(prefix.length) : text;
-    }else{
-        return text;
-    }
-  };
+  // function removePrefix(text="", prefix=""){
+  //   if (typeof text === 'string'&&typeof prefix === 'string'){
+  //       return text.startsWith(prefix) ? text.slice(prefix.length) : text;
+  //   }else{
+  //       return text;
+  //   }
+  // };
 
   if(firstTime===true){
     console.log("GroceryList firstTime")

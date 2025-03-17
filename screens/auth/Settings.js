@@ -110,7 +110,7 @@ const RadioButtonWithDelete = React.memo(({ label, selected, itemId, accountOrGr
 export default function Settings({ route, navigation }){
     const [firstTime, setFirstTime] = useState(true);
     const [selectedAccount, setSelectedAccount] = useState(null);
-    const [selectedGroup, setSelectedGroup] = useState(null);
+    //const [selectedGroup, setSelectedGroup] = useState(null);
     const [selectedGroupName,setSelectedGroupName] = useState(null);
     const [creatingNewGroup, setCreatingNewGroup] = useState(false);
     const [addNewEmail, setAddNewEmail] = useState(false);
@@ -119,8 +119,9 @@ export default function Settings({ route, navigation }){
     const [selectedOption, setSelectedOption] = useState("personal");
     const { emailAddress, setEmailAddress } = useEmail();
     const [ groupOrGroups, setGroupOrGroups ] = useState(true);
-    const { groupUsing, setGroupUsing} = useEmail();
+    //const { groupUsing, setGroupUsing} = useEmail();
     const [group, setGroup] = useState(null);
+    const [groupId, setGroupId] = useState(null);
     const [groups, setGroups] = useState(null);
     const [modalVisible,setModalVisible]=useState(false);
     const [idToDelete,setIdToDelete]=useState(false);
@@ -144,39 +145,31 @@ export default function Settings({ route, navigation }){
         setFirstTime(false);
         const accntType = pullAcountTypeChosen();
         setSelectedAccount(accntType);
-        setGroup(pullGroupChosen());
+        setGroupId(pullGroupChosen());
         console.log("settings firsttime account:",selectedAccount?selectedAccount.value:null);
-        setSelectedGroupName(removePrefix(getValue({emailAddress}+"groupName"),emailAddress));
+        setSelectedGroupName(getValue(emailAddress+"groupName"));
     }
-
-    function removePrefix(text="", prefix=""){
-        if (typeof text === 'string'&&typeof prefix === 'string'){
-            return text.startsWith(prefix) ? text.slice(prefix.length) : text;
-        }else{
-            return text;
-        }
-    };
 
     useEffect(()=>{
         //fetchGroup();//pulls all of the groups associated with the login email
-        //retrievedValue=getValue({emailAddress}+"accountTypeChosen");
+        //retrievedValue=getValue(emailAddress+"accountTypeChosen");
         console.log("settings useEffect")
         setSelectedOption(pullAcountTypeChosen());
         
-        setGroup(pullGroupChosen());
+        setGroupId(pullGroupChosen());
     },[]);
 
     async function pullAcountTypeChosen(){
-        const accountTypeChosen = await getValue({emailAddress}+"accountTypeChosen");
-        return removePrefix(accountTypeChosen,emailAddress);
+        const accountTypeChosen = await getValue(emailAddress+"accountTypeChosen");
+        return accountTypeChosen;
     }
 
     async function pullGroupChosen(){
-        const chosenGroup = await getValue({emailAddress}+"groupChosen");
+        const chosenGroup = await getValue(emailAddress+"groupChosen");
         if(selectedAccount==='personal'){
-            return emailAddress;
+            return chosenGroup;
         }else{
-            return removePrefix(chosenGroup,emailAddress);
+            return chosenGroup;
         }
         
     }
@@ -190,8 +183,9 @@ export default function Settings({ route, navigation }){
         setGroup(theGroups.filter((item) => item.email === emailAddress && item.group === emailAddress));
         const theGroup = theGroups.filter((item) => item.email === emailAddress && item.group === emailAddress);
         console.log("TheGroup",theGroup[0].id)
-        await storeValue({emailAddress}+"groupChosen",theGroup[0].id);
+        await storeValue(emailAddress+"groupChosen",theGroup[0].id);
         //console.log("Settings fetched group:",group);
+
     }
 
     async function fetchGroups(){//pulls all of the groups associated with the login email
@@ -201,7 +195,7 @@ export default function Settings({ route, navigation }){
             //filters groups to only see those that have your email & excludes your personal group.
             const allGroups = Object.keys(theGroups)
             .map((key) => ({ id: key, ...theGroups[key] }))
-            .filter((group) => group.email === emailAddress && group.group !== group.email);
+            .filter((group1) => group1.email === emailAddress && group1.group !== group1.email);
             //when false, all groups are shown.
             setGroupOrGroups(false);
             //set groups as all groups with my email.
@@ -221,12 +215,12 @@ export default function Settings({ route, navigation }){
         //this function uses data that is hardcoded at the top of this screen as "accounts."
         if(id==="shared"){
             fetchGroups();//this is used to filter for your groups meals
-            await storeValue({emailAddress}+"accountTypeChosen","shared")
+            await storeValue(emailAddress+"accountTypeChosen","shared")
         }else{
             fetchGroup();//this is used to filter for your personal meals
-            await storeValue({emailAddress}+"accountTypeChosen","personal");
-            await storeValue({emailAddress}+"groupName",label);
-            //await storeValue({emailAddress}+"groupChosen",emailAddress);  //Do this in SetGroup.
+            await storeValue(emailAddress+"accountTypeChosen","personal");
+            await storeValue(emailAddress+"groupName",label);
+            //await storeValue(emailAddress+"groupChosen",emailAddress);  //Do this in SetGroup.
             //setGroup(emailAddress);                                       //Do this in SetGroup.
             setSelectedGroupName(emailAddress);
         }
@@ -268,18 +262,23 @@ export default function Settings({ route, navigation }){
     // }
 
     async function addNewEmail2(){
-        //console.log("Settings email:",emailAddress);
+        console.log("Settings selectedGroupName:",selectedGroupName);
         const newEmailGroup = {
             group: selectedGroupName,
-            groupId: group,
+            groupId: groupId,
             email: newEmail,
         }
-        const id = await storeGroup(newEmailGroup);
-        //groupId needs to be the shared id for the group.
-        const newEmail2={...newEmailGroup,id: id};
-        console.log("Settings newGroup2",newEmail2);
-        updateGroup(id, newEmail2);
-        setAddNewEmail(false);
+        if(selectedGroupName==='Personal Account'){
+            Alert.alert("You must select a shared Group before pushing the group to a different user email.")
+        }else{
+            const id = await storeGroup(newEmailGroup);
+            //groupId needs to be the shared id for the group.
+            const newEmail2={...newEmailGroup,id: id};
+            console.log("Settings newGroup2",newEmail2);
+            updateGroup(id, newEmail2);
+            setAddNewEmail(false); 
+        }
+        
     }
 
     // function createNewGroup(){//this runs after pressing 'create new group' button.
@@ -338,7 +337,7 @@ export default function Settings({ route, navigation }){
 
     const deleteGroup2 = () => {
         setGroups((prev) => prev.filter((item) => item.groupId !== idToDelete));
-        if (selectedGroup === idToDelete) setSelectedGroup(null); // Reset if deleted option was selected
+        if (groupId === idToDelete) setGroupId(null); // Reset if deleted option was selected
         //also delete group from firebase
         deleteGroupFromFirebase(idToDelete);
         setIdToDelete(false);
@@ -348,15 +347,14 @@ export default function Settings({ route, navigation }){
     //select the group that will be used.
     async function selectGroup(id,name,groupId){
         //set group in state
-        setGroup(groupId);
-        setSelectedGroup(groupId);
+        setGroupId(groupId);
         setSelectedGroupName(name);
         //set group in email context
-        setGroupUsing(id);
-        console.log("Settings group using:",groupUsing);
-        await storeValue({emailAddress}+"groupChosen",groupId);
+        // setGroupUsing(id);//(it's not used anywhere else.)
+        // console.log("Settings group using:",groupUsing);
+        await storeValue(emailAddress+"groupChosen",groupId);
         console.log("Settings groupId:",groupId);
-        await storeValue({emailAddress}+"groupName",name);
+        await storeValue(emailAddress+"groupName",name);
     }
 
     async function saveSettings(){
@@ -386,9 +384,12 @@ export default function Settings({ route, navigation }){
 
                     //build an array of meals for the specified group.
                     meals.map((meal)=>{
-                        //console.log("RecentMeals mapped group:",meal)
+                        console.log("settins result stored-----------------------------------:",result);
+                        console.log("Settings mapped group-----------------------------------:",meal.group)
                         if(meal.group === result){
+                            
                             allMeals.push(meal);
+                            mealsCtx.addMeal(meal);
                         }
                     })
 
@@ -397,8 +398,10 @@ export default function Settings({ route, navigation }){
                     }
                     if(typeof allMeals ==='object'){
                         console.log("settings allMeals:",allMeals)
-                        mealsCtx.setMeals([...allMeals,].sort((a, b) => b.date - a.date));
-                        console.log("settings mealsCtx:",mealsCtx.meals)
+                        console.log("settings mealsCtx before:",mealsCtx.meals)
+                        //mealsCtx.setMeals([...allMeals,].sort((a, b) => b.date - a.date));
+                        mealsCtx.setMeals(allMeals);
+                        console.log("settings mealsCtx after:",mealsCtx.meals)
                     }
                 })
             } catch (error) {
@@ -420,9 +423,10 @@ export default function Settings({ route, navigation }){
                     renderItem={({ item }) => (
                     <RadioButtonWithDelete
                         label={item.group}
-                        selected={group === item.groupId}
+                        selected={groupId === item.groupId}//2025-03-17
+                        //selected={group === item.groupId}
                         itemId={item.id}
-                        accountOrGroup={group}
+                        accountOrGroup={groupId}
                         onPress={() => selectGroup(item.id,item.group,item.groupId)}
                         onDelete={() => deleteGroup(item.id)}
                     />

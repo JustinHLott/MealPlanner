@@ -22,3 +22,13 @@ export async function getValue(key){
       console.error("Error retrieving value:", error);
     }
   };
+
+  // const removeUserData = async (userEmail, key) => {
+  //   try {
+  //     const storageKey = `${userEmail}_${key}`;
+  //     await AsyncStorage.removeItem(storageKey);
+  //     console.log("User data removed!");
+  //   } catch (error) {
+  //     console.error("Error removing data:", error);
+  //   }
+  // };

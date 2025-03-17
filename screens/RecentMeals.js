@@ -42,8 +42,9 @@ function RecentMeals() {
           let allGroups = [];
 
           meals.map((meal)=>{
-            //console.log("RecentMeals mapped group:",meal)
+            
             if(meal.group === result){
+              console.log("RecentMeals mapped group:",meal)
               allGroups.push(meal);
               setNotHidden(true);
             }
@@ -53,7 +54,7 @@ function RecentMeals() {
           if(typeof allGroups ==='object'){
           
             mealsCtx.setMeals([...allGroups,].sort((a, b) => b.date - a.date));
-            setRecentMeals(allGroups);
+            setRecentMeals([...allGroups,].sort((a, b) => b.date - a.date));
             //console.log("RecentMeals meals:",mealsCtx.meals);
           }
         })
@@ -68,16 +69,9 @@ function RecentMeals() {
   }, []);
 
   async function pullGroupChosen(){
-    const accountTypeChosen = await getValue({emailAddress}+"groupChosen");
-    return removePrefix(accountTypeChosen,emailAddress);
-  };
-
-  function removePrefix(text="", prefix=""){
-    if (typeof text === 'string'&&typeof prefix === 'string'){
-        return text.startsWith(prefix) ? text.slice(prefix.length) : text;
-    }else{
-        return text;
-    }
+    //console.log("RecentMeals email:",emailAddress)
+    const accountTypeChosen = await getValue(emailAddress+"groupChosen");
+    return accountTypeChosen;
   };
 
   if(!firstDate){
@@ -157,13 +151,14 @@ function RecentMeals() {
     const meals = await fetchMeals();
     const groupUsing = pullGroupChosen()
     .then((result)=>{
-      //console.log("RecenetMeals groupChosen:",result);
+      console.log("RecenetMeals groupChosen:",result);
       //if(result instanceof Promise){
       let allGroups = [];
 
       meals.map((meal)=>{
-        //console.log("RecentMeals mapped group:",meal)
+        console.log("RecentMeals mapped group:",meal.group)
         if(meal.group === result){
+          
           allGroups.push(meal);
         }
       })
@@ -173,7 +168,7 @@ function RecentMeals() {
       
         mealsCtx.setMeals(allGroups);
         const mealsSorted = [...allGroups,].sort((a, b) => a.date - b.date);
-        //console.log("RecentMeals meals:",mealsCtx.meals);
+        console.log("RecentMeals meals:",mealsSorted);
         const recentMeals1 = mealsSorted.filter((meal) => {
           let firstDay = new Date(firstDate);
           //console.log("Recent Meals firstDay:",firstDay);
