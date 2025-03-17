@@ -46,7 +46,7 @@ function GroceriesOutput({ groceries, fallbackText }) {
   }
 
 
-  let content = <Text style={{color: GlobalStyles.colors.primary50}}>{fallbackText}</Text>;
+  let content = <Text style={styles.infoText}>{fallbackText}</Text>;
 
   if (groceries.length > 0) {
     content = <GroceriesList groceries={theArray} handleSorting={handleSorting} />;
@@ -72,5 +72,11 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: 0,
     backgroundColor: GlobalStyles.colors.primary700,
+  },
+  infoText: {
+    color: GlobalStyles.colors.primary50,
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 8,
   },
 });

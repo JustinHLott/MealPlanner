@@ -46,7 +46,10 @@ const LogOut = () => {
         </Pressable>
         
       </View>
-      <Footer/>
+      <View style={{marginRight:4.5}}>
+        <Footer/>
+      </View>
+      
     </View>
   );
 };
@@ -64,7 +67,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerText: {
-    color: GlobalStyles.colors.primary50,
+    color: GlobalStyles.colors.primary100,
     fontWeight:500,
     //fontFamily:'atma-bold',
     fontSize:30,
@@ -77,28 +80,29 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.colors.primary500,
     flex:7,
     marginHorizontal: 0,
-    alignItems: 'center',
+    //alignItems: 'center',
   },
   text: {
     color: GlobalStyles.colors.primary50,
     //fontFamily: 'atma',
-    fontSize:20,
-    paddingHorizontal: 24,
+    fontSize:16,
+    paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: 5,
   },
   textPhoto: {
     color: GlobalStyles.colors.primary50,
     fontSize:9,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     paddingTop: 4,
     paddingBottom: 4,
+    
   },
   button: {
     marginTop: 30,
-    paddingHorizontal: 12,
+    //paddingHorizontal: 12,
     paddingVertical: 6,
-    margin: 4,
+    marginHorizontal: 90,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -107,10 +111,10 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.colors.primary800,
   },
   image:{
-    height: 180,
-    width: 350,
+    height: 170,
+    width: 330,
     marginTop: 20,
-    
+    marginHorizontal: 20,
   },
   pressed: {
     opacity: 0.7,

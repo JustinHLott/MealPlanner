@@ -5,7 +5,7 @@ import { GlobalStyles } from '../../constants/styles';
 function LoadingOverlay() {
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color="white" />
+      <ActivityIndicator size="large" color={GlobalStyles.colors.primary50} />
     </View>
   );
 }

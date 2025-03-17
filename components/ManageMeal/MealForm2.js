@@ -492,7 +492,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
           {/* <IconButtonNoText style={{width: '20%'}}icon="pencil" size={20} color={pencilColor} onPress={() => setShowPicker(true)}/> */}
         </View>
         {/* Show Date Picker if button is pressed */}
-        {/* <Text style={{color:"white"}}>Selected Date: {date2.toDateString()}</Text>
+        {/* <Text style={{color:GlobalStyles.colors.primary50}}>Selected Date: {date2.toDateString()}</Text>
         <Button title="Open Date Picker" onPress={() => setOpen(true)}>Open Date Picker</Button>
         <DatePicker
           modal

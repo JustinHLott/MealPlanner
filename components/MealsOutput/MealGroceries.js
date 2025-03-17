@@ -95,11 +95,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   headerText:{
-    color: 'white',
+    color: GlobalStyles.colors.primary50,
     fontSize: 20,
   },
   text:{
-    color: 'white'
+    color: GlobalStyles.colors.primary50
   },
   button: {
     width: '100%',

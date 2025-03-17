@@ -192,14 +192,14 @@
 //   title: {
 //     fontSize: 24,
 //     fontWeight: 'bold',
-//     color: 'white',
+//     color: GlobalStyles.colors.primary50,
 //     marginVertical: 8,
 //     textAlign: 'center',
 //   },
 //   groceryTitle: {
 //     fontSize: 20,
 //     //fontWeight: 'bold',
-//     color: 'white',
+//     color: GlobalStyles.colors.primary50,
 //     marginTop: 8,
 //     marginBottom: 0,
 //     textAlign: 'center',

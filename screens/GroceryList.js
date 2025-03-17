@@ -146,7 +146,7 @@ function GroceryList() {
     <GroceriesOutput
       groceries={recentLists}
       //groceries={listsCtx.lists}
-      fallbackText="No grocery items registered..."
+      fallbackText="No grocery items..."
     />
   );
 }

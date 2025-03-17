@@ -6,44 +6,38 @@ import Input from './Input';
 import Button from '../UI/Button';
 //import { getFormattedDate } from '../../util/date';
 import { GlobalStyles } from '../../constants/styles';
-import { isValidDate, getDateMinusDays,getFormattedDate } from "../../util/date";
+import { getFormattedDate } from "../../util/date";
 
 //defaultMealDesc={selectedMeal.description}
 function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, group }) {
-  console.log("defaultValues in GroceryForm", defaultValues);
-  const [date, setDate] = useState()
+  //console.log("defaultValues in GroceryForm", defaultValues);
+  const [date, setDate] = useState();
+  const [descriptionIsValid,setDescriptionIsValid]=useState(true);
+  const [qtyIsValid,setQtyIsValid]=useState(true);
   const [inputs, setInputs] = useState({
     qty: {
-      value: defaultValues ? defaultValues.qty : 1,
-      isValid: true,
+      value: defaultValues ? defaultValues.qty : 1
     },
     description: {
-      value: defaultValues ? defaultValues.description : '',
-      isValid: true,
+      value: defaultValues ? defaultValues.description : ''
     },
     checkedOff: {
-      value: defaultValues ? defaultValues.checkedOff : '',
-      isValid: true,
+      value: defaultValues ? defaultValues.checkedOff : ''
     },
     thisId: {
-      value: defaultValues ? defaultValues.thisId : '',
-      isValid: true,
+      value: defaultValues ? defaultValues.thisId : ''
     },
     id: {
-      value: defaultValues ? defaultValues.id : '',
-      isValid: true,
+      value: defaultValues ? defaultValues.id : ''
     },
     mealId: {
-      value: defaultValues ? defaultValues.mealId : '',
-      isValid: true,
+      value: defaultValues ? defaultValues.mealId : ''
     },
     mealDesc: {
-      value: defaultValues ? defaultValues.mealDesc : '',
-      isValid: true,
+      value: defaultValues ? defaultValues.mealDesc : ''
     },
     group:{
-      value: defaultValues? defaultValues.group : '',
-      isValid: true,
+      value: defaultValues? defaultValues.group : ''
     }
   });
 
@@ -57,14 +51,16 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, gro
     if(typeof defaultValues==="string"||typeof defaultValues==="undefined"){
       console.log("GroceryForm no meal");
     }else{
-      if(mealsCtx.mealDesc==="NO MEAL"){
-        const meal = mealsCtx.meals.find(
-        (meal) => meal.id === defaultValues.mealId
-      );
-      console.log("GroceryForm useEffect meal",meal);
-      setDate(getFormattedDate(meal.date));
-      }else{
+      if(!defaultValues.description){
         setDate("NO DATE");
+      }else{
+        const meal = mealsCtx.meals.find((meal) => meal.id === defaultValues.mealId);
+        console.log("GroceryForm useEffect meal",meal);
+        if(!meal){
+          setDate("NO DATE");
+        }else{
+          setDate(getFormattedDate(meal.date));
+        }
       }
     }
   },[])
@@ -78,6 +74,16 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, gro
         [inputIdentifier]: { value: enteredValue, isValid: true },
       };
     });
+    if(enteredValue==="qty"&& !inputs.qty){
+      setQtyIsValid(false);
+    }else{
+      setQtyIsValid(true);
+    }
+    if(enteredValue==="description"&& !inputs.description){
+      setDescriptionIsValid(false);
+    }else{
+      setDescriptionIsValid(true);
+    }
   }
 
   //console.log("inputs.mealDesc",inputs.mealDesc);
@@ -94,33 +100,30 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, gro
       group: group,
     };
 
-    const qtyIsValid = groceryData.qty.toString() !== '';
-    let descriptionIsValid=false
-    if(groceryData.description){
-      descriptionIsValid = groceryData.description.trim().length > 0;
+       
+    if(!inputs.description.value){
+      console.log("no description")
+      setDescriptionIsValid(false)
+      Alert.alert('Invalid input', 'You must enter a description')
+      console.log("Made it to if", inputs)
+    }else{
+      console.log("has description")
+      setDescriptionIsValid(true);
+      if(!inputs.qty.value){
+        setQtyIsValid(false);
+        Alert.alert('Invalid input', 'You must enter a quantity')
+      }else{
+        setQtyIsValid(true);
+        console.log("GroceryForm submit:", groceryData);
+        onSubmit(groceryData);
+      }
+      
     }
-
-    if ( !descriptionIsValid) {
-      // Alert.alert('Invalid input', 'Please check your input values');
-      setInputs((curInputs) => {
-        return {
-          qty: { value: curInputs.qty.value, isValid: qtyIsValid },
-          description: {
-            value: "",
-            isValid: descriptionIsValid,
-          },
-          group: group
-        };
-      });
-      return;
-    }
-    console.log("GroceryForm submit:", groceryData);
-    onSubmit(groceryData);
   }
 
   const formIsInvalid =
-    !inputs.qty.isValid ||
-    !inputs.description.isValid;
+    !qtyIsValid ||
+    !descriptionIsValid;
 
   return (
     <View style={styles.form}>
@@ -172,8 +175,8 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, gro
         </View> */}
         <Input
           style={styles.rowInput}
-          label="Qty"
-          invalid={!inputs.qty.isValid}
+          label="Quantity"
+          invalid={!qtyIsValid}
           textInputConfig={{
             keyboardType: 'decimal-pad',
             placeholder: '0',
@@ -185,11 +188,9 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, gro
       </View>
       <Input
         label="Description"
-        invalid={!inputs.description.isValid}
+        invalid={!descriptionIsValid}
         textInputConfig={{
           multiline: true,
-          // autoCapitalize: 'none'
-          // autoCorrect: false // default is true
           onChangeText: inputChangedHandler.bind(this, 'description'),
           value: inputs.description.value,
         }}

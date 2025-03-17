@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   infoText: {
-    color: 'white',
+    color: GlobalStyles.colors.primary50,
     fontSize: 16,
     textAlign: 'center',
     marginTop: 32,

@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   label: {
-    color: 'white',
+    color: GlobalStyles.colors.primary50,
     marginBottom: 4,
   },
   labelInvalid: {

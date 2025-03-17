@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
+import { GlobalStyles } from '../../constants/styles';
 
 function IconButton({ icon, size, color, onPress, forLongPress, iconText, awesome }) {
   let iconType;
@@ -37,6 +38,6 @@ const styles = StyleSheet.create({
     opacity: 0.75,
   },
   text:{
-    color: "white"
+    color: GlobalStyles.colors.primary50
   }
 });

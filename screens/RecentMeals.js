@@ -20,7 +20,8 @@ function RecentMeals() {
   const [firstDate, setFirstDate] = useState(getSundayOfThisWeek());
   const [recentMeals, setRecentMeals] = useState([]);
   const [firstTime, setFirstTime] = useState(true);
-  const [theFallbackText,setTheFallbackText] = useState("No meals registered");
+  const [theFallbackText,setTheFallbackText] = useState("No meals found...");
+  const [notHidden, setNotHidden] = useState(true);
 
   const mealsCtx = useContext(MealsContext);
   const isFocused = useIsFocused();
@@ -28,6 +29,7 @@ function RecentMeals() {
   useEffect(() => {
     async function getMeals() {
       setIsFetching(true);
+      setNotHidden(false);
       try {
         const meals = await fetchMeals();
 
@@ -41,6 +43,7 @@ function RecentMeals() {
             //console.log("RecentMeals mapped group:",meal)
             if(meal.group === result){
               allGroups.push(meal);
+              setNotHidden(true);
             }
           })
           // console.log("RecentMeals allGroups:",allGroups);
@@ -48,6 +51,7 @@ function RecentMeals() {
           if(typeof allGroups ==='object'){
           
             mealsCtx.setMeals([...allGroups,].sort((a, b) => b.date - a.date));
+            setRecentMeals(allGroups);
             //console.log("RecentMeals meals:",mealsCtx.meals);
           }
         })
@@ -139,6 +143,7 @@ function RecentMeals() {
 
   async function getMeals(){
     //console.log("RecentMeals isFocused")
+    setNotHidden(false);
     const meals = await fetchMeals();
     const groupUsing = pullGroupChosen()
     .then((result)=>{
@@ -165,7 +170,12 @@ function RecentMeals() {
           let datePlus7 = getDateMinusDays(firstDay, -6);
           //console.log("Recent Meals dayPlus7:",datePlus7);
           let theMeals = (meal.date >= firstDay && meal.date <= datePlus7)
-          setTheFallbackText('No meals registered for dates ' + firstDay.toISOString().slice(0, 10) + ' to ' + datePlus7.toISOString().slice(0, 10));
+          if(!theMeals){
+            setNotHidden(false);
+          }else{
+            setNotHidden(true);
+          }
+          //setTheFallbackText('No meals registered for dates ' + firstDay.toISOString().slice(0, 10) + ' to ' + datePlus7.toISOString().slice(0, 10));
           //console.log("RecentMeals meals",theMeals)
           return theMeals;
         });
@@ -185,6 +195,9 @@ function RecentMeals() {
     }, [])
   );
 
+  function makeNotHidden(TF){
+    setNotHidden(TF);
+  }
   if (error && !isFetching) {
     return <ErrorOverlay message={error} />;
   }
@@ -195,10 +208,11 @@ function RecentMeals() {
   
   return (
     <View style={styles.container}>
+      
       <View style={styles.buttonContainer}>
         <IconButtonNoText
             icon="arrow-back-circle-outline"
-            color="white"
+            color={GlobalStyles.colors.primary50}
             size={50}
             onPress={previous}
             forLongPress={()=>{Alert.alert("Function of Button","View previous week's meals")}}
@@ -206,15 +220,17 @@ function RecentMeals() {
           <Button onPress={currentWeek}>Click for Current Week</Button>
           <IconButtonNoText
             icon="arrow-forward-circle-outline"
-            color="white"
+            color={GlobalStyles.colors.primary50}
             size={50}
             onPress={next}
             forLongPress={()=>{Alert.alert("Function of Button","View previous week's meals")}}
           />
       </View>
+
       <MealsOutput
         meals={recentMeals}
         fallbackText={theFallbackText}
+        //makeNotHidden={makeNotHidden}
       />
     </View>
     
