@@ -7,6 +7,7 @@ import LoadingOverlay from '../components/UI/LoadingOverlay';
 import { ListsContext } from '../store/lists-context';
 import { fetchLists } from '../util/http-list';
 import { getValue} from '../util/useAsyncStorage';
+import { useEmail } from '../store/email-context';
 
 function GroceryList() {
   //console.log("makes it to grocerylist")
@@ -14,6 +15,7 @@ function GroceryList() {
   const [error, setError] = useState();
   const [recentLists, setRecentLists] = useState();
   const [firstTime, setFirstTime] = useState(true);
+  const { emailAddress, setEmailAddress } = useEmail();
 
   const listsCtx = useContext(ListsContext);
 
@@ -64,8 +66,16 @@ function GroceryList() {
   );
 
   async function pullGroupChosen(){
-    const accountTypeChosen = await getValue("groupChosen");
-    return accountTypeChosen;
+    const accountTypeChosen = await getValue({emailAddress}+"groupChosen");
+    return removePrefix(accountTypeChosen,emailAddress);
+  };
+
+  function removePrefix(text="", prefix=""){
+    if (typeof text === 'string'&&typeof prefix === 'string'){
+        return text.startsWith(prefix) ? text.slice(prefix.length) : text;
+    }else{
+        return text;
+    }
   };
 
   if(firstTime===true){

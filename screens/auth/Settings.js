@@ -146,12 +146,20 @@ export default function Settings({ route, navigation }){
         setSelectedAccount(accntType);
         setGroup(pullGroupChosen());
         console.log("settings firsttime account:",selectedAccount?selectedAccount.value:null);
-        setSelectedGroupName(getValue("groupName"));
+        setSelectedGroupName(removePrefix(getValue({emailAddress}+"groupName"),emailAddress));
     }
+
+    function removePrefix(text="", prefix=""){
+        if (typeof text === 'string'&&typeof prefix === 'string'){
+            return text.startsWith(prefix) ? text.slice(prefix.length) : text;
+        }else{
+            return text;
+        }
+    };
 
     useEffect(()=>{
         //fetchGroup();//pulls all of the groups associated with the login email
-        //retrievedValue=getValue("accountTypeChosen");
+        //retrievedValue=getValue({emailAddress}+"accountTypeChosen");
         console.log("settings useEffect")
         setSelectedOption(pullAcountTypeChosen());
         
@@ -159,13 +167,18 @@ export default function Settings({ route, navigation }){
     },[]);
 
     async function pullAcountTypeChosen(){
-        const accountTypeChosen = await getValue("accountTypeChosen");
-        return accountTypeChosen;
+        const accountTypeChosen = await getValue({emailAddress}+"accountTypeChosen");
+        return removePrefix(accountTypeChosen,emailAddress);
     }
 
     async function pullGroupChosen(){
-        const chosenGroup = await getValue("groupChosen");
-        return chosenGroup;
+        const chosenGroup = await getValue({emailAddress}+"groupChosen");
+        if(selectedAccount==='personal'){
+            return emailAddress;
+        }else{
+            return removePrefix(chosenGroup,emailAddress);
+        }
+        
     }
 
     async function fetchGroup(){//pulls the group associated with the login email
@@ -174,8 +187,10 @@ export default function Settings({ route, navigation }){
         //when true only the personal group is shown.
         setGroupOrGroups(true);
         //filter out all but personal group (group === email)
-        setGroup(theGroups.filter((item) => item.group === emailAddress));
-        await storeValue("groupChosen",emailAddress);
+        setGroup(theGroups.filter((item) => item.email === emailAddress && item.group === emailAddress));
+        const theGroup = theGroups.filter((item) => item.email === emailAddress && item.group === emailAddress);
+        console.log("TheGroup",theGroup[0].id)
+        await storeValue({emailAddress}+"groupChosen",theGroup[0].id);
         //console.log("Settings fetched group:",group);
     }
 
@@ -199,17 +214,20 @@ export default function Settings({ route, navigation }){
         
     }
 
-    async function chooseAccount(id,label){//this runs when you select one of option buttons; shared or personal.
+    //this runs when you select one of option buttons; shared or personal.
+    async function chooseAccount(id,label){
+        //id==="shared"
+        //label==="Shared Account"
         //this function uses data that is hardcoded at the top of this screen as "accounts."
         if(id==="shared"){
             fetchGroups();//this is used to filter for your groups meals
-            await storeValue("accountTypeChosen","shared")
+            await storeValue({emailAddress}+"accountTypeChosen","shared")
         }else{
             fetchGroup();//this is used to filter for your personal meals
-            await storeValue("accountTypeChosen","personal");
-            await storeValue("groupName",label);
-            await storeValue("groupChosen",emailAddress);
-            setGroup(emailAddress);
+            await storeValue({emailAddress}+"accountTypeChosen","personal");
+            await storeValue({emailAddress}+"groupName",label);
+            //await storeValue({emailAddress}+"groupChosen",emailAddress);  //Do this in SetGroup.
+            //setGroup(emailAddress);                                       //Do this in SetGroup.
             setSelectedGroupName(emailAddress);
         }
         setSelectedAccount(id);
@@ -226,28 +244,28 @@ export default function Settings({ route, navigation }){
         
       }, []);
 
-    function addNewEmailToggle(){//this runs after pressing 'create new group' button.
-        if(addNewEmail){
-            setAddNewEmail(false);
-        }else{
-            setAddNewEmail(true);
-        }
-    }
+    // function addNewEmailToggle(){//this runs after pressing 'create new group' button.
+    //     if(addNewEmail){
+    //         setAddNewEmail(false);
+    //     }else{
+    //         setAddNewEmail(true);
+    //     }
+    // }
 
-    async function showNewEmail(){//this runs after pressing 'add new email' button because addNewEmail===true.
-        return(
-            <View style={{flexDirection: 'row'}}>
-                <TextInput
-                    style={styles.inputBox}
-                    placeholder="New Email Address"
-                    value={newEmail}
-                    onChangeText={(text)=>handleTextChange(text,"email")}
-                />
-                <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',marginLeft: 20}}
-                    onPress={addNewEmail2}>Add New Email</Button>
-            </View>
-        )
-    }
+    // async function showNewEmail(){//this runs after pressing 'add new email' button because addNewEmail===true.
+    //     return(
+    //         <View style={{flexDirection: 'row'}}>
+    //             <TextInput
+    //                 style={styles.inputBox}
+    //                 placeholder="New Email Address"
+    //                 value={newEmail}
+    //                 onChangeText={(text)=>handleTextChange(text,"email")}
+    //             />
+    //             <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',marginLeft: 20}}
+    //                 onPress={addNewEmail2}>Add New Email</Button>
+    //         </View>
+    //     )
+    // }
 
     async function addNewEmail2(){
         //console.log("Settings email:",emailAddress);
@@ -264,28 +282,28 @@ export default function Settings({ route, navigation }){
         setAddNewEmail(false);
     }
 
-    function createNewGroup(){//this runs after pressing 'create new group' button.
-        if(creatingNewGroup){
-            setCreatingNewGroup(false);
-        }else{
-            setCreatingNewGroup(true);
-        }
-    }
+    // function createNewGroup(){//this runs after pressing 'create new group' button.
+    //     if(creatingNewGroup){
+    //         setCreatingNewGroup(false);
+    //     }else{
+    //         setCreatingNewGroup(true);
+    //     }
+    // }
 
-    async function showNewGroup(){//this runs after pressing 'create new group' button because cretingNewGroup===true.
-        return(
-            <View style={{flexDirection: 'row'}}>
-                <TextInput
-                    style={styles.inputBox}
-                    placeholder="New Group Name"
-                    value={newGroupName}
-                    onChangeText={(text)=>handleTextChange(text,"group")}
-                />
-                <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',marginLeft: 20}}
-                    onPress={createNewGroup2}>Create New Group</Button>
-            </View>
-        )
-    }
+    // async function showNewGroup(){//this runs after pressing 'create new group' button because cretingNewGroup===true.
+    //     return(
+    //         <View style={{flexDirection: 'row'}}>
+    //             <TextInput
+    //                 style={styles.inputBox}
+    //                 placeholder="New Group Name"
+    //                 value={newGroupName}
+    //                 onChangeText={(text)=>handleTextChange(text,"group")}
+    //             />
+    //             <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',marginLeft: 20}}
+    //                 onPress={createNewGroup2}>Create New Group</Button>
+    //         </View>
+    //     )
+    // }
     
     async function createNewGroup2(){
         //console.log("Settings email:",emailAddress);
@@ -336,9 +354,9 @@ export default function Settings({ route, navigation }){
         //set group in email context
         setGroupUsing(id);
         console.log("Settings group using:",groupUsing);
-        await storeValue("groupChosen",groupId);
+        await storeValue({emailAddress}+"groupChosen",groupId);
         console.log("Settings groupId:",groupId);
-        await storeValue("groupName",name);
+        await storeValue({emailAddress}+"groupName",name);
     }
 
     async function saveSettings(){
@@ -414,39 +432,19 @@ export default function Settings({ route, navigation }){
         )
     };
 
-    // function  groupSelection2(){
-    //     return(
-    //         <View>
-    //             <View>
-    //                 <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',margin: 20}}
-    //                     onPress={addNewEmailToggle}>Add New Email</Button>
-    //                     {addNewEmail? showNewEmail():noSelection()}
-    //             </View>
-    //             <View>
-    //                 <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',margin: 20}}
-    //                     onPress={createNewGroup}>Create New Group</Button>
-    //                     {creatingNewGroup? showNewGroup():noSelection()}
-    //             </View>
-    //         </View>
-        
-    //     )
-    // };
+    function noSelection(){
+        return(<View></View>)
+    };
+    function doNothing(){
+        Alert.alert("You must first select a specific shared account.")
+    };
+    function doNothingGroups(){
+        Alert.alert("You must first select the shared account option button.")
+    };
 
-
-  function noSelection(){
-    return(<View></View>)
-  };
-  function doNothing(){
-    Alert.alert("You must first select a specific shared account.")
-  };
-  function doNothingGroups(){
-    Alert.alert("You must first select the shared account option button.")
-  };
     return(
         <View style={styles.topView}>
             <ScrollView>
-
-            
             <View style={styles.topView}>
                 <View style={{ padding: 20 }}>
                     {/* Account Type Selection */}

@@ -13,6 +13,7 @@ import { isValidDate, getDateMinusDays,getFormattedDate } from "../../util/date"
 import { storeList,deleteList,updateList } from "../../util/http-list";
 import { updateMeal,updateMealRaw } from "../../util/http";
 import { getValue } from "../../util/useAsyncStorage";
+import { useEmail } from "../../store/email-context";
 
 const defaultMeal = {
   date: "",
@@ -41,6 +42,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   const [isAddGroceryVisible, setIsAddGroceryVisible] = useState(false);
   const [isNewGroceryVisible, setIsNewGroceryVisible] = useState(false);
   const [group, setGroup] = useState(null);
+  const { emailAddress, setEmailAddress } = useEmail();
 
   const mealsCtx = useContext(MealsContext);
   const listsCtx = useContext(ListsContext);
@@ -83,11 +85,11 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
         getGroup()
         .then((result)=>{
           if(initialMeal.groceryItems){
-            setGroup(result);
+            setGroup(removePrefix(result,emailAddress));
             updatedMeal3 = {
               date: date1,
               description: initialMeal.description,
-              group: result,
+              group: removePrefix(result,emailAddress),
               //groceryItems: {...initialMeal.groceryItems,group: group}, // Empty grocery items array with group
               groceryItems: initialMeal.groceryItems, // Empty grocery items array with group
               id: initialMeal.id,
@@ -96,11 +98,11 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
             setMeal(updatedMeal3);
             console.log("MealForm2 new meal noGroup:",updatedMeal3);
           }else{
-            setGroup(result);
+            setGroup(removePrefix(result,emailAddress));
             updatedMeal3 = {
               date: date1,
               description: initialMeal.description,
-              group: result,
+              group: removePrefix(result,emailAddress),
               //groceryItems: initialMeal.groceryItems, // Empty grocery items array with group
               id: initialMeal.id,
             };
@@ -120,7 +122,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
       getGroup()
       .then((result)=>{
         //if(result instanceof Promise){
-          setGroup(result);
+          setGroup(removePrefix(result,emailAddress));
 
           //Add one day to the most recent date to get the date for the next new meal
           let date = new Date(mostRecentMealDate);
@@ -138,7 +140,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
             date: date2,
             description: "",
             groceryItems: [], // Empty grocery items array
-            group: result,
+            group: removePrefix(result,emailAddress),
           };
           //And update the meal with the new date
           setMeal(updatedMeal2);
@@ -151,8 +153,17 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     }
   }, []);
 
+  function removePrefix(text="", prefix=""){
+    if (typeof text === 'string'&&typeof prefix === 'string'){
+        return text.startsWith(prefix) ? text.slice(prefix.length) : text;
+    }else{
+        return text;
+    }
+    
+};
+
   async function getGroup(){
-    return await getValue("groupChosen");
+    return await getValue({emailAddress}+"groupChosen");
   }
   // useEffect(() => {
   //   if (!description.trim()) {

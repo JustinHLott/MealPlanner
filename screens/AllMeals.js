@@ -57,7 +57,7 @@ function AllMeals() {
 
   // async function pullGroupChosen(){
   //   //setIsFetching(true);
-  //   const accountTypeChosen = await getValue("groupChosen");
+  //   const accountTypeChosen = await getValue({emailAddress}+"groupChosen");
   //   setIsFetching(true);
   //   return accountTypeChosen;
     

@@ -14,6 +14,7 @@ import { storeList, updateList, deleteList } from '../util/http-list';
 import { updateMealRaw } from '../util/http';
 import Footer from '../components/Footer';
 import { getValue} from '../util/useAsyncStorage';
+import { useEmail } from '../store/email-context';
 
 function ManageGroceryItem({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -21,6 +22,7 @@ function ManageGroceryItem({ route, navigation }) {
   const [groceryItem, setGroceryItem] = useState(route.params?.item);
   const [firstTime, setFirstTime] = useState(false);
   const [group, setGroup] = useState(null);
+  const { emailAddress, setEmailAddress } = useEmail();
 
   const groceriesCtx = useContext(ListsContext);
   const mealsCtx = useContext(MealsContext);  
@@ -48,8 +50,16 @@ function ManageGroceryItem({ route, navigation }) {
   };
 
   async function pullGroupChosen(){
-    const accountTypeChosen = await getValue("groupChosen");
-    return accountTypeChosen;
+    const accountTypeChosen = await getValue({emailAddress}+"groupChosen");
+    return removePrefix(accountTypeChosen,emailAddress);
+  };
+
+  function removePrefix(text="", prefix=""){
+    if (typeof text === 'string'&&typeof prefix === 'string'){
+        return text.startsWith(prefix) ? text.slice(prefix.length) : text;
+    }else{
+        return text;
+    }
   };
 
   useLayoutEffect(() => {

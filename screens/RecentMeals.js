@@ -12,6 +12,7 @@ import { fetchMeals } from '../util/http';
 import IconButtonNoText from '../components/UI/IconButtonNoText';
 import Button from '../components/UI/Button';
 import { getValue} from '../util/useAsyncStorage';
+import { useEmail } from '../store/email-context';
 
 function RecentMeals() {
   //console.log("Makes it to RecentMeals");
@@ -22,6 +23,7 @@ function RecentMeals() {
   const [firstTime, setFirstTime] = useState(true);
   const [theFallbackText,setTheFallbackText] = useState("No meals found...");
   const [notHidden, setNotHidden] = useState(true);
+  const { emailAddress, setEmailAddress } = useEmail();
 
   const mealsCtx = useContext(MealsContext);
   const isFocused = useIsFocused();
@@ -66,8 +68,16 @@ function RecentMeals() {
   }, []);
 
   async function pullGroupChosen(){
-    const accountTypeChosen = await getValue("groupChosen");
-    return accountTypeChosen;
+    const accountTypeChosen = await getValue({emailAddress}+"groupChosen");
+    return removePrefix(accountTypeChosen,emailAddress);
+  };
+
+  function removePrefix(text="", prefix=""){
+    if (typeof text === 'string'&&typeof prefix === 'string'){
+        return text.startsWith(prefix) ? text.slice(prefix.length) : text;
+    }else{
+        return text;
+    }
   };
 
   if(!firstDate){
