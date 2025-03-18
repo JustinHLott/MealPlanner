@@ -228,6 +228,9 @@ async function deleteGroceryHandler() {
           mealsCtx.updateMeal(groceryData.mealId,updatedMeal);
           //update meal in firebase
           updateMealRaw(groceryData.mealId,updatedMeal)
+          console.log("ManageGroceryItems gets to goback")
+          navigation.goBack();
+        }else{
           navigation.goBack();
         }
       } else {//create new grocery item with no meal associated.
@@ -246,8 +249,9 @@ async function deleteGroceryHandler() {
         setGroceryItem(newGrocery);
         groceriesCtx.addList({ ...newGrocery, id: id });
         updateList(id, newGrocery);
+        navigation.goBack();
       }
-      navigation.goBack();
+      
     } catch (error) {
       setError('Could not save data - please try again later!');
       console.log('Could not save data - please try again later!',error);

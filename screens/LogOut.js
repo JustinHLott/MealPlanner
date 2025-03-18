@@ -5,10 +5,12 @@ import { AuthContext } from '../store/auth-context';
 import { GlobalStyles } from '../constants/styles';
 import { Ionicons } from '@expo/vector-icons';
 import Footer from '../components/Footer';
+import { useEmail } from '../store/email-context';
   
 //This is the screen attached to the logout bottomTab
 const LogOut = () => {
   const authCtx = useContext(AuthContext);
+  const { emailAddress, setEmailAddress } = useEmail();
 
   //if the logout button is pushed the logout function is run in store/Auth-Context.
   async function logOut() {
@@ -30,7 +32,7 @@ const LogOut = () => {
             </Text>
           </Pressable>
         </Text>
-        <Text style={styles.text}>Press the Log Out button below to log out of the application.</Text>
+        <Text style={styles.text}>Press the Log Out button below to log out of the application, {emailAddress}</Text>
         <Pressable
           style={({ pressed }) => [styles.button, pressed && styles.pressed]}
           onPress={()=>logOut()}

@@ -519,14 +519,14 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
             value:meal.description
           }}
         />
-      <Input
+      {/* <Input
         label="Group"
         textInputConfig={{
             multiline: false,
             editable: false,
             value: group?group:meal.group,
           }}
-        />
+        /> */}
       
       {/* Grocery Items */}
       <FlatList

@@ -44,7 +44,7 @@ function RecentMeals() {
           meals.map((meal)=>{
             
             if(meal.group === result){
-              console.log("RecentMeals mapped group:",meal)
+              //console.log("RecentMeals mapped group:",meal)
               allGroups.push(meal);
               setNotHidden(true);
             }
@@ -156,7 +156,7 @@ function RecentMeals() {
       let allGroups = [];
 
       meals.map((meal)=>{
-        console.log("RecentMeals mapped group:",meal.group)
+        //console.log("RecentMeals mapped group:",meal.group)
         if(meal.group === result){
           
           allGroups.push(meal);
