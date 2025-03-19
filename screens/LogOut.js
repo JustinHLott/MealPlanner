@@ -11,10 +11,12 @@ import { useEmail } from '../store/email-context';
 const LogOut = () => {
   const authCtx = useContext(AuthContext);
   const { emailAddress, setEmailAddress } = useEmail();
-
+  const { groupUsing, setGroupUsing } = useEmail();
   //if the logout button is pushed the logout function is run in store/Auth-Context.
   async function logOut() {
-    console.log("this should log us out")
+    console.log("this should log us out");
+    setEmailAddress(null);
+    setGroupUsing(null);
     authCtx.logout();
   }
 

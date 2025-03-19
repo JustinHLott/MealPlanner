@@ -210,7 +210,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     updatedGroceryItems[index][key] = value;
     //console.log("groceryitem before: ",updatedGroceryItems[index])
     updatedGroceryItems[index]["mealDesc"] = meal.description;
-    updatedGroceryItems[index]["group"] = group;
+    updatedGroceryItems[index]["group"] = group?group:groupUsing;
     //console.log("groceryitem after: ",updatedGroceryItems[index])
     setMeal((prevMeal) => ({
       ...prevMeal,
@@ -379,7 +379,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
 //DELETING/////////////////////////////////////////////////////
 
   async function createMealWithoutGroceryItem(theMeal,thisId){
-    //console.log("MealForm2 createMealWithoutGroceryItem",theMeal.date)
+    console.log("MealForm2 createMealWithoutGroceryItem group:",group?group:groupUsing)
     let newGroceryList = []
     theMeal.groceryItems.map((item) => {
       //This adds back all grocery items but the one with thisId

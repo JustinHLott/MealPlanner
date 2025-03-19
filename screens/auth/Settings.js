@@ -146,6 +146,8 @@ export default function Settings({ route, navigation }){
   const [groups, setGroups] = useState(null);
   const [modalVisible,setModalVisible]=useState(false);
   const [idToDelete,setIdToDelete]=useState(false);
+  const [seeScrollViews,setSeeScrollViews]=useState(true);
+
   const [accounts, setAccounts] = useState([
       { id: 'personal', label: 'Personal Account' },
       { id: 'shared', label: 'Shared Account' },
@@ -189,12 +191,8 @@ export default function Settings({ route, navigation }){
 
   async function pullGroupChosen(){
       const chosenGroup = await getValue(emailAddress+"groupChosen");
-      if(selectedAccount==='personal'){
+        console.log("settings pullGroupChosen:",chosenGroup?chosenGroup:groupUsing)
         return chosenGroup?chosenGroup:groupUsing;
-      }else{
-          return chosenGroup?chosenGroup:groupUsing;
-      }
-      
   }
 
   async function fetchGroup(){//pulls the group associated with the login email
@@ -233,69 +231,41 @@ export default function Settings({ route, navigation }){
 
   //this runs when you select one of option buttons; shared or personal.
   async function chooseAccount(id,label){
-      //id==="shared"
-      //label==="Shared Account"
-      //this function uses data that is hardcoded at the top of this screen as "accounts."
-      if(id==="shared"){
-          fetchGroups();//this is used to filter for your groups meals
-          await storeValue(emailAddress+"accountTypeChosen","shared")
-      }else{
-          fetchGroup();//this is used to filter for your personal meals
-          await storeValue(emailAddress+"accountTypeChosen","personal");
-          await storeValue(emailAddress+"groupName",label);
-          //await storeValue(emailAddress+"groupChosen",emailAddress);  //Do this in SetGroup.
-          //setGroup(emailAddress);                                       //Do this in SetGroup.
-          setSelectedGroupName(emailAddress);
-      }
-      setSelectedAccount(id);
-      setSelectedOption(id);
+    //example of id   ==="shared"
+    //example of label==="Shared Account"
+    //this function uses data that is hardcoded at the top of this screen as "accounts."
+    if(id==="shared"){
+        fetchGroups();//this is used to filter for your groups meals
+        await storeValue(emailAddress+"accountTypeChosen","shared")
+    }else{
+        fetchGroup();//this is used to filter for your personal meals
+        await storeValue(emailAddress+"accountTypeChosen","personal");
+        await storeValue(emailAddress+"groupName",label);
+        //await storeValue(emailAddress+"groupChosen",emailAddress);  //Do this in SetGroup.
+        //setGroup(emailAddress);                                       //Do this in SetGroup.
+        setSelectedGroupName(emailAddress);
+    }
+    setSelectedAccount(id);
+    setSelectedOption(id);
   }
 
   async function addNewEmail2(){console.log(enteredEmail)//newEmail
-    // let allGroups = [];
-    // await fetchAllGroups()
-    // .then((result)=>{
-    //   let groupsMatched=0;
-    //   let notImportant=0;
-    //   allGroups = result;
-    //   //check to see if the group name is already being used?
-    //   console.log("allgroups",allGroups);
-    //   console.log("settings grp new:",selectedGroupName);
-
-    //   try{
-    //       allGroups.map((grp)=>{
-    //       if(grp.group===selectedGroupName&&grp.email===enteredEmail){
-    //         console.log("settings grp:",grp.group)
-    //         console.log("settings grp new:",selectedGroupName)
-    //         console.log("settings grpEmail:",grp.email)
-    //         console.log("settings grp email:",enteredEmail)
-    //         groupsMatched = 1;
-    //         return;
-    //       }
-    //       //grp.group===newGroupName?groupsMatched = 1:notImportant = 1;
-    //     })
-    //   }catch(error){
-    //     console.error("settings add email error:",error);
-    //   }
-      
-      
-    //   console.log("groups matched:",groupsMatched)
-      //if the name hasn't been used, continue.
-      //if(groupsMatched===0){
-        console.log("Settings selectedGroupName:",selectedGroupName);
-        const newEmailGroup = {
-            group: selectedGroupName,
-            groupId: groupId,
-            email: enteredEmail,
-        }
-        if(selectedGroupName==='Personal Account'){
-            Alert.alert("You must select a shared Group before pushing the group to a different user email.")
-        }else{
-          doStoreGroupForEmail(newEmailGroup); 
-          
-        }
-    //   }
-    // },[])
+    //Show the radio buttons again
+    setSeeScrollViews(true)
+    console.log("Settings selectedGroupName:",selectedGroupName);
+    const newEmailGroup = {
+        group: selectedGroupName,
+        groupId: groupId,
+        email: enteredEmail,
+    }
+    if(selectedGroupName==='Personal Account'){
+        Alert.alert("You must select a shared Group before pushing the group to a different user email.")
+    }else{
+      //function in settings to store the group for the specified email address.
+      doStoreGroupForEmail(newEmailGroup); 
+      //reset the email textbox.
+      setEnteredEmail(null);
+    }
   }
 
   async function doStoreGroupForEmail(newEmailGroup){
@@ -303,17 +273,18 @@ export default function Settings({ route, navigation }){
     .then((result)=>{
       Alert.alert("New user email has been given access to account, "+selectedGroupName)
       //groupId needs to be the shared id for the group.
-      const newEmail2={...newEmailGroup,id: result};
+      const newEmail2={...newEmailGroup,id: result?result:groupUsing};
       console.log("Settings newGroup2",newEmail2);
       updateGroup(result, newEmail2);
-      setAddNewEmail(false); 
+      //setAddNewEmail(false); 
     },[])
-    
   }
 
   async function createNewGroup2(){
     let groupsMatched=0;
     let notImportant=0;
+    //Show the radio buttons again
+    setSeeScrollViews(true)
     //check to see if the group name is already being used?
     if(newGroupName===emailAddress){
       groupsMatched = 1;
@@ -360,6 +331,8 @@ export default function Settings({ route, navigation }){
       }else{
         Alert.alert("Must choose a different group name.");
       };
+      //reset the text in the new account textbox.
+      setNewGroupName(null);
     };
   };
 
@@ -471,6 +444,10 @@ export default function Settings({ route, navigation }){
       )
   };
 
+  function handleOnFocus(){
+    //This hides both radio button groups when you start typing in an input box
+    setSeeScrollViews(false);
+  }
   function noSelection(){
       return(<View></View>)
   };
@@ -509,6 +486,12 @@ export default function Settings({ route, navigation }){
               />
               )}
           /> */}
+          {!seeScrollViews&&
+            <Button style={{justifyContent:"left",alignItems:'left',marginLeft: 0,marginTop:5, marginBottom: 4}}
+              onPress={()=>setSeeScrollViews(true)}>View Radio Buttons Again
+            </Button>
+          }
+          {seeScrollViews&&
           <ScrollView>
             {accounts.map((item) => (
               <RadioButtonWithDelete
@@ -522,7 +505,8 @@ export default function Settings({ route, navigation }){
               />
             ))}
           </ScrollView>
-          {selectedAccount==="shared"? groupSelection(groupOrGroups,memoizedGroup,memoizedGroups):noSelection()}
+}
+          {selectedAccount==="shared"&&seeScrollViews? groupSelection(groupOrGroups,memoizedGroup,memoizedGroups):noSelection()}
           <Modal
               animationType="slide"
               transparent={true}
@@ -543,6 +527,7 @@ export default function Settings({ route, navigation }){
               </View>
           </Modal>
           <View>
+            <ScrollView>
             <View>
               <Text style={[styles.textHeader2,{ marginTop: 8 }]}>To add another person to your shared account:</Text>
               <Text style={[styles.textHeader2,{ marginLeft: 8 }]}> (1) Select "Shared account"</Text>
@@ -554,6 +539,7 @@ export default function Settings({ route, navigation }){
                     value={enteredEmail}//value={newEmail}
                     keyboardType="email-address"
                     placeholder="New Email Address"
+                    onFocus={handleOnFocus}
                   />
                   <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',marginLeft: 0,marginTop:2}}
                       onPress={selectedAccount==="shared"&&selectedGroupName!==emailAddress?addNewEmail2:doNothing}>Add New Email
@@ -563,25 +549,27 @@ export default function Settings({ route, navigation }){
             <View>
               <Text style={[styles.textHeader2,{ marginTop: 8 }]}>To create a new shared account:</Text>
               <Text style={[styles.textHeader2,{ marginLeft: 8 }]}>(1) Select "Shared account"</Text>
-              <Text style={[styles.textHeader2,{ marginLeft: 10 }]}>(2) Type name of new shared account below</Text>
-              <Text style={[styles.textHeader2,{ marginLeft: 10 }]}>(3) Press "Create Shared Account" button.</Text>
+              <Text style={[styles.textHeader2,{ marginLeft: 8 }]}>(2) Type name of new shared account below</Text>
+              <Text style={[styles.textHeader2,{ marginLeft: 8 }]}>(3) Press "Create Shared Acct" button.</Text>
               <View style={{flexDirection: 'row'}}>
                   <InputSettings
                     onUpdateValue={updateInputValueHandler.bind(this, 'password')}//onChangeText={(text) => handleTextChange(text, "group")}
                     value={newGroupName}//value={newGroupName}
                     placeholder="New Group Name"
+                    onFocus={handleOnFocus}
                   />
                   <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',marginLeft: 0,marginTop:2}}
-                      onPress={selectedAccount==="shared"?createNewGroup2:doNothingGroups}>Create Shared Account
+                      onPress={selectedAccount==="shared"?createNewGroup2:doNothingGroups}>Create Shared Acct
                   </Button>
               </View>
             </View>
+            </ScrollView>
           </View>
         </View>
       </View>
-      <View>
+      <View style={{backgroundColor:GlobalStyles.colors.primary50}}>
         <Button 
-            style={{justifyContent:"center",alignItems:'center',flexDirection: 'row',marginBottom: 20}}
+            style={{justifyContent:"center",alignItems:'center',flexDirection: 'row',marginBottom: 8}}
             onPress={saveSettings}
             >Save Settings</Button>
       </View>

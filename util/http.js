@@ -40,6 +40,7 @@ export async function storeMeal(mealData,addCtxList,addCtxMeal) {
           checkedOff: item.checkedOff,
           mealId: response.data.name,
           mealDesc: mealData.description,
+          group: mealData.group,
         };
         //console.log("http storeMeal groceryItem: ",groceryData);
         // Save each item to Firebase using Axios

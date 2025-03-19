@@ -8,6 +8,7 @@ function InputSettings({
   onUpdateValue,
   value,
   placeholder,
+  onFocus
 }) {
   return (
     <View style={styles.inputContainer}>
@@ -18,6 +19,7 @@ function InputSettings({
         onChangeText={onUpdateValue}
         value={value}
         placeholder={placeholder}
+        onFocus={onFocus}
       />
     </View>
   );

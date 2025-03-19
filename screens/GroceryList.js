@@ -27,16 +27,17 @@ function GroceryList() {
       try {
         console.log("Makes it to useEffect");
         const items = await fetchLists();
-        console.log("Grocery items list in GroceryList: ")
+        //console.log("GroceryList fetched items:",items)
 
-        pullGroupChosen()
-        .then((result)=>{
+        const result = pullGroupChosen()
+        //.then((result)=>{
           //console.log("RecenetMeals groupChosen:",result);
           let allItems = [];
 
           items.map((item)=>{
             //console.log("RecentMeals mapped group:",meal)
             if(item.group === result){
+              console.log("GroceryList item.group:",item.group,"usingGroup:",result)
               allItems.push(item);
             }
           })
@@ -47,7 +48,7 @@ function GroceryList() {
             listsCtx.setLists(allItems);
             //console.log("RecentMeals meals:",mealsCtx.meals);
           }
-        })
+        //})
         listsCtx.setLists(items);
         setRecentLists(items);
       } catch (error) {
@@ -68,7 +69,8 @@ function GroceryList() {
 
   async function pullGroupChosen(){
     const accountTypeChosen = await getValue(emailAddress+"groupChosen");
-    return accountTypeChosen?accountTypeChosen:groupUsing;
+    console.log("GroceryList pullGroupChosen:",groupUsing?groupUsing:accountTypeChosen)
+    return groupUsing?groupUsing:accountTypeChosen;
   };
 
   // function removePrefix(text="", prefix=""){

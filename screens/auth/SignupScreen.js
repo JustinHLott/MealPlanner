@@ -55,14 +55,16 @@ function SignupScreen({navigation}) {
       const id = await storeGroup(newGroup);
       const newGroup2={...newGroup,id: id, groupId: id};
       console.log("SignupScreen createNewGroup:",newGroup2);
-      updateGroup(id, newGroup2);
       try {
-        await AsyncStorage.setItem(emailAddress+"accountTypeChosen","personal");
-        await AsyncStorage.setItem(emailAddress+"groupChosen",id);
+        console.log("Value not stored yet! id:", id);
+        updateGroup(id, newGroup2);
+      
+        await AsyncStorage.setItem(email+"accountTypeChosen","personal");
+        await AsyncStorage.setItem(email+"groupChosen",id);
         //set the group in context
         setGroupUsing(id);
         setAccountType('personal');
-        //console.log("Value stored successfully!");
+        console.log("Value stored successfully! groupUsing:", groupUsing);
       } catch (error) {
         console.error("SignupScreen Error storing value:", error);
       }
