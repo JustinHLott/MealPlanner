@@ -24,6 +24,7 @@ function RecentMeals() {
   const [theFallbackText,setTheFallbackText] = useState("No meals found...");
   const [notHidden, setNotHidden] = useState(true);
   const { emailAddress, setEmailAddress } = useEmail();
+  const {groupUsing, setGroupUsing} = useEmail();
 
   const mealsCtx = useContext(MealsContext);
   const isFocused = useIsFocused();
@@ -35,9 +36,10 @@ function RecentMeals() {
       try {
         const meals = await fetchMeals();
 
-        const groupUsing = pullGroupChosen()
+        pullGroupChosen()
         .then((result)=>{
-          //console.log("RecenetMeals groupChosen:",result);
+          console.log("RecenetMeals groupChosen:",result);
+          console.log("RecenetMeals groupUsing:",groupUsing);
           //if(result instanceof Promise){
           let allGroups = [];
 
@@ -71,7 +73,7 @@ function RecentMeals() {
   async function pullGroupChosen(){
     //console.log("RecentMeals email:",emailAddress)
     const accountTypeChosen = await getValue(emailAddress+"groupChosen");
-    return accountTypeChosen;
+    return accountTypeChosen?accountTypeChosen:groupUsing;
   };
 
   if(!firstDate){

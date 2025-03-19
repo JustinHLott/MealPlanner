@@ -1,18 +1,22 @@
 import { useContext, useState } from 'react';
 import { Alert,ActivityIndicator,View,Text,StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import AuthContent from '../../components/Auth/AuthContent';
 import { AuthContext } from '../../store/auth-context';
 import { createUser } from '../../util/auth';
 import { GlobalStyles } from '../../constants/styles';
 import { storeGroup, updateGroup } from './Settings';
 import { useEmail } from '../../store/email-context';
-import {storeValue} from '../../util/useAsyncStorage';
+//import {storeValue} from '../../util/useAsyncStorage';
 import Footer from '../../components/Footer';
 
 //screen to sign up for the first time
 function SignupScreen({navigation}) {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const { emailAddress, setEmailAddress } = useEmail();
+  const {groupUsing, setGroupUsing} = useEmail();
+  const {accountType, setAccountType} = useEmail();
 
   const authCtx = useContext(AuthContext);
 
@@ -22,14 +26,21 @@ function SignupScreen({navigation}) {
       
       const token = await createUser(email, password);
       console.log('create');
-      createNewGroup(email);
-      authCtx.authenticate(token);
+      
+      try{
+        authCtx.authenticate(token)
+        createNewGroup(email);
+      }catch(error){
+        console.log("SignupScreen createNewGroup:",error)
+      }
+      setIsAuthenticating(false);
+      
     } catch (error) {
       Alert.alert(
         'Authentication failed',
         'Could not create user, please check your input and try again later.'
       );
-      setIsAuthenticating(false);
+      navigation.navigate("Meal Planner Login");
     }
   }
 
@@ -45,7 +56,18 @@ function SignupScreen({navigation}) {
       const newGroup2={...newGroup,id: id, groupId: id};
       console.log("SignupScreen createNewGroup:",newGroup2);
       updateGroup(id, newGroup2);
-      storeValue(emailAddress+"accountTypeChosen","personal")
+      try {
+        await AsyncStorage.setItem(emailAddress+"accountTypeChosen","personal");
+        await AsyncStorage.setItem(emailAddress+"groupChosen",id);
+        //set the group in context
+        setGroupUsing(id);
+        setAccountType('personal');
+        //console.log("Value stored successfully!");
+      } catch (error) {
+        console.error("SignupScreen Error storing value:", error);
+      }
+      //storeValue(emailAddress+"accountTypeChosen","personal");
+      //await storeValue(emailAddress+"groupChosen",id);
     }catch(error){
       console.log("SignupScreen createGroup error:",error);
     }
@@ -56,9 +78,18 @@ function SignupScreen({navigation}) {
     
     return (
       <View style={styles.rootContainer}>
-        <Text style={styles.message}>"Creating User..."</Text>
-        <ActivityIndicator size="large" />
-        <Footer/>
+        <View styles={{padding:50, flex:1}}>
+          <View styles={{marginBottom: 100}}>
+            <Text style={styles.message}>"Creating User..."</Text>
+          </View>
+          
+          <ActivityIndicator size="large" />
+        </View>
+        
+        <View style={styles.footerView}>
+          <Footer/>
+        </View>
+        
       </View>
     );
   }
@@ -89,13 +120,16 @@ const styles = StyleSheet.create({
   },
   rootContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    // justifyContent: 'center',
+    // alignItems: 'center',
     paddingHorizontal: 32,
+    marginTop:100,
+    marginBottom: 100,
   },
   footerView:{
     marginRight:32,
-    marginBottom:5
+    marginBottom:5,
+    marginTop:100,
   },
   message: {
     fontSize: 16,

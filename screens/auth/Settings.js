@@ -138,6 +138,7 @@ export default function Settings({ route, navigation }){
   const [newGroupName, setNewGroupName] = useState("");
   const [selectedOption, setSelectedOption] = useState("personal");
   const { emailAddress, setEmailAddress } = useEmail();
+  const {groupUsing, setGroupUsing} = useEmail();
   const [ groupOrGroups, setGroupOrGroups ] = useState(true);
   const { inputValue, setInputValue} = useState();
   const [group, setGroup] = useState(null);
@@ -189,9 +190,9 @@ export default function Settings({ route, navigation }){
   async function pullGroupChosen(){
       const chosenGroup = await getValue(emailAddress+"groupChosen");
       if(selectedAccount==='personal'){
-          return chosenGroup;
+        return chosenGroup?chosenGroup:groupUsing;
       }else{
-          return chosenGroup;
+          return chosenGroup?chosenGroup:groupUsing;
       }
       
   }
@@ -402,7 +403,7 @@ export default function Settings({ route, navigation }){
         const meals = await fetchMeals();
         ///console.log("settings list in GroceryList: ")
     
-        const groupUsing = pullGroupChosen()
+        pullGroupChosen()
             .then((result)=>{
                 //console.log("RecenetMeals groupChosen:",result);
                 let allItems = [];

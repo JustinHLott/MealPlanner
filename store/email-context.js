@@ -8,9 +8,13 @@ export const EmailProvider = ({ children }) => {
   const [emailAddress, setEmailAddress] = useState('');
   const [accountType, setAccountType] = useState('');
   const [groupUsing, setGroupUsing] = useState('');
-
+  
   return (
-    <EmailContext.Provider value={{ emailAddress, setEmailAddress, accountType, setAccountType, groupUsing, setGroupUsing }}>
+    <EmailContext.Provider value={{ 
+      emailAddress, setEmailAddress, 
+      accountType,  setAccountType, 
+      groupUsing,   setGroupUsing 
+    }}>
       {children}
     </EmailContext.Provider>
   );

@@ -17,6 +17,7 @@ import { storeMeal, deleteMeal, updateMealRaw } from '../util/http';//updateMeal
 import { storeList, deleteList, updateList } from '../util/http-list';
 //import MealGroceries from '../components/MealsOutput/MealGroceries';
 import { getDateMinusDays } from "../util/date";
+import { useEmail } from '../store/email-context';
 import Footer from '../components/Footer';
 
 let theID ="";
@@ -27,6 +28,7 @@ function ManageMeal({ route, navigation }) {
   //const [newGroceryItem,setNewGroceryItem] = useState({});
   const [theMeal,setTheMeal] = useState({});
   const [updatedGroceryList,setUpdatedGroceryList] = useState([]);
+  const {groupUsing, setGroupUsing} = useEmail();
 
   const mealsCtx = useContext(MealsContext);
   const listsCtx = useContext(ListsContext);
@@ -170,7 +172,7 @@ function updateCtxList(updatedGrocery,id){
         id: currentMeal.id,
         date: currentMeal.date,
         description: currentMeal.description,
-        group: currentMeal.group,
+        group: groupUsing?groupUsing:currentMeal.group,
         groceryItems: updatedGroceries
       })
     }
@@ -195,7 +197,7 @@ function updateCtxList(updatedGrocery,id){
         console.log("ManageMeal updatinging.  noGroceries:",noGroceries);
         //array.length = 0;//This resets the grocery array.
         //setNewGroceryItem([]);
-        updateMeal(mealData.id, mealData, theMeal,noGroceries);
+        updateMeal(mealData.id, mealData, theMeal, noGroceries);
         //mealsCtx.updateMeal(mealData.id, mealData);
         //maybe delete then add again instead of updating the meal?
         //also must add meal to ctx and add groceries to ctx.
@@ -222,7 +224,7 @@ function updateCtxList(updatedGrocery,id){
 
   async function updateGroceryItem(item,mealIds,mealData){
     const item2={
-      ...item, mealId: mealIds, mealDesc: mealData.description, group: mealData.group
+      ...item, mealId: mealIds, mealDesc: mealData.description, group: groupUsing?groupUsing:mealData.group
     }
     console.log("http updateGroceryItem update/add:", item2);
     //the next lines of code are for grocery items that do exist already.
@@ -338,7 +340,7 @@ function updateCtxList(updatedGrocery,id){
                   ...groceryItem1,mealId: mealIds
                 }
                 groceryItem1 = {
-                  ...groceryItem1,group: mealData.group
+                  ...groceryItem1,group: groupUsing?groupUsing:mealData.group
                 }
                 //Add new roceryData to new array
                 newGroceryList.push(groceryItem1);
@@ -365,7 +367,7 @@ function updateCtxList(updatedGrocery,id){
                   ...groceryItem2,mealId: mealIds
                 }
                 groceryItem2 = {
-                  ...groceryItem2,group: mealData.group
+                  ...groceryItem2,group: groupUsing?groupUsing:mealData.group
                 }
                 //Add updated groceryData to new array
                 newGroceryList.push(groceryItem2);
@@ -397,7 +399,7 @@ function updateCtxList(updatedGrocery,id){
                   ...groceryItem3,mealId: mealIds
                 }
                 groceryItem3 = {
-                  ...groceryItem3,group: mealData.group
+                  ...groceryItem3,group: groupUsing?groupUsing:mealData.group
                 }
                 //Add groceryData to new array
                 newGroceryList.push(groceryItem3);
@@ -414,7 +416,7 @@ function updateCtxList(updatedGrocery,id){
               if(!mealData.groceryItems.find(
                 (meal) => meal.thisId?meal.thisId:meal.id === item.thisId?item.thisId:item.id
               )){
-                console.log("ManageMeal updateMeal deleteId: ", item.thisId?item.thisId:item.id)
+                console.log("ManageMeal updateMeal deleteId: ", item.thisId?item.thisId:item.id);
                 //delete old grocery item from context
                 deleteCtxList(item);
                 //delete old grocery item from firebase
@@ -466,7 +468,7 @@ function updateCtxList(updatedGrocery,id){
         id: mealData.id,
         date: newDate,
         description: mealData.description,
-        group: mealData.group,
+        group: groupUsing?groupUsing:mealData.group,
         groceryItems: groceryList
       };
       //updates the context for meals with the updated meal info

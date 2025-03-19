@@ -16,6 +16,7 @@ function GroceryList() {
   const [recentLists, setRecentLists] = useState();
   const [firstTime, setFirstTime] = useState(true);
   const { emailAddress, setEmailAddress } = useEmail();
+  const {groupUsing, setGroupUsing} = useEmail();
 
   const listsCtx = useContext(ListsContext);
 
@@ -28,7 +29,7 @@ function GroceryList() {
         const items = await fetchLists();
         console.log("Grocery items list in GroceryList: ")
 
-        const groupUsing = pullGroupChosen()
+        pullGroupChosen()
         .then((result)=>{
           //console.log("RecenetMeals groupChosen:",result);
           let allItems = [];
@@ -67,7 +68,7 @@ function GroceryList() {
 
   async function pullGroupChosen(){
     const accountTypeChosen = await getValue(emailAddress+"groupChosen");
-    return accountTypeChosen;
+    return accountTypeChosen?accountTypeChosen:groupUsing;
   };
 
   // function removePrefix(text="", prefix=""){

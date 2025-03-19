@@ -43,6 +43,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
   const [isNewGroceryVisible, setIsNewGroceryVisible] = useState(false);
   const [group, setGroup] = useState(null);
   const { emailAddress, setEmailAddress } = useEmail();
+  const {groupUsing, setGroupUsing} = useEmail();
 
   const mealsCtx = useContext(MealsContext);
   const listsCtx = useContext(ListsContext);
@@ -89,7 +90,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
             updatedMeal3 = {
               date: date1,
               description: initialMeal.description,
-              group: result,
+              group: result?result:groupUsing,
               //groceryItems: {...initialMeal.groceryItems,group: group}, // Empty grocery items array with group
               groceryItems: initialMeal.groceryItems, // Empty grocery items array with group
               id: initialMeal.id,
@@ -102,7 +103,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
             updatedMeal3 = {
               date: date1,
               description: initialMeal.description,
-              group: result,
+              group: result?result:groupUsing,
               //groceryItems: initialMeal.groceryItems, // Empty grocery items array with group
               id: initialMeal.id,
             };
@@ -140,7 +141,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
             date: date2,
             description: "",
             groceryItems: [], // Empty grocery items array
-            group: result,
+            group: result?result:groupUsing,
           };
           //And update the meal with the new date
           setMeal(updatedMeal2);
@@ -383,7 +384,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
     theMeal.groceryItems.map((item) => {
       //This adds back all grocery items but the one with thisId
       if(item.thisId !== thisId){
-        newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId,group: group });
+        newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id?item.id:item.thisId,group: group?group:groupUsing });
       }
     });
 
@@ -610,7 +611,7 @@ export default function MealForm2({ initialMeal = {}, defaultDate, onSubmit, sub
               
               <View style={styles.buttons}>
                 <Button 
-                  onPress={()=>handleAddMeal({checkedOff:"", qty: qty, description: groceryDescription, group: group})}
+                  onPress={()=>handleAddMeal({checkedOff:"", qty: qty, description: groceryDescription, group: group?group:groupUsing})}
                   style={{marginTop:8}}
                   >Back to {submitButtonLabel}</Button>
                 <Button style={{marginLeft:8,marginTop:8}} onPress={() => setModalVisible(false)}>Cancel</Button>

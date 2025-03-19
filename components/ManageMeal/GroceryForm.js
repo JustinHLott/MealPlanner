@@ -7,6 +7,7 @@ import Button from '../UI/Button';
 //import { getFormattedDate } from '../../util/date';
 import { GlobalStyles } from '../../constants/styles';
 import { getFormattedDate } from "../../util/date";
+import { useEmail } from "../../store/email-context";
 
 //defaultMealDesc={selectedMeal.description}
 function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, group }) {
@@ -14,6 +15,7 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, gro
   const [date, setDate] = useState();
   const [descriptionIsValid,setDescriptionIsValid]=useState(true);
   const [qtyIsValid,setQtyIsValid]=useState(true);
+  const {groupUsing, setGroupUsing} = useEmail();
   const [inputs, setInputs] = useState({
     qty: {
       value: defaultValues ? defaultValues.qty : 1
@@ -97,7 +99,7 @@ function GroceryForm({ submitButtonLabel, onCancel, onSubmit, defaultValues, gro
       id: inputs.id.value,
       thisId: inputs.thisId.value,
       checkedOff: inputs.checkedOff.value,
-      group: group,
+      group: group?group:groupUsing,
     };
 
        

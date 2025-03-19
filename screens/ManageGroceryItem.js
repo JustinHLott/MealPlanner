@@ -23,6 +23,7 @@ function ManageGroceryItem({ route, navigation }) {
   const [firstTime, setFirstTime] = useState(false);
   const [group, setGroup] = useState(null);
   const { emailAddress, setEmailAddress } = useEmail();
+  const {groupUsing, setGroupUsing} = useEmail();
 
   const groceriesCtx = useContext(ListsContext);
   const mealsCtx = useContext(MealsContext);  
@@ -51,7 +52,7 @@ function ManageGroceryItem({ route, navigation }) {
 
   async function pullGroupChosen(){
     const accountTypeChosen = await getValue(emailAddress+"groupChosen");
-    return accountTypeChosen;
+    return accountTypeChosen?accountTypeChosen:groupUsing;
   };
 
   useLayoutEffect(() => {
@@ -161,7 +162,7 @@ async function deleteGroceryHandler() {
         date: theMeal.date,
         description: theMeal.description,
         id: theMeal.id,
-        group: group,
+        group: group?group:groupUsing,
         groceryItems: newGroceryList,
       }
     }else{
@@ -170,7 +171,7 @@ async function deleteGroceryHandler() {
         date: theMeal.date,
         description: theMeal.description,
         id: theMeal.id,
-        group: group,
+        group: group?group:groupUsing,
         groceryItems:[]
       }
     }
@@ -209,7 +210,7 @@ async function deleteGroceryHandler() {
           currentCtxMeal.groceryItems.map((item) => {
             //This adds back all grocery items but the one with thisId
             if(item.thisId !== groceryItem.thisId){
-                newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id,group:group});
+                newGroceryList.push({ description: item.description, qty: item.qty, checkedOff: item.checkedOff, mealId: item.mealId,thisId: item.thisId, id:item.id,group:group?group:groupUsing});
             }
           });
 
@@ -221,7 +222,7 @@ async function deleteGroceryHandler() {
             date: new Date(currentCtxMeal.date),
             description: currentCtxMeal.description,
             id: groceryData.mealId,
-            group: group,
+            group: group?group:groupUsing,
             groceryItems: newGroceryList,
           }
           //update meal in context
@@ -244,7 +245,7 @@ async function deleteGroceryHandler() {
           mealDesc: "NO MEAL",
           mealId: 1,
           thisId: id, id:id,
-          group: group}
+          group: group?group:groupUsing}
           console.log("ManageGroceryItem saving after:",newGrocery);
         setGroceryItem(newGrocery);
         groceriesCtx.addList({ ...newGrocery, id: id });

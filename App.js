@@ -23,6 +23,8 @@ import IconButton from './components/UI/IconButton';
 import MealsContextProvider from './store/meals-context';
 import ListsContextProvider from './store/lists-context';
 import { EmailProvider } from './store/email-context'; // Import the context
+import LoadingOverlay2 from './components/UI/LoadingOverlay';
+import { useEmail } from './store/email-context';
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -195,11 +197,12 @@ export default function App() {
     const [isTryingLogin, setIsTryingLogin] = useState(true);
   
     const authCtx = useContext(AuthContext);
+    const {emailAddress, setEmailAddress} = useEmail()
   
     useEffect(() => {
       async function fetchToken() {
         console.log("Made it to fetchToken")
-        const storedToken = await AsyncStorage.getItem('token');
+        const storedToken = await AsyncStorage.getItem(emailAddress + 'token');
   
         if (!storedToken) {
           authCtx.authenticate(storedToken);
@@ -214,14 +217,15 @@ export default function App() {
     if (isTryingLogin) {
       //apploading makes sure that it prolongs the loading screen and doesn't flash the log in screen.
       //return <AppLoading />;
+      return <LoadingOverlay2/>;
     }
-    SplashScreen.hideAsync();
+    //SplashScreen.hideAsync();
     return <Navigation />;
   }
 
   return (
     <>
-      <StatusBar style="light" />
+      <StatusBar style="light"/>
       <EmailProvider>
         <AuthContextProvider>
           <MealsContextProvider>

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import storeValue from './useAsyncStorage';
 //const API_KEY = 'AIzaSyAP6fzrfm4-qM7SySLop3SfF0Ec2BFzaMg';
 const API_KEY = 'AIzaSyCGPk_F8na-N39UxeZLtFUFLXwiqlq30So';//for mealPlanner
 
@@ -13,7 +14,7 @@ async function authenticate(mode, email, password) {
   });
 
   const token = response.data.idToken;
-
+  storeValue(email+'token', token)
   return token;
 }
 
