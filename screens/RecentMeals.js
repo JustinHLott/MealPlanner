@@ -13,6 +13,7 @@ import IconButtonNoText from '../components/UI/IconButtonNoText';
 import Button from '../components/UI/Button';
 import { getValue} from '../util/useAsyncStorage';
 import { useEmail } from '../store/email-context';
+import { fetchGroupsByEmail } from './auth/Settings';
 
 function RecentMeals() {
   //console.log("Makes it to RecentMeals");
@@ -28,6 +29,18 @@ function RecentMeals() {
   const mealsCtx = useContext(MealsContext);
   const isFocused = useIsFocused();
 
+  async function getOriginalGroup(){
+    const groups = fetchGroupsByEmail();
+    let theGroup;
+    groups.map((group)=>{
+      if(group.group === emailAddress){
+        theGroup = group;
+      }
+    },[]);
+    //await storeValue(emailAddress+"groupChosen",theGroup.id);
+    return theGroup.id;
+  }
+
   useEffect(() => {
     async function getMeals() {
       setIsFetching(true);
@@ -37,13 +50,18 @@ function RecentMeals() {
 
         const groupUsing = pullGroupChosen()
         .then((result)=>{
-          //console.log("RecenetMeals groupChosen:",result);
-          //if(result instanceof Promise){
+          console.log("RecentMeals result:",result);
+          let result2;
+          if(typeof result === 'undefined'){
+            result2 = getOriginalGroup();
+            console.log("RecentMeals result2:",result2);
+          }
+
           let allGroups = [];
 
           meals.map((meal)=>{
             
-            if(meal.group === result){
+            if(meal.group === result?result:result2){
               //console.log("RecentMeals mapped group:",meal)
               allGroups.push(meal);
               setNotHidden(true);

@@ -45,7 +45,8 @@ function SignupScreen({navigation}) {
       const newGroup2={...newGroup,id: id, groupId: id};
       console.log("SignupScreen createNewGroup:",newGroup2);
       updateGroup(id, newGroup2);
-      storeValue(emailAddress+"accountTypeChosen","personal")
+      storeValue(emailAddress+"accountTypeChosen","personal");
+      storeValue(emailAddress+"groupChosen",id);
     }catch(error){
       console.log("SignupScreen createGroup error:",error);
     }

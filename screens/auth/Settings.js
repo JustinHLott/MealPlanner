@@ -205,7 +205,12 @@ export default function Settings({ route, navigation }){
       setGroup(theGroups.filter((item) => item.email === emailAddress && item.group === emailAddress));
       const theGroup = theGroups.filter((item) => item.email === emailAddress && item.group === emailAddress);
       console.log("TheGroup",theGroup[0].id)
-      await storeValue(emailAddress+"groupChosen",theGroup[0].id);
+      try{
+        await storeValue(emailAddress+"groupChosen",theGroup[0].id);
+      }catch(error){
+        console.log("Settings fetchGroup error:",error)
+      }
+      
       //console.log("Settings fetched group:",group);
 
   }
@@ -563,7 +568,7 @@ export default function Settings({ route, navigation }){
               <Text style={[styles.textHeader2,{ marginTop: 8 }]}>To create a new shared account:</Text>
               <Text style={[styles.textHeader2,{ marginLeft: 8 }]}>(1) Select "Shared account"</Text>
               <Text style={[styles.textHeader2,{ marginLeft: 10 }]}>(2) Type name of new shared account below</Text>
-              <Text style={[styles.textHeader2,{ marginLeft: 10 }]}>(3) Press "Create Shared Account" button.</Text>
+              <Text style={[styles.textHeader2,{ marginLeft: 10 }]}>(3) Press "Create Shared Acct" button.</Text>
               <View style={{flexDirection: 'row'}}>
                   <InputSettings
                     onUpdateValue={updateInputValueHandler.bind(this, 'password')}//onChangeText={(text) => handleTextChange(text, "group")}
@@ -571,19 +576,20 @@ export default function Settings({ route, navigation }){
                     placeholder="New Group Name"
                   />
                   <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',marginLeft: 0,marginTop:2}}
-                      onPress={selectedAccount==="shared"?createNewGroup2:doNothingGroups}>Create Shared Account
+                      onPress={selectedAccount==="shared"?createNewGroup2:doNothingGroups}>Create Shared Acct
                   </Button>
               </View>
+            </View>
+            <View style={{marginTop:50}}>
+              <Button 
+                  style={{justifyContent:"center",alignItems:'center',flexDirection: 'row',marginBottom: 20}}
+                  onPress={saveSettings}
+                  >Save Settings</Button>
             </View>
           </View>
         </View>
       </View>
-      <View>
-        <Button 
-            style={{justifyContent:"center",alignItems:'center',flexDirection: 'row',marginBottom: 20}}
-            onPress={saveSettings}
-            >Save Settings</Button>
-      </View>
+      
       <View style={styles.footer}>
         <Footer/>
       </View>
