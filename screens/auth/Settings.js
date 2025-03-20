@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useContext, memo, useMemo } from 'react';
-import {View, Text, StyleSheet, Pressable, FlatList, TextInput, Alert, Modal, ScrollView } from 'react-native';
+import {View, Text, StyleSheet, Pressable, FlatList, TextInput, Alert, Modal, ScrollView, Keyboard, TouchableWithoutFeedback  } from 'react-native';
 import axios from 'axios';
 import { useFocusEffect } from "@react-navigation/native";
 //import { ScrollView } from 'react-native-virtualized-view'
@@ -249,23 +249,31 @@ export default function Settings({ route, navigation }){
     setSelectedOption(id);
   }
 
-  async function addNewEmail2(){console.log(enteredEmail)//newEmail
-    //Show the radio buttons again
-    setSeeScrollViews(true)
-    console.log("Settings selectedGroupName:",selectedGroupName);
-    const newEmailGroup = {
-        group: selectedGroupName,
-        groupId: groupId,
-        email: enteredEmail,
-    }
-    if(selectedGroupName==='Personal Account'){
+  async function addNewEmail2(){
+    if(selectedAccount==="shared"&&selectedGroupName!==emailAddress){
+      console.log(enteredEmail)//newEmail
+      //hide the keyboard
+      Keyboard.dismiss
+      //Show the radio buttons again
+      setSeeScrollViews(true)
+      console.log("Settings selectedGroupName:",selectedGroupName);
+      const newEmailGroup = {
+          group: selectedGroupName,
+          groupId: groupId,
+          email: enteredEmail,
+      }
+
+      if(selectedGroupName==='Personal Account'){
         Alert.alert("You must select a shared Group before pushing the group to a different user email.")
-    }else{
-      //function in settings to store the group for the specified email address.
-      doStoreGroupForEmail(newEmailGroup); 
-      //reset the email textbox.
-      setEnteredEmail(null);
+      }else{
+        //function in settings to store the group for the specified email address.
+        doStoreGroupForEmail(newEmailGroup); 
+        //reset the email textbox.
+        setEnteredEmail(null);
+      }
     }
+    
+    
   }
 
   async function doStoreGroupForEmail(newEmailGroup){
@@ -527,13 +535,14 @@ export default function Settings({ route, navigation }){
               </View>
           </Modal>
           <View>
-            <ScrollView>
+
             <View>
               <Text style={[styles.textHeader2,{ marginTop: 8 }]}>To add another person to your shared account:</Text>
               <Text style={[styles.textHeader2,{ marginLeft: 8 }]}> (1) Select "Shared account"</Text>
               <Text style={[styles.textHeader2,{ paddingLeft: 8 }]}> (2) Select account then enter email to share.</Text>
               <Text style={[styles.textHeader2,{ marginLeft: 8 }]}> (3) Press the "Add new Email" button.</Text>
               <View style={{flexDirection: 'row'}}>
+                
                   <InputSettings
                     onUpdateValue={updateInputValueHandler.bind(this, 'email')}//onChangeText={(text) => handleTextChange(text, "email")}
                     value={enteredEmail}//value={newEmail}
@@ -541,9 +550,10 @@ export default function Settings({ route, navigation }){
                     placeholder="New Email Address"
                     onFocus={handleOnFocus}
                   />
-                  <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',marginLeft: 0,marginTop:2}}
-                      onPress={selectedAccount==="shared"&&selectedGroupName!==emailAddress?addNewEmail2:doNothing}>Add New Email
+                  <Button style={{marginTop:2}}
+                      onPress={addNewEmail2}>Add New Email
                   </Button>
+                  
               </View>
             </View>
             <View>
@@ -558,12 +568,12 @@ export default function Settings({ route, navigation }){
                     placeholder="New Group Name"
                     onFocus={handleOnFocus}
                   />
-                  <Button style={{justifyContent:"left",alignItems:'left',flexDirection: 'row',marginLeft: 0,marginTop:2}}
+                  <Button style={{marginTop:2}}
                       onPress={selectedAccount==="shared"?createNewGroup2:doNothingGroups}>Create Shared Acct
                   </Button>
               </View>
             </View>
-            </ScrollView>
+
           </View>
         </View>
       </View>
