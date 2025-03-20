@@ -250,28 +250,34 @@ export default function Settings({ route, navigation }){
   }
 
   async function addNewEmail2(){
-    if(selectedAccount==="shared"&&selectedGroupName!==emailAddress){
-      console.log(enteredEmail)//newEmail
-      //hide the keyboard
-      Keyboard.dismiss
-      //Show the radio buttons again
-      setSeeScrollViews(true)
-      console.log("Settings selectedGroupName:",selectedGroupName);
-      const newEmailGroup = {
-          group: selectedGroupName,
-          groupId: groupId,
-          email: enteredEmail,
-      }
+    const emailIsValid = enteredEmail.includes('@','.');
+    if(emailIsValid){
+      if(selectedAccount==="shared"&&selectedGroupName!==emailAddress){
+        console.log(enteredEmail)//newEmail
 
-      if(selectedGroupName==='Personal Account'){
-        Alert.alert("You must select a shared Group before pushing the group to a different user email.")
-      }else{
-        //function in settings to store the group for the specified email address.
-        doStoreGroupForEmail(newEmailGroup); 
-        //reset the email textbox.
-        setEnteredEmail(null);
+        
+        console.log("Settings selectedGroupName:",selectedGroupName);
+        const newEmailGroup = {
+            group: selectedGroupName,
+            groupId: groupId,
+            email: enteredEmail,
+        }
+
+        if(selectedGroupName==='Personal Account'){
+          Alert.alert("You must select a shared Group before pushing the group to a different user email.")
+        }else{
+          //Show the radio buttons again
+          setSeeScrollViews(true)
+          //function in settings to store the group for the specified email address.
+          doStoreGroupForEmail(newEmailGroup); 
+          //reset the email textbox.
+          setEnteredEmail(null);
+        }
       }
+    }else{
+      Alert.alert("You must enter a valid email address");
     }
+    
     
     
   }
