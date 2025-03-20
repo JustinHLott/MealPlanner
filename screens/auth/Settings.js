@@ -213,6 +213,8 @@ export default function Settings({ route, navigation }){
       try{
           const theGroups = await fetchGroupsByEmail(emailAddress);
           //console.log("Settings theGroups",theGroups);
+          //set Group equal to the personal group incase it is needed for deletion of the active shared group.
+          setGroup(theGroups.filter((item) => item.email === emailAddress && item.group === emailAddress));
           //filters groups to only see those that have your email & excludes your personal group.
           const allGroups = Object.keys(theGroups)
           .map((key) => ({ id: key, ...theGroups[key] }))
@@ -357,9 +359,19 @@ export default function Settings({ route, navigation }){
       setModalVisible(true);
   };
 
-  const deleteGroup2 = () => {
+  async function  deleteGroup2(){
+    console.log("personal group:",group[0])
       setGroups((prev) => prev.filter((item) => item.groupId !== idToDelete));
-      if (groupId === idToDelete) setGroupId(null); // Reset if deleted option was selected
+      // Reset if deleted option was selected
+      if (groupId === idToDelete){
+        //this sets the state id to be that of the personal group.
+        setGroupId(group?group[0].groupId:groupUsing);
+        setGroupUsing(group?group[0].groupId:groupUsing);
+        await storeValue(emailAddress+"groupChosen",group?group[0].groupId:groupUsing);
+        //this sets the group name on the phone to be the personal email address.
+        await storeValue(emailAddress+"groupName",group?group[0].group:groupUsing);
+      }
+        
       //also delete group from firebase
       deleteGroupFromFirebase(idToDelete);
       setIdToDelete(false);
