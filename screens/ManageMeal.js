@@ -184,7 +184,8 @@ function updateCtxList(updatedGrocery,id){
     console.log("ManageMeal addCtxMeal: ",updatedMeal)
     //updates state for current sheet
     setTheMeal(updatedMeal);
-    mealsCtx.addMeal({ ...updatedMeal, id: mealId });//This adds the meal to the Context in the app
+    //This adds the meal to the Context in the app
+    mealsCtx.addMeal({ ...updatedMeal, id: mealId });
   }
 
   async function confirmHandler(mealData, noGroceries) {

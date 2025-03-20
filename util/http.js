@@ -73,8 +73,9 @@ export async function storeMeal(mealData,addCtxList,addCtxMeal) {
         console.log("mealData http: ",mealData)
         const updatedMeal1 = {...mealData, groceryItems: newGroceryList,};
         
-        
+        //Subtract one day from original date
         const newDate1 = getDateMinusDays(mealData.date,-1);
+        //Convert date to string
         const newDate = (newDate1).toISOString();
         console.log("http storeMeal date: ",newDate1)
 
